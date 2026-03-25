@@ -3,50 +3,78 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Facility;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // ── Admin ──────────────────────────────────────────────────
-        User::firstOrCreate(
-            ['email' => 'admin@janjee.com'],
-            [
-                'name' => 'Admin Janjee',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
-                'phone' => '08100000000',
-                'email_verified_at' => now(),
-                'points_balance' => 0,
-            ]
-        );
+        // 1. Admin account
+        User::create([
+            'name' => 'Mandala Admin',
+            'email' => 'admin@mandala.com',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'phone' => '08123456789',
+            'email_verified_at' => now(),
+        ]);
 
-        // ── Regular User (dengan poin awal untuk testing) ──────────
-        User::firstOrCreate(
-            ['email' => 'user@janjee.com'],
-            [
-                'name' => 'User Test',
-                'password' => Hash::make('password'),
-                'role' => 'user',
-                'phone' => '08200000000',
-                'email_verified_at' => now(),
-                'points_balance' => 500, // poin awal untuk testing real-time
-            ]
-        );
+        // 2. Regular user account
+        User::create([
+            'name' => 'Mission Pilot One',
+            'email' => 'user@mandala.com',
+            'password' => Hash::make('password'),
+            'role' => 'user',
+            'phone' => '08987654321',
+            'email_verified_at' => now(),
+        ]);
 
-        // ── User ke-2 untuk demo poin lebih besar ──────────────────
-        User::firstOrCreate(
-            ['email' => 'demo@janjee.com'],
+        // 3. Facilities
+        $facilities = [
             [
-                'name' => 'Demo Pelanggan',
-                'password' => Hash::make('password'),
-                'role' => 'user',
-                'phone' => '08300000000',
-                'email_verified_at' => now(),
-                'points_balance' => 3750, // level Silver
-            ]
-        );
+                'name' => 'Mini Soccer Arena',
+                'category' => 'Mini Soccer',
+                'description' => 'Standard international synthetic turf. Optimized for high-intensity 7 vs 7 missions.',
+                'price_per_hour' => 350000,
+                'open_time' => '06:00',
+                'close_time' => '23:00',
+            ],
+            [
+                'name' => 'Padel Court 01',
+                'category' => 'Padel',
+                'description' => 'Premium glass-walled court. The future of racket sports is here at Mandala.',
+                'price_per_hour' => 200000,
+                'open_time' => '07:00',
+                'close_time' => '22:00',
+            ],
+            [
+                'name' => 'Badminton Center',
+                'category' => 'Badminton',
+                'description' => '4 BWF standard carpet courts. Anti-glare lighting for maximum focus.',
+                'price_per_hour' => 50000,
+                'open_time' => '08:00',
+                'close_time' => '22:00',
+            ],
+            [
+                'name' => 'Pilates Reformer Zone',
+                'category' => 'Pilates',
+                'description' => 'Private reformer studio. Urban recovery and focus training at its peak.',
+                'price_per_hour' => 150000,
+                'open_time' => '06:00',
+                'close_time' => '21:00',
+            ],
+        ];
+
+        foreach ($facilities as $f) {
+            Facility::create($f);
+        }
+
+        // 4. Chatbot Data (Optional, but good to have)
+        $this->call([
+            ChatbotSeeder::class,
+        ]);
     }
 }

@@ -13,14 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(
-            \App\Repositories\VenueRepositoryInterface::class,
-            \App\Repositories\VenueRepository::class
-        );
-        $this->app->bind(
-            \App\Repositories\BookingRepositoryInterface::class,
-            \App\Repositories\BookingRepository::class
-        );
+        //
     }
 
     /**
@@ -30,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        Gate::define('manage-venues', function ($user) {
-            return in_array($user->role, ['admin', 'mitra']);
+        Gate::define('manage-system', function ($user) {
+            return in_array($user->role, ['admin', 'super_admin']);
         });
     }
 }

@@ -25,8 +25,6 @@ class BookingConfirmedNotification extends Notification implements ShouldQueue
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
@@ -38,17 +36,17 @@ class BookingConfirmedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $customerName = $this->booking->isGuest() ? $this->booking->guest_name : $this->booking->user->name;
+        $customerName = $this->booking->user->name;
 
         return (new MailMessage)
-            ->subject('✅ Booking Anda Telah Dikonfirmasi!')
-            ->greeting('Halo, ' . $customerName . '!')
-            ->line('Mitra telah **mengkonfirmasi** booking Anda untuk: ' . $this->booking->venue->name)
-            ->line('**Detail Jadwal:**')
-            ->line('- Tanggal: ' . $this->booking->booking_date->format('d M Y'))
-            ->line('- Jam: ' . $this->booking->start_time . ' - ' . $this->booking->end_time)
-            ->line('- Lokasi: ' . $this->booking->venue->address)
-            ->line('Tim venue kami menantikan kedatangan Anda. Selamat bertanding!');
+            ->subject('✅ Mission Confirmed: ' . $this->booking->facility->name)
+            ->greeting('Welcome Back, ' . $customerName . '!')
+            ->line('Mandala Command has **confirmed** your mission deployment for: ' . $this->booking->facility->name)
+            ->line('**Mission Brief:**')
+            ->line('- Timeline: ' . $this->booking->starts_at->format('d M Y'))
+            ->line('- Window: ' . $this->booking->starts_at->format('H:i') . ' - ' . $this->booking->ends_at->format('H:i'))
+            ->line('- Division: ' . $this->booking->facility->category)
+            ->line('Mandala Arena teams are standing by for your arrival. Prepare for deployment!');
     }
 
     /**
@@ -56,15 +54,15 @@ class BookingConfirmedNotification extends Notification implements ShouldQueue
      */
     public function toWhatsApp(object $notifiable): string
     {
-        $customerName = $this->booking->isGuest() ? $this->booking->guest_name : $this->booking->user->name;
+        $customerName = $this->booking->user->name;
 
-        return "✅ *Konfirmasi Booking Janjee*\n\n"
-            . "Halo $customerName! Booking Anda di *{$this->booking->venue->name}* telah dikonfirmasi oleh pengelola venue.\n\n"
-            . "📌 *Detail Jadwal:*\n"
-            . "📅 Tanggal: {$this->booking->booking_date->format('d M Y')}\n"
-            . "⏰ Jam: {$this->booking->start_time} - {$this->booking->end_time}\n\n"
-            . "📍 *Lokasi:* {$this->booking->venue->address}\n\n"
-            . "Pastikan Anda hadir tepat waktu. Selamat bertanding dan terima kasih atas kepercayaannya pada platform Janjee!";
+        return "✅ *Konfirmasi Mission Mandala Arena*\n\n"
+            . "Halo $customerName! Mission Anda di *{$this->booking->facility->name}* telah dikonfirmasi oleh Command Center.\n\n"
+            . "📌 *Detail Deployment:*\n"
+            . "📅 Timeline: {$this->booking->starts_at->format('d M Y')}\n"
+            . "⏰ Window: {$this->booking->starts_at->format('H:i')} - {$this->booking->ends_at->format('H:i')}\n\n"
+            . "📍 *Division:* {$this->booking->facility->category}\n\n"
+            . "Pastikan Anda hadir tepat waktu. Mandala Arena Operational excellence awaits you!";
     }
 
     /**
@@ -72,6 +70,6 @@ class BookingConfirmedNotification extends Notification implements ShouldQueue
      */
     public function routeNotificationForWhatsApp()
     {
-        return $this->booking->isGuest() ? $this->booking->guest_phone : ($this->booking->user->phone ?? null);
+        return $this->booking->user->phone ?? null;
     }
 }

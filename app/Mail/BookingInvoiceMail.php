@@ -30,7 +30,7 @@ class BookingInvoiceMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Invoice Booking Janjee #' . strtoupper(substr(md5($this->booking->id), 0, 8)),
+            subject: 'Mission Receipt: Mandala Arena #' . strtoupper(substr(md5($this->booking->id), 0, 8)),
         );
     }
 
@@ -43,17 +43,15 @@ class BookingInvoiceMail extends Mailable implements ShouldQueue
             markdown: 'emails.bookings.invoice',
             with: [
                 'booking' => $this->booking,
-                'customerName' => $this->booking->isGuest() ? $this->booking->guest_name : ($this->booking->user->name ?? 'Pelanggan'),
-                'customerPhone' => $this->booking->isGuest() ? $this->booking->guest_phone : ($this->booking->user->phone ?? '-'),
-                'invoiceNumber' => 'INV-' . str_pad($this->booking->id, 5, '0', STR_PAD_LEFT),
+                'customerName' => $this->booking->user->name ?? 'Pilot',
+                'customerPhone' => $this->booking->user->phone ?? '-',
+                'invoiceNumber' => 'MSN-' . str_pad($this->booking->id, 5, '0', STR_PAD_LEFT),
             ]
         );
     }
 
     /**
      * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {

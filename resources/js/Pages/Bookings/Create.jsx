@@ -117,12 +117,12 @@ export default function BookingCreate({ venue, date, auth_user, register_incenti
                                                     <Link href={route('register')}
                                                         className="text-xs font-bold rounded-full px-3 py-1 text-[#1A1818]"
                                                         style={{ background: 'var(--accent)' }}>
-                                                        Daftar Sekarang
+                                                        Register
                                                     </Link>
                                                     <Link href={route('login')}
                                                         className="text-xs font-semibold rounded-full px-3 py-1 border"
                                                         style={{ borderColor: 'var(--accent)', color: 'var(--accent)' }}>
-                                                        Masuk
+                                                        Login
                                                     </Link>
                                                 </div>
                                             </div>
@@ -264,7 +264,7 @@ export default function BookingCreate({ venue, date, auth_user, register_incenti
                                         Sudah punya akun?{' '}
                                         <Link href={route('login')} className="font-semibold"
                                             style={{ color: 'var(--accent)' }}>
-                                            Masuk untuk mendapat poin reward
+                                            Login untuk mendapat poin reward
                                         </Link>
                                     </p>
                                 )}

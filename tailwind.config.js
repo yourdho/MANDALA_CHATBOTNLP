@@ -14,16 +14,25 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Poppins', ...defaultTheme.fontFamily.sans],
+                sporty: ['Bebas Neue', 'sans-serif'],
+                handwriting: ['Montserrat', 'sans-serif'], // Or a real handwritten font if available via Google Fonts
             },
             colors: {
-                background: '#0f172a',
-                accent: {
-                    DEFAULT: '#00f2fe',
-                    blue: '#4facfe',
-                    green: '#00ff87',
-                }
-            }
+                primary: '#2EA8FF',
+                accent: '#FFD400',
+                dark: {
+                    DEFAULT: '#0D0D0D',
+                    soft: '#1A1A1A',
+                    card: '#121212',
+                },
+                secondary: '#A0A0A0',
+                border: 'rgba(255, 255, 255, 0.05)',
+            },
+            boxShadow: {
+                'glow-blue': '0 0 20px rgba(46, 168, 255, 0.3)',
+                'glow-yellow': '0 0 20px rgba(255, 212, 0, 0.3)',
+            },
         },
     },
 

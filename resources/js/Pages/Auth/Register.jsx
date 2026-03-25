@@ -1,11 +1,7 @@
 import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-
-const inputCls = 'block w-full rounded-xl border px-3 py-2.5 text-sm focus:ring-1 focus:outline-none mt-1.5 theme-transition'
-    + ' [background-color:var(--input-bg)] [border-color:var(--border)] [color:var(--input-text)]'
-    + ' focus:[border-color:var(--accent)] placeholder:[color:var(--input-placeholder)]';
-const labelCls = 'block text-sm font-semibold [color:var(--text-secondary)]';
+import { motion } from 'framer-motion';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -24,89 +20,91 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Daftar - Janjee" />
+            <Head title="Gabung Arena | Mandala Arena" />
 
-            <h1 className="text-xl font-black mb-6" style={{ color: 'var(--text-primary)' }}>Buat Akun Baru</h1>
+            <div className="mb-10 text-center md:text-left">
+                <h1 className="text-3xl font-black italic tracking-tighter text-slate-900 uppercase leading-none">
+                    Daftar Akun Baru
+                </h1>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-3">
+                    Bikin profil olahraga kamu hari ini juga
+                </p>
+            </div>
 
-            <form onSubmit={submit} className="space-y-4">
+            <form onSubmit={submit} className="space-y-6">
                 <div>
-                    <label htmlFor="name" className={labelCls}>Nama Lengkap</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 mb-2 block">Nama Lengkap</label>
                     <input
-                        id="name"
-                        name="name"
                         type="text"
                         value={data.name}
-                        className={inputCls}
                         autoComplete="name"
                         autoFocus
-                        placeholder="Nama kamu"
                         onChange={(e) => setData('name', e.target.value)}
-                        required
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
+                        placeholder="John Doe"
                     />
-                    <InputError message={errors.name} className="mt-1.5" />
+                    <InputError message={errors.name} className="mt-2 ml-2" />
                 </div>
 
                 <div>
-                    <label htmlFor="email" className={labelCls}>Email</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 mb-2 block">Email Address</label>
                     <input
-                        id="email"
                         type="email"
-                        name="email"
                         value={data.email}
-                        className={inputCls}
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
-                        required
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
+                        placeholder="your@email.com"
                     />
-                    <InputError message={errors.email} className="mt-1.5" />
+                    <InputError message={errors.email} className="mt-2 ml-2" />
                 </div>
 
-                <div>
-                    <label htmlFor="password" className={labelCls}>Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className={inputCls}
-                        autoComplete="new-password"
-                        placeholder="Min. 8 karakter"
-                        onChange={(e) => setData('password', e.target.value)}
-                        required
-                    />
-                    <InputError message={errors.password} className="mt-1.5" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 mb-2 block">Password</label>
+                        <input
+                            type="password"
+                            value={data.password}
+                            autoComplete="new-password"
+                            onChange={(e) => setData('password', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
+                            placeholder="••••••••"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 mb-2 block">Konfirmasi</label>
+                        <input
+                            type="password"
+                            value={data.password_confirmation}
+                            autoComplete="new-password"
+                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
+                            placeholder="••••••••"
+                        />
+                    </div>
+                </div>
+                <InputError message={errors.password} className="mt-1 ml-2" />
+                <InputError message={errors.password_confirmation} className="mt-1 ml-2" />
+
+                <div className="pt-4">
+                    <motion.button
+                        whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={processing}
+                        className="w-full bg-[#FACC15] text-amber-950 rounded-2xl py-5 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-[#FACC15]/30 hover:bg-[#FACC15]/90 transition-all disabled:opacity-50"
+                    >
+                        {processing ? 'Memproses...' : 'Daftar Sekarang 🔥'}
+                    </motion.button>
                 </div>
 
-                <div>
-                    <label htmlFor="password_confirmation" className={labelCls}>Konfirmasi Password</label>
-                    <input
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className={inputCls}
-                        autoComplete="new-password"
-                        placeholder="Ulangi password"
-                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                        required
-                    />
-                    <InputError message={errors.password_confirmation} className="mt-1.5" />
+                <div className="text-center pt-6 border-t border-slate-100 mt-6">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        Sudah Punya Akun?{' '}
+                        <Link href={route('login')} className="text-[#38BDF8] hover:text-slate-900 font-black italic ml-1">
+                            Login Disini
+                        </Link>
+                    </p>
                 </div>
-
-                <button
-                    type="submit"
-                    disabled={processing}
-                    className="w-full rounded-full bg-[#F2D800] py-2.5 text-sm font-bold text-[#1A1818] hover:bg-[#ffe800] hover:scale-[1.01] transition-all shadow-lg shadow-[#F2D800]/20 disabled:opacity-60 mt-2"
-                >
-                    {processing ? 'Mendaftar...' : 'Buat Akun'}
-                </button>
-
-                <p className="text-center text-sm pt-1" style={{ color: 'var(--text-muted)' }}>
-                    Sudah punya akun?{' '}
-                    <Link href={route('login')} className="font-semibold hover:underline" style={{ color: 'var(--accent)' }}>
-                        Masuk di sini
-                    </Link>
-                </p>
             </form>
         </GuestLayout>
     );

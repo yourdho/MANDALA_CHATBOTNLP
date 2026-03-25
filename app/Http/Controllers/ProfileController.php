@@ -21,18 +21,18 @@ class ProfileController extends Controller
         $user = $request->user();
 
         // Ambil 5 booking terakhir yang menghasilkan poin
-        $pointHistory = \App\Models\Booking::with('venue')
+        $pointHistory = \App\Models\Booking::with('facility')
             ->where('user_id', $user->id)
-            ->where('points_earned', '>', 0)
+            ->where('payment_status', 'paid')
             ->orderByDesc('created_at')
             ->limit(5)
             ->get()
             ->map(fn($b) => [
                 'id' => $b->id,
-                'venue' => $b->venue->name ?? '-',
-                'points' => $b->points_earned,
+                'facility' => $b->facility->name ?? '-',
+                'points' => 0, // Placeholder for points logic if needed
                 'date' => $b->created_at->format('d M Y'),
-                'booking_code' => $b->booking_code,
+                'booking_code' => "MA-{$b->id}",
             ]);
 
         // Total booking user
@@ -44,11 +44,20 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
             'pointsData' => [
-                'balance' => $user->points_balance,
-                'value_rupiah' => $user->points_balance, // 1 poin = Rp 1
+                'balance' => $user->points_balance ?? 0,
                 'total_bookings' => $totalBookings,
                 'history' => $pointHistory,
             ],
+        ]);
+    }
+
+    /**
+     * Admin: User Management Index
+     */
+    public function adminIndex()
+    {
+        return Inertia::render('Admin/Users/Index', [
+            'users' => \App\Models\User::latest()->get(),
         ]);
     }
 

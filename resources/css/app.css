@@ -1,224 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;900&family=Montserrat:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── CSS Custom Properties: Dark Mode (default) ──────────────── */
-:root,
-html.dark {
-    --bg-base: #1A1818;
-    --bg-card: #231F1F;
-    --bg-card-hover: #2a2626;
-    --bg-sidebar: #1A1818;
-    --border: #2e2a2a;
-    --border-hover: #3e3a3a;
-    --text-primary: #ffffff;
-    --text-secondary: #94a3b8;
-    /* slate-400 */
-    --text-muted: #64748b;
-    /* slate-500 */
-    --glow-color: rgba(242, 216, 0, 0.06);
-    --accent: #F2D800;
-    --accent-hover: #ffe800;
-    --accent-dim: rgba(242, 216, 0, 0.10);
-    --accent-border: rgba(242, 216, 0, 0.20);
-    --input-bg: #231F1F;
-    --input-border: #3e3a3a;
-    --input-text: #ffffff;
-    --input-placeholder: #64748b;
-    --shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.5);
-}
-
-/* ── CSS Custom Properties: Light Mode ───────────────────────── */
-html.light {
-    --bg-base: #f8f7f5;
-    --bg-card: #ffffff;
-    --bg-card-hover: #f1f0ed;
-    --bg-sidebar: #ffffff;
-    --border: #e5e2dc;
-    --border-hover: #d0cec8;
-    --text-primary: #1a1818;
-    --text-secondary: #6b7280;
-    /* gray-500 */
-    --text-muted: #9ca3af;
-    /* gray-400 */
-    --glow-color: rgba(242, 216, 0, 0.12);
-    --accent: #c9b000;
-    /* lebih gelap agar terbaca di bg putih */
-    --accent-hover: #d4bb00;
-    --accent-dim: rgba(201, 176, 0, 0.12);
-    --accent-border: rgba(201, 176, 0, 0.30);
-    --input-bg: #ffffff;
-    --input-border: #d0cec8;
-    --input-text: #1a1818;
-    --input-placeholder: #9ca3af;
-    --shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.08);
-}
-
-/* ── Base Styles ─────────────────────────────────────────────── */
 @layer base {
+    :root {
+        /* Default: DARK mode */
+        --primary: #38BDF8;
+        --accent: #FACC15;
+        --bg-base: #0F172A;
+        --bg-card: #1E293B;
+        --text-primary: #F8FAFC;
+        --text-secondary: #94A3B8;
+        --border: rgba(255, 255, 255, 0.05);
+        --shadow: rgba(0, 0, 0, 0.4);
+    }
+
+    :root.light {
+        --primary: #0EA5E9;
+        --accent: #EAB308;
+        --bg-base: #F8FAFC;
+        --bg-card: #FFFFFF;
+        --text-primary: #0F172A;
+        --text-secondary: #64748B;
+        --border: rgba(0, 0, 0, 0.05);
+        --shadow: rgba(0, 0, 0, 0.05);
+    }
+
     html {
-        transition: background-color 0.25s ease, color 0.25s ease;
+        scroll-behavior: smooth;
     }
 
     body {
-        background-color: var(--bg-base);
+        background: var(--bg-base);
         color: var(--text-primary);
-        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-family: 'Poppins', sans-serif;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        transition: background-color 0.25s ease, color 0.25s ease;
-    }
-
-    ::selection {
-        background-color: #F2D800;
-        color: #1A1818;
+        min-height: 100vh;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 }
 
-/* ── Utility: theme-aware helpers ────────────────────────────── */
-@layer utilities {
-
-    /* Hide scrollbar */
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
+@layer components {
+    .btn-primary {
+        @apply px-8 py-3 bg-[#38BDF8] text-slate-900 font-black rounded-lg hover:scale-105 active:scale-95 transition-all shadow-lg uppercase tracking-widest text-sm italic;
     }
 
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    .btn-accent {
+        @apply px-8 py-3 bg-[#FACC15] text-slate-900 font-black rounded-lg hover:scale-105 active:scale-95 transition-all shadow-lg uppercase tracking-widest text-sm italic;
     }
 
-    /* Touch scrolling */
-    .scroll-touch {
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* Janjee semantic tokens (always use these instead of hardcoded colors) */
-    .bg-janjee-base {
-        background-color: var(--bg-base);
-    }
-
-    .bg-janjee-card {
-        background-color: var(--bg-card);
-    }
-
-    .bg-janjee-card-hover {
-        background-color: var(--bg-card-hover);
-    }
-
-    .bg-janjee-sidebar {
-        background-color: var(--bg-sidebar);
-    }
-
-    .border-janjee {
+    .card-sporty {
+        @apply rounded-2xl p-6 border transition-all duration-300;
+        background: var(--bg-card);
         border-color: var(--border);
-    }
-
-    .text-janjee-primary {
-        color: var(--accent);
-    }
-
-    .text-janjee-secondary {
-        color: var(--text-secondary);
-    }
-
-    .text-janjee-muted {
-        color: var(--text-muted);
-    }
-
-    .bg-janjee-primary {
-        background-color: #F2D800;
-    }
-
-    .border-janjee-primary {
-        border-color: #F2D800;
-    }
-
-    /* Theme transition for individual elements */
-    .theme-transition {
-        transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+        color: var(--text-primary);
     }
 }
 
-/* ── Global theme-aware overrides ────────────────────────────── */
-/*
-   These rules override the hardcoded Tailwind colors used throughout
-   the app so every page adapts to light/dark mode without needing
-   individual edits on every component.
-*/
+@layer utilities {
+    .text-glow-blue {
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
 
-/* Form inputs */
-html.light input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-html.light select,
-html.light textarea {
-    background-color: var(--input-bg) !important;
-    border-color: var(--input-border) !important;
-    color: var(--input-text) !important;
+    .bg-grid-texture {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+        background-size: 24px 24px;
+    }
 }
 
-html.light input::placeholder,
-html.light textarea::placeholder {
-    color: var(--input-placeholder) !important;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* Cards (dark bg panels) */
-html.light .bg-\[\#231F1F\],
-html.light .bg-\[\#2a2626\],
-html.light [class*="bg-[#231F1F]"],
-html.light [class*="bg-[#2a2626]"] {
-    background-color: var(--bg-card) !important;
+::-webkit-scrollbar-track {
+    background: var(--bg-base);
 }
 
-html.light .bg-\[\#1A1818\],
-html.light [class*="bg-[#1A1818]"] {
-    background-color: var(--bg-base) !important;
+::-webkit-scrollbar-thumb {
+    background: var(--text-secondary);
+    border-radius: 10px;
+    opacity: 0.3;
 }
 
-/* Borders */
-html.light .border-\[\#2e2a2a\],
-html.light .border-\[\#3e3a3a\],
-html.light [class*="border-[#2e2a2a]"],
-html.light [class*="border-[#3e3a3a]"] {
-    border-color: var(--border) !important;
-}
-
-/* Text colors */
-html.light .text-white {
-    color: var(--text-primary) !important;
-}
-
-html.light .text-slate-400,
-html.light .text-slate-300,
-html.light [class*="text-slate-4"],
-html.light [class*="text-slate-3"] {
-    color: var(--text-secondary) !important;
-}
-
-html.light .text-slate-500,
-html.light .text-slate-600,
-html.light [class*="text-slate-5"],
-html.light [class*="text-slate-6"] {
-    color: var(--text-muted) !important;
-}
-
-/* Accent color in light mode (keep readable) */
-html.light .text-\[\#F2D800\],
-html.light [class*="text-[#F2D800]"] {
-    color: var(--accent) !important;
-}
-
-/* Header & nav backgrounds with opacity */
-html.light .bg-\[\#1A1818\]\/80,
-html.light .bg-\[\#1A1818\]\/90,
-html.light .bg-\[\#1A1818\]\/60 {
-    background-color: rgba(248, 247, 245, 0.9) !important;
-}
-
-/* Hover states */
-html.light .hover\:bg-white\/5:hover {
-    background-color: rgba(0, 0, 0, 0.04) !important;
-}
-
-html.light .hover\:text-white:hover {
-    color: var(--text-primary) !important;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }

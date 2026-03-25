@@ -1,6 +1,6 @@
-# Janjee - Modern Futsal & Venue Booking Platform
+# mandala_arena - Modern Futsal & Venue Booking Platform
 
-Janjee adalah platform booking lapangan olahraga (Futsal, Mini Soccer) dan antrian digital (Barbershop) yang dibangun dengan stack modern menggunakan **Laravel 11** dan **Inertia.js (React)**.
+mandala_arena adalah platform booking lapangan olahraga (Futsal, Mini Soccer) dan antrian digital (Barbershop) yang dibangun dengan stack modern menggunakan **Laravel 11** dan **Inertia.js (React)**.
 
 Fitur utama meliputi:
 - **Sistem Role**: Admin, Mitra (Pemilik Venue), dan User.
@@ -92,4 +92,4 @@ php artisan schedule:work
 - `routes/web.php`: Definisi rute halaman Inertia.
 
 ---
-*Dibuat dengan ❤️ oleh Antigravity untuk pengalaman olahraga yang lebih baik.*
+*Dibuat dengan ❤️ oleh Nadhif M Yusuf untuk pengalaman olahraga yang lebih baik.*

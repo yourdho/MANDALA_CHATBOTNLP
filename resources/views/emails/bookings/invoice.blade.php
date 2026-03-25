@@ -1,49 +1,48 @@
 <x-mail::message>
-    # INVOICE / NOTA PEMBAYARAN
+    # MISSION RECEIPT / INVOICE
+    ## MANDALA ARENA COMMAND CENTER
 
-    Terima kasih telah melakukan booking di platform **Janjee**.
-    Berikut adalah rincian tagihan dan konfirmasi booking Anda.
+    Athlete **{{ $customerName }}**, your mission deployment has been authorized.
+    Below are the strategic details of your booking at **Mandala Arena**.
 
-    **Nomor Invoice :** {{ $invoiceNumber }}
-    **Tanggal :** {{ now()->format('d M Y - H:i') }}
+    **Mission Serial :** {{ $invoiceNumber }}
+    **Timeline :** {{ now()->format('d M Y - H:i') }}
 
     ---
 
-    ### Informasi Pemesan
-    **Nama :** {{ $customerName }}
-    **Telepon :** {{ $customerPhone }}
+    ### Personnel Info
+    **Name :** {{ $customerName }}
+    **Comm Link :** {{ $customerPhone }}
 
-    ### Detail Lapangan / Venue
-    **Venue :** {{ $booking->venue->name }}
-    **Lokasi :** {{ $booking->venue->address }}
-    **Tanggal :** {{ $booking->booking_date->format('d M Y') }}
-    **Jam :** {{ $booking->start_time }} s/d {{ $booking->end_time }}
+    ### Tactical Deployment Details
+    **Division :** {{ $booking->facility->name }}
+    **Timeline :** {{ $booking->starts_at->format('d M Y') }}
+    **Window :** {{ $booking->starts_at->format('H:i') }} - {{ $booking->ends_at->format('H:i') }}
 
     ---
 
     <x-mail::table>
         | Keterangan | Nominal |
         | :--------- | ------: |
-        | Subtotal Venue ({{ round((strtotime($booking->end_time) - strtotime($booking->start_time)) / 3600, 1) }} jam)
-        | Rp {{ number_format($booking->total_price, 0, ',', '.') }} |
-        @if($booking->points_used > 0)
-            | Diskon (Poin Reward) | - Rp {{ number_format($booking->points_used, 0, ',', '.') }} |
+        | Deployment Time ({{ $booking->duration_hours }} Hours) | Rp
+        {{ number_format((float) $booking->total_price, 0, ',', '.') }} |
+        @if($booking->is_with_referee)
+            | Tactical Referee Support | Included |
         @endif
-        | **TOTAL PEMBAYARAN** | **Rp
-        {{ number_format($booking->total_price - ($booking->points_used ?? 0), 0, ',', '.') }}** |
+        | **TOTAL CREDIT** | **Rp {{ number_format((float) $booking->total_price, 0, ',', '.') }}** |
     </x-mail::table>
 
-    **Status Pembayaran:** {{ strtoupper($booking->payment_status ?? 'SUDAH DIBAYAR') }}
+    **Status:** {{ strtoupper($booking->payment_status ?? 'AUTHORIZED') }}
 
     <br>
 
-    <x-mail::button :url="url('/')">
-        Lihat Info Detail di Janjee
+    <x-mail::button :url="url('/dashboard')">
+        View Mission Status
     </x-mail::button>
 
-    Silakan simpan invoice ini sebagai tanda bukti pemesanan yang valid dari sistem komputer Janjee.
-    Selamat bertanding dan bersenang-senang!
+    Please retain this mission receipt as a valid proof of operations from the Mandala Arena tactical system.
+    Operational excellence is our only standard. See you at the station.
 
-    Salam Olahraga,<br>
-    **{{ config('app.name', 'Janjee') }}**
+    Operational Command,<br>
+    **Mandala Arena Station**
 </x-mail::message>

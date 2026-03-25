@@ -5,7 +5,7 @@ const ThemeContext = createContext({ theme: 'dark', toggleTheme: () => { } });
 export function ThemeProvider({ children }) {
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('janjee-theme');
+            const saved = localStorage.getItem('mandala_arena-theme');
             if (saved) return saved;
             // Ikuti preferensi sistem
             return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -22,7 +22,7 @@ export function ThemeProvider({ children }) {
             root.classList.add('light');
             root.classList.remove('dark');
         }
-        localStorage.setItem('janjee-theme', theme);
+        localStorage.setItem('mandala_arena-theme', theme);
     }, [theme]);
 
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');

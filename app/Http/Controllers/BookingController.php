@@ -3,319 +3,258 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use App\Models\Venue;
+use App\Models\Facility;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\BookingCreatedNotification;
-use App\Notifications\BookingConfirmedNotification;
-use App\Mail\BookingInvoiceMail;
-use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
-    // ────────────────────────────────────────────────────────────
-    //  index — riwayat booking (hanya untuk user login)
-    // ────────────────────────────────────────────────────────────
-    public function index()
+    private $midtrans;
+    private $rewardService;
+
+    public function __construct(MidtransService $midtrans, \App\Services\RewardService $rewardService)
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Booking> $rows */
-        $rows = Booking::with('venue')
-            ->where('user_id', Auth::id())
-            ->orderByDesc('booking_date')
-            ->get();
-
-        $bookings = $rows->map(fn(Booking $b) => $this->formatBooking($b));
-
-        $stats = [
-            'total' => $bookings->count(),
-            'active' => $bookings->where('status', 'confirmed')->count(),
-            'pending' => $bookings->where('status', 'pending')->count(),
-        ];
-
-        return Inertia::render('Bookings/Index', [
-            'bookings' => $bookings->values(),
-            'stats' => $stats,
-        ]);
+        $this->midtrans = $midtrans;
+        $this->rewardService = $rewardService;
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  create — form booking (bisa diakses guest maupun user)
-    // ────────────────────────────────────────────────────────────
-    public function create(Request $request)
-    {
-        $venue = Venue::findOrFail($request->venue_id);
-        $user = Auth::user();
-
-        return Inertia::render('Bookings/Create', [
-            'venue' => [
-                'id' => $venue->id,
-                'name' => $venue->name,
-                'category' => $venue->category,
-                'price_per_hour' => $venue->price_per_hour,
-                'address' => $venue->address,
-                'images' => collect($venue->images ?? [])->map(fn($p) => '/storage/' . $p)->values(),
-            ],
-            'date' => $request->date ?? today()->format('Y-m-d'),
-            'auth_user' => $user ? [
-                'name' => $user->name,
-                'phone' => $user->phone ?? '',
-                'points_balance' => $user->points_balance,
-                'points_value' => $user->pointsValueInRupiah(),
-            ] : null,
-            // Diskon khusus untuk guest yang ingin daftar
-            'register_incentive' => '5%',
-        ]);
-    }
-
-    // ────────────────────────────────────────────────────────────
-    //  store — simpan booking (guest atau user login)
-    // ────────────────────────────────────────────────────────────
+    /**
+     * Store a new booking and get Midtrans token.
+     */
     public function store(Request $request)
     {
-        $user = Auth::user();
-
-        // ── Validasi dinamis berdasarkan jenis pengguna ──────────
-        $rules = [
-            'venue_id' => 'required|exists:venues,id',
+        $validated = $request->validate([
+            'facility_id' => 'required|exists:facilities,id',
             'booking_date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'payment_method' => 'required|in:transfer_bank,qris,bayar_ditempat',
-            'use_points' => 'boolean',
-        ];
-
-        if (!$user) {
-            // Guest wajib isi nama & nomor telepon
-            $rules['guest_name'] = 'required|string|max:100';
-            $rules['guest_phone'] = 'required|string|max:20|regex:/^[0-9+\-\s]{8,20}$/';
-        }
-
-        $validated = $request->validate($rules, [
-            'guest_name.required' => 'Nama wajib diisi.',
-            'guest_phone.required' => 'Nomor telepon wajib diisi.',
-            'guest_phone.regex' => 'Format nomor telepon tidak valid.',
-            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
-            'payment_method.in' => 'Metode pembayaran tidak valid.',
+            'start_time' => 'required|string',
+            'end_time' => 'required|string',
+            'payment_method' => 'string',
+            'guest_name' => 'nullable|required_if:auth,false|string',
+            'guest_email' => 'nullable|required_if:auth,false|email',
+            'guest_phone' => 'nullable|string',
+            'user_reward_id' => 'nullable|exists:user_rewards,id',
         ]);
 
-        $venue = Venue::findOrFail($validated['venue_id']);
+        $facility = Facility::find($request->facility_id);
+        $starts_at = Carbon::parse($request->booking_date . ' ' . $request->start_time);
+        $ends_at = Carbon::parse($request->booking_date . ' ' . $request->end_time);
 
-        // ── Cek konflik jadwal ───────────────────────────────────
-        $conflicts = Booking::where('venue_id', $validated['venue_id'])
-            ->where('booking_date', $validated['booking_date'])
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->where(function ($q) use ($validated) {
-                $q->where('start_time', '<', $validated['end_time'] . ':00')
-                    ->where('end_time', '>', $validated['start_time'] . ':00');
+        // Calculate duration
+        $duration = $starts_at->diffInHours($ends_at);
+        if ($duration < 1)
+            $duration = 1;
+
+        // Update User Phone if provided and logged in
+        if ($request->guest_phone && auth()->check()) {
+            auth()->user()->update(['phone' => $request->guest_phone]);
+        }
+
+        // Check availability (simplification: simple collision check)
+        $isTaken = Booking::where('facility_id', $request->facility_id)
+            ->whereIn('payment_status', ['paid', 'settlement', 'confirmed'])
+            ->where(function ($q) use ($starts_at, $ends_at) {
+                $q->where(function ($qq) use ($starts_at, $ends_at) {
+                    $qq->where('starts_at', '>=', $starts_at)
+                        ->where('starts_at', '<', $ends_at);
+                })->orWhere(function ($qq) use ($starts_at, $ends_at) {
+                    $qq->where('ends_at', '>', $starts_at)
+                        ->where('ends_at', '<=', $ends_at);
+                });
             })->exists();
 
-        if ($conflicts) {
-            return back()->withErrors(['start_time' => 'Jadwal bentrok dengan booking lain pada tanggal tersebut.']);
+        if ($isTaken) {
+            return back()->withErrors(['error' => 'Mission slot already occupied. Please select another timeline!']);
         }
 
-        // ── Hitung harga ─────────────────────────────────────────
-        $startHour = (int) substr($validated['start_time'], 0, 2);
-        $endHour = (int) substr($validated['end_time'], 0, 2);
-        $hours = $endHour - $startHour;
-        $totalPrice = $hours * $venue->price_per_hour;
+        // Base calculation
+        $price_per_hour = $facility->price_per_hour;
+        $base_price = ($price_per_hour * $duration);
+        $referee_price = 0;
 
-        // ── Pakai poin (hanya user login) ────────────────────────
-        $pointsUsed = 0;
-        $pointsEarned = 0;
-        $discount = 0;
-
-        if ($user && $request->boolean('use_points') && $user->points_balance > 0) {
-            // Maksimum diskon = 10% dari total harga
-            $maxDiscount = (int) round($totalPrice * 0.10);
-            $discount = min($user->points_balance, $maxDiscount);
-            $pointsUsed = $discount; // 1 poin = Rp 1
-            $totalPrice = max(0, $totalPrice - $discount);
+        // Referee Add-on specifically for Mini Soccer
+        $is_with_referee = $request->boolean('is_with_referee', false);
+        if (str_contains(strtolower($facility->name), 'mini soccer') && $is_with_referee) {
+            $referee_price = 50000;
         }
 
-        // ── Hitung poin yang diperoleh (hanya untuk user login) ──
-        if ($user) {
-            $pointsEarned = Booking::calculatePoints($totalPrice);
-        }
+        $total_price = $base_price + $referee_price;
+        $discount_amount = 0;
+        $voucher = null;
 
-        // ── Generate kode booking ────────────────────────────────
-        $bookingCode = 'JNJ-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
-
-        // ── Simpan booking ───────────────────────────────────────
-        $booking = Booking::create([
-            'booking_code' => $bookingCode,
-            'user_id' => $user?->id,         // null jika guest
-            'guest_name' => $user ? null : $validated['guest_name'],
-            'guest_phone' => $user ? null : $validated['guest_phone'],
-            'venue_id' => $validated['venue_id'],
-            'booking_date' => $validated['booking_date'],
-            'start_time' => $validated['start_time'] . ':00',
-            'end_time' => $validated['end_time'] . ':00',
-            'status' => 'pending',
-            'total_price' => $totalPrice,
-            'points_earned' => $pointsEarned,
-            'payment_status' => 'unpaid',
-            'payment_method' => $validated['payment_method'],
-        ]);
-
-        // ── Notify Mitra (Owner Venue) via email & WA ────────────
-        if ($venue->owner) {
-            $venue->owner->notify(new BookingCreatedNotification($booking));
-        }
-
-        // ── Award / deduct poin untuk user login ─────────────────
-        if ($user) {
-            if ($pointsUsed > 0) {
-                $user->usePoints($pointsUsed);
-            }
-            if ($pointsEarned > 0) {
-                $user->addPoints($pointsEarned);
-            }
-        }
-
-        // ── Redirect sesuai tipe pengguna ────────────────────────
-        if ($user) {
-            return redirect()
-                ->route('bookings.index')
-                ->with('success', sprintf(
-                    'Booking berhasil! Kode: %s. Anda mendapatkan +%d poin.%s',
-                    $bookingCode,
-                    $pointsEarned,
-                    $discount > 0 ? ' Diskon poin Rp ' . number_format($discount, 0, ',', '.') . ' berhasil digunakan.' : ''
-                ));
-        }
-
-        // Guest → redirect ke halaman konfirmasi publik
-        return redirect()
-            ->route('bookings.guest-success', ['code' => $bookingCode])
-            ->with('success', 'Booking berhasil! Kode booking Anda: ' . $bookingCode);
-    }
-
-    // ────────────────────────────────────────────────────────────
-    //  guestSuccess — halaman konfirmasi untuk guest
-    // ────────────────────────────────────────────────────────────
-    public function guestSuccess(Request $request)
-    {
-        $code = $request->query('code');
-        $booking = null;
-
-        if ($code) {
-            /** @var Booking|null $booking */
-            $booking = Booking::with('venue')
-                ->where('booking_code', $code)
-                ->whereNull('user_id')   // pastikan ini booking guest
+        // Apply Voucher Discount if provided
+        if ($request->user_reward_id) {
+            $voucher = \App\Models\UserReward::where('id', $request->user_reward_id)
+                ->where('user_id', auth()->id())
                 ->first();
+
+            if ($voucher) {
+                try {
+                    $discount_amount = $this->rewardService->calculateDiscount($total_price, $voucher);
+                    $total_price -= $discount_amount;
+                } catch (\Exception $e) {
+                    return back()->withErrors(['error' => 'Voucher tidak valid: ' . $e->getMessage()]);
+                }
+            }
         }
 
-        if (!$booking) {
-            return redirect()->route('venues.index')
-                ->with('error', 'Kode booking tidak ditemukan.');
+        $dp_amount = null;
+        $amount_to_bill = $total_price;
+
+        if ($request->payment_method === 'dp_online' || $request->payment_method === 'dp_manual') {
+            $dp_amount = $total_price * 0.5; // 50% DP
+            $amount_to_bill = $dp_amount;
         }
 
-        /** @var \Carbon\Carbon $bookingDate */
-        $bookingDate = $booking->booking_date;
+        $booking = Booking::create([
+            'user_id' => auth()->id(),
+            'guest_name' => $request->guest_name ?? (auth()->check() ? auth()->user()->name : 'Guest'),
+            'guest_email' => $request->guest_email ?? (auth()->check() ? auth()->user()->email : null),
+            'guest_phone' => $request->guest_phone ?? (auth()->check() ? auth()->user()->phone : null),
+            'facility_id' => $facility->id,
+            'starts_at' => $starts_at,
+            'ends_at' => $ends_at,
+            'duration_hours' => $duration,
+            'is_with_referee' => $is_with_referee,
+            'referee_price' => $referee_price,
+            'total_price' => $total_price,
+            'dp_amount' => $dp_amount,
+            'user_reward_id' => $request->user_reward_id,
+            'discount_amount' => $discount_amount,
+            'payment_method' => $request->payment_method,
+            'status' => 'pending',
+            'payment_status' => 'pending',
+        ]);
 
-        return Inertia::render('Bookings/GuestSuccess', [
-            'booking' => [
-                'booking_code' => $booking->booking_code,
-                'venue' => $booking->venue->name,
-                'address' => $booking->venue->address,
-                'date' => $bookingDate->format('Y-m-d'),
-                'start_time' => substr((string) $booking->start_time, 0, 5),
-                'end_time' => substr((string) $booking->end_time, 0, 5),
-                'total_price' => (float) $booking->total_price,
-                'payment_method' => $booking->payment_method,
-                'guest_name' => $booking->guest_name,
-                'guest_phone' => $booking->guest_phone,
-                'status' => $booking->status,
-                'created_at' => $booking->created_at->format('d M Y, H:i'),
-            ],
+        // Consume voucher
+        if ($voucher) {
+            $voucher->update([
+                'status' => 'used',
+                'used_at' => now()
+            ]);
+        }
+
+        if ($request->payment_method === 'dp_manual') {
+            // WA Admin Redirect logic
+            $wa_number = '6282123456789'; // Contoh nomor WA Admin
+            $message = urlencode("Halo Admin Mandala Arena, saya ingin konfirmasi DP manual (50%) untuk pesanan Booking saya.\n\nKode Booking: MA-{$booking->id}\nFasilitas: {$facility->name}\nTanggal: {$booking->booking_date}\nTotal DP: Rp " . number_format($dp_amount, 0, ',', '.'));
+            $wa_link = "https://wa.me/{$wa_number}?text={$message}";
+
+            return redirect()->route('bookings.index')->with([
+                'success' => 'Pesanan berhasil dibuat! Silakan hubungi Admin via WhatsApp untuk melakukan transfer DP manual.',
+                'wa_link' => $wa_link
+            ]);
+        }
+
+        // Get SNAP Token for Midtrans
+        try {
+            // We pass the amount_to_bill dynamically via an override mechanism in Midtrans Service
+            // Wait, Midtrans Service reads $booking->total_price. Let's explicitly pass $amount_to_bill
+            $snapToken = $this->midtrans->getSnapToken($booking, $amount_to_bill);
+            $booking->update(['payment_token' => $snapToken]);
+
+            return redirect()->route('bookings.index')->with([
+                'snap_token' => $snapToken,
+                'booking_id' => $booking->id,
+                'success' => 'Berhasil dibuat. Silakan selesaikan pembayaran Instan.'
+            ]);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menghubungkan Payment Gateway: ' . $e->getMessage()]);
+        }
+    }
+
+    public function history()
+    {
+        return Inertia::render('Bookings/Index', [
+            'bookings' => Booking::with('facility')->where('user_id', auth()->id())->latest()->get(),
         ]);
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  cancel — hanya user login yang bisa cancel lewat dashboard
-    // ────────────────────────────────────────────────────────────
-    public function cancel(Booking $booking)
+    /**
+     * Managed by Admin and Super Admin
+     */
+    public function adminIndex()
     {
-        if ($booking->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        if (!in_array($booking->status, ['pending', 'confirmed'])) {
-            return back()->withErrors(['status' => 'Booking tidak bisa dibatalkan.']);
-        }
-
-        // Kembalikan poin yang earned jika dibatalkan
-        if ($booking->points_earned > 0 && Auth::user()) {
-            Auth::user()->decrement('points_balance', $booking->points_earned);
-        }
-
-        $booking->update(['status' => 'cancelled']);
-
-        return redirect()->route('bookings.index')
-            ->with('success', 'Booking berhasil dibatalkan.');
+        return Inertia::render('Admin/Bookings/Index', [
+            'bookings' => Booking::with(['facility', 'user'])->latest()->get(),
+        ]);
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  confirm — konfirmasi oleh mitra/admin
-    // ────────────────────────────────────────────────────────────
-    public function confirm(Booking $booking)
+    public function adminConfirm(Booking $booking)
     {
-        $user = Auth::user();
+        $booking->update([
+            'payment_status' => 'paid',
+            'status' => 'confirmed'
+        ]);
 
-        if ($user->role !== 'admin' && $booking->venue->owner_id !== $user->id) {
-            abort(403);
+        // Award 10 Points for the transaction
+        if ($booking->user) {
+            $booking->user->addPoints(10);
         }
 
-        $booking->update(['status' => 'confirmed', 'payment_status' => 'paid']);
+        // Broadcast event for realtime update
+        event(new \App\Events\BookingStatusUpdated($booking));
 
-        // ── Send Notification to User/Guest ──────────────────────
-        // Notification channel ini akan mengirim ke email dan/atau WA
-        if ($booking->user_id) {
-            $booking->user->notify(new BookingConfirmedNotification($booking));
+        return back()->with('success', 'Pesanan berhasil dikonfirmasi secara manual. 10 Poin telah ditambahkan ke saldo User!');
+    }
 
-            // Kirim Invoice via Email
-            if ($booking->user->email) {
-                Mail::to($booking->user->email)->queue(new BookingInvoiceMail($booking));
+    /**
+     * Midtrans Notification Handlers
+     */
+    public function callback(Request $request)
+    {
+        $payload = $request->all();
+        $order_id = $payload['order_id'];
+        $status = $payload['transaction_status'];
+
+        $booking = Booking::where('id', str_replace('MA-', '', $order_id))->first();
+
+        if ($booking) {
+            if ($status == 'settlement' || $status == 'capture') {
+                $booking->update([
+                    'payment_status' => 'paid',
+                    'status' => 'confirmed'
+                ]);
+
+                // Award 10 Points
+                if ($booking->user) {
+                    $booking->user->addPoints(10);
+                }
+
+                event(new \App\Events\BookingStatusUpdated($booking));
+            } else if ($status == 'expire' || $status == 'cancel' || $status == 'deny') {
+                $booking->update([
+                    'payment_status' => 'failed',
+                    'status' => 'cancelled'
+                ]);
+                event(new \App\Events\BookingStatusUpdated($booking));
             }
-        } elseif ($booking->guest_phone) {
-            // Untuk guest, route notifikasi secara dinamis (hanya WA karena tidak ada data email)
-            Notification::route('WhatsApp', $booking->guest_phone)
-                ->notify(new BookingConfirmedNotification($booking));
         }
 
-        return back()->with('success', 'Booking dikonfirmasi.');
+        return response()->json(['status' => 'ok']);
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  Private helpers
-    // ────────────────────────────────────────────────────────────
-    private function formatBooking(Booking $booking): array
+    public function success(Booking $booking)
     {
-        /** @var \Carbon\Carbon $bookingDate */
-        $bookingDate = $booking->booking_date;
+        return Inertia::render('Bookings/Success', ['booking' => $booking->load('facility')]);
+    }
 
-        return [
-            'id' => $booking->id,
-            'booking_code' => $booking->booking_code,
-            'venue' => $booking->venue->name,
-            'venue_id' => $booking->venue_id,
-            'category' => $booking->venue->category ?? '',
-            'address' => $booking->venue->address ?? '',
-            'date' => $bookingDate->format('Y-m-d'),
-            'time' => substr((string) $booking->start_time, 0, 5) . ' - ' . substr((string) $booking->end_time, 0, 5),
-            'start_time' => substr((string) $booking->start_time, 0, 5),
-            'end_time' => substr((string) $booking->end_time, 0, 5),
-            'status' => $booking->status,
-            'price' => 'Rp ' . number_format((float) $booking->total_price, 0, ',', '.'),
-            'price_raw' => (float) $booking->total_price,
-            'payment_status' => $booking->payment_status,
-            'payment_method' => $booking->payment_method,
-            'user_name' => $booking->booker_name,
-            'points_earned' => $booking->points_earned,
-            'created_at' => $booking->created_at->format('d M Y, H:i'),
-        ];
+    /**
+     * Admin: Reports Data
+     */
+    public function reports()
+    {
+        return Inertia::render('Admin/Reports/Index', [
+            'revenue_total' => Booking::where('payment_status', 'paid')->sum('total_price'),
+            'platform_fee' => Booking::where('payment_status', 'paid')->count() * 2500, // Misal Rp 2.500 per booking
+            'bookings_count' => Booking::count(),
+            'popular_facility' => Facility::withCount('bookings')->orderBy('bookings_count', 'desc')->first(),
+            'monthly_data' => Booking::where('payment_status', 'paid')
+                ->get()
+                ->groupBy(fn($b) => $b->created_at->format('n'))
+                ->map(fn($group, $month) => ['month' => $month, 'total' => $group->sum('total_price')])
+                ->values()
+        ]);
     }
 }

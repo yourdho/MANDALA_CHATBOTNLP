@@ -1,30 +1,29 @@
 import { useTheme } from './ThemeContext';
+import { motion } from 'framer-motion';
 
-export default function ThemeToggle({ className = '' }) {
+export default function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
-    const isDark = theme === 'dark';
 
     return (
         <button
             onClick={toggleTheme}
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={isDark ? 'Mode Terang' : 'Mode Gelap'}
-            className={`relative inline-flex h-8 w-14 items-center rounded-full border transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F2D800] ${isDark
-                    ? 'bg-[#2e2a2a] border-[#3e3a3a]'
-                    : 'bg-amber-100 border-amber-200'
-                } ${className}`}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 relative overflow-hidden group shadow-sm active:scale-95"
+            title="Ganti Mode"
         >
-            {/* Track icons */}
-            <span className="absolute left-1.5 text-[11px]">🌙</span>
-            <span className="absolute right-1.5 text-[11px]">☀️</span>
-
-            {/* Thumb */}
-            <span
-                className={`absolute inline-flex h-5 w-5 items-center justify-center rounded-full shadow-md transition-all duration-300 ${isDark
-                        ? 'translate-x-1 bg-[#F2D800]'
-                        : 'translate-x-[30px] bg-amber-400'
-                    }`}
-            />
+            <motion.div
+                initial={false}
+                animate={{ y: theme === 'dark' ? 0 : 40 }}
+                className="absolute inset-0 flex items-center justify-center text-xl"
+            >
+                🌙
+            </motion.div>
+            <motion.div
+                initial={false}
+                animate={{ y: theme === 'light' ? 0 : -40 }}
+                className="absolute inset-0 flex items-center justify-center text-xl"
+            >
+                ☀️
+            </motion.div>
         </button>
     );
 }

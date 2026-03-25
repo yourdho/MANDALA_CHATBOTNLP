@@ -25,8 +25,6 @@ class BookingCreatedNotification extends Notification implements ShouldQueue
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
@@ -38,20 +36,21 @@ class BookingCreatedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = route('mitra.bookings.index');
-        $customerName = $this->booking->isGuest() ? $this->booking->guest_name : $this->booking->user->name;
+        $url = route('admin.bookings.index');
+        $customerName = $this->booking->user->name;
 
         return (new MailMessage)
-            ->subject('🔔 Booking Baru Masuk: ' . $this->booking->venue->name)
-            ->greeting('Halo Mitra!')
-            ->line('Anda memiliki satu pesanan (booking) baru yang memerlukan konfirmasi Anda.')
-            ->line('**Detail Booking:**')
-            ->line('- Customer: ' . $customerName)
-            ->line('- Tanggal: ' . $this->booking->booking_date->format('d M Y'))
-            ->line('- Waktu: ' . $this->booking->start_time . ' - ' . $this->booking->end_time)
-            ->line('- Total Harga: Rp ' . number_format($this->booking->total_price, 0, ',', '.'))
-            ->action('Lihat & Konfirmasi di Dashboard', $url)
-            ->line('Terima kasih telah menggunakan Janjee!');
+            ->subject('⚡ New Mission Alert: ' . $this->booking->facility->name)
+            ->greeting('Attention Command!')
+            ->line('A new booking mission has been initialized and requires your tactical confirmation.')
+            ->line('**Mission Brief:**')
+            ->line('- Athlete: ' . $customerName)
+            ->line('- Division: ' . $this->booking->facility->name)
+            ->line('- Timeline: ' . $this->booking->starts_at->format('d M Y | H:i'))
+            ->line('- Duration: ' . $this->booking->duration_hours . ' Hour(s)')
+            ->line('- Total Credit: Rp ' . number_format((float) $this->booking->total_price, 0, ',', '.'))
+            ->action('Commence Review in Dashboard', $url)
+            ->line('Operational excellence is the Mandala standard.');
     }
 
     /**
@@ -59,25 +58,26 @@ class BookingCreatedNotification extends Notification implements ShouldQueue
      */
     public function toWhatsApp(object $notifiable): string
     {
-        $customerName = $this->booking->isGuest() ? $this->booking->guest_name : $this->booking->user->name;
-        $customerPhone = $this->booking->isGuest() ? $this->booking->guest_phone : $this->booking->user->phone;
+        $customerName = $this->booking->user->name;
+        $customerPhone = $this->booking->user->phone;
 
-        return "🔔 *Booking Baru Masuk di Janjee!*\n\n"
-            . "Halo Mitra, ada booking baru untuk venue *{$this->booking->venue->name}*.\n\n"
-            . "👤 *Pemesan:* $customerName\n"
-            . "📱 *Nomor WA:* $customerPhone\n"
-            . "📅 *Tanggal:* {$this->booking->booking_date->format('d M Y')}\n"
-            . "⏰ *Jam:* {$this->booking->start_time} - {$this->booking->end_time}\n"
-            . "💰 *Total Pembayaran:* Rp " . number_format($this->booking->total_price, 0, ',', '.') . "\n\n"
-            . "Segera cek dan konfirmasi booking ini melalui dashboard Janjee Anda:\n"
-            . route('mitra.bookings.index');
+        return "🔔 *New Mission Initialized at Mandala Arena!*\n\n"
+            . "Command, a new booking has arrived for division *{$this->booking->facility->name}*.\n\n"
+            . "👤 *Athlete:* $customerName\n"
+            . "📱 *Comm Link:* $customerPhone\n"
+            . "📅 *Timeline:* {$this->booking->starts_at->format('d M Y')}\n"
+            . "⏰ *Window:* {$this->booking->starts_at->format('H:i')} - {$this->booking->ends_at->format('H:i')}\n"
+            . "💰 *Total Credit:* Rp " . number_format((float) $this->booking->total_price, 0, ',', '.') . "\n\n"
+            . "Confirm deployment immediately via Command Center:\n"
+            . route('admin.bookings.index');
     }
 
     /**
-     * Route notification for WhatsApp (optional, fallback to phone logic in Channel)
+     * Route notification for WhatsApp
      */
     public function routeNotificationForWhatsApp()
     {
-        return $this->booking->venue->owner->phone ?? null;
+        // Admin notification logic
+        return config('services.whatsapp.admin_phone');
     }
 }

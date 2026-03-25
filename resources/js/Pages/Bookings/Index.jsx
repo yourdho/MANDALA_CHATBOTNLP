@@ -1,214 +1,262 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const PAYMENT_LABEL = {
-    transfer_bank: { label: 'Transfer Bank', icon: '🏦' },
-    qris: { label: 'QRIS', icon: '📱' },
-    bayar_ditempat: { label: 'Bayar di Tempat', icon: '💵' },
+    midtrans: { label: 'Online Payment', icon: '⚡' },
+    bayar_ditempat: { label: 'Bayar di Kasir', icon: '📍' },
 };
 
-export default function BookingsIndex({ bookings, stats }) {
-    const [nota, setNota] = useState(null); // booking yang sedang dilihat notanya
+export default function BookingsIndex({ bookings }) {
+    const [nota, setNota] = useState(null);
+    const { flash } = usePage().props;
 
     const statusColors = {
-        confirmed: { bg: 'bg-[#F2D800]/10', text: 'text-[#F2D800]', label: 'Dikonfirmasi' },
-        pending: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', label: 'Menunggu' },
-        completed: { bg: 'bg-slate-500/10', text: 'text-slate-400', label: 'Selesai' },
-        cancelled: { bg: 'bg-red-500/10', text: 'text-red-400', label: 'Dibatalkan' },
+        confirmed: { bg: 'bg-[#38BDF8]/20', text: 'text-[#0284c7] border-[#38BDF8]/40', label: 'Terkonfirmasi' },
+        pending: { bg: 'bg-[#FACC15]/20', text: 'text-[#d97706] border-[#FACC15]/40', label: 'Menunggu Pembayaran' },
+        completed: { bg: 'bg-slate-100', text: 'text-slate-500 border-slate-200', label: 'Selesai' },
+        cancelled: { bg: 'bg-red-100', text: 'text-red-600 border-red-200', label: 'Dibatalkan' },
     };
 
     const handleCancel = (id) => {
-        if (confirm('Yakin ingin membatalkan booking ini?')) {
+        if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
             router.patch(route('bookings.cancel', id));
         }
     };
 
     const handlePrint = () => window.print();
 
+    const handlePay = (token) => {
+        if (!token) return alert('Token pembayaran tidak valid!');
+        window.snap.pay(token, {
+            onSuccess: function (result) {
+                // We can refresh the page to see 'confirmed'
+                window.location.reload();
+            },
+            onPending: function (result) {
+                alert('Terkirim, menunggu proses pembayaran.');
+            },
+            onError: function (result) {
+                alert('Pembayaran gagal dilakukan!');
+            },
+            onClose: function () {
+                // user closed popup
+            }
+        });
+    };
+
+    // Auto-trigger Midtrans if flash has snap_token
+    useEffect(() => {
+        if (flash?.snap_token) {
+            handlePay(flash.snap_token);
+        }
+    }, [flash]);
+
+    // Derived stats from array instead of prop to match controller structure
+    const activeBookingsCount = bookings.filter(b => b.status === 'confirmed').length;
+    const pendingBookingsCount = bookings.filter(b => b.status === 'pending').length;
+
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-bold text-xl text-slate-100 leading-tight">Riwayat Booking</h2>}
+            header={
+                <div className="flex items-center gap-4">
+                    <h2 className="text-4xl font-['Permanent_Marker'] italic text-slate-900 uppercase tracking-tighter leading-none">
+                        Daftar <span className="text-[#38BDF8]">Booking</span>
+                    </h2>
+                </div>
+            }
         >
-            <Head title="Bookings" />
+            <Head title="Booking Saya | Mandala Arena" />
 
-            <div className="py-8 sm:py-12 px-4 sm:px-0">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto space-y-12">
 
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
-                        {[
-                            { title: 'Total', value: stats.total, color: '#F2D800' },
-                            { title: 'Aktif', value: stats.active, color: '#F2D800' },
-                            { title: 'Menunggu', value: stats.pending, color: '#f59e0b' },
-                        ].map((s, i) => (
-                            <motion.div key={s.title}
-                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="bg-[#231F1F] rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-slate-700 shadow-lg relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-3xl opacity-20 pointer-events-none"
-                                    style={{ backgroundColor: s.color }} />
-                                <h3 className="text-xs font-medium text-slate-400">{s.title}</h3>
-                                <p className="mt-1 text-2xl sm:text-3xl font-bold" style={{ color: s.color }}>{s.value}</p>
-                            </motion.div>
-                        ))}
+                {flash?.success && !flash?.snap_token && (
+                    <div className="p-6 bg-emerald-50 border-2 border-emerald-100 text-emerald-800 rounded-[2rem] font-bold mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                        <div className="flex items-center gap-4">
+                            <span className="text-3xl">✅</span>
+                            <span className="text-sm">{flash.success}</span>
+                        </div>
+                        {flash?.wa_link && (
+                            <a
+                                href={flash.wa_link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-6 py-3 bg-[#25D366] text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:bg-[#128C7E] hover:scale-105 transition-all shadow-md shadow-[#25D366]/30 animate-bounce whitespace-nowrap"
+                            >
+                                Buka WhatsApp Admin
+                            </a>
+                        )}
+                    </div>
+                )}
+                {flash?.error && (
+                    <div className="p-4 bg-red-100 border border-red-200 text-red-800 rounded-2xl font-bold mb-6">
+                        {flash.error}
+                    </div>
+                )}
+
+                {/* Tactical Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                        { title: 'Total Booking', value: bookings.length, color: 'slate' },
+                        { title: 'Jadwal Aktif', value: activeBookingsCount, color: 'primary' },
+                        { title: 'Menunggu Pembayaran', value: pendingBookingsCount, color: 'accent' },
+                    ].map((s, i) => (
+                        <motion.div key={s.title}
+                            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="bg-white rounded-[2rem] p-8 border border-slate-100 relative overflow-hidden shadow-sm group">
+                            <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 pointer-events-none ${s.color === 'primary' ? 'bg-[#38BDF8]' : s.color === 'accent' ? 'bg-[#FACC15]' : 'bg-slate-300'}`} />
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">{s.title}</h3>
+                            <p className="text-4xl font-['Permanent_Marker'] text-slate-800">{s.value}</p>
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* Mission Roster */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+                    className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/50">
+                    <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                        <h3 className="text-xl font-['Permanent_Marker'] italic text-slate-800 uppercase tracking-wider">Riwayat Transaksi</h3>
                     </div>
 
-                    {/* Booking List */}
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                        className="bg-[#231F1F] rounded-2xl border border-slate-700/50 backdrop-blur-sm overflow-hidden">
-                        <div className="p-4 sm:p-6 border-b border-slate-700/50">
-                            <h3 className="text-base sm:text-lg font-bold text-white">Daftar Booking</h3>
+                    {bookings.length === 0 ? (
+                        <div className="p-32 text-center">
+                            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] animate-pulse">Belum Ada Riwayat Booking.</p>
                         </div>
+                    ) : (
+                        <div className="divide-y divide-slate-50">
+                            {bookings.map((booking, index) => (
+                                <motion.div key={booking.id}
+                                    initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 + index * 0.05 }}
+                                    className="p-6 md:p-8 hover:bg-slate-50/80 transition-all group overflow-hidden relative">
+                                    <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
 
-                        {bookings.length === 0 ? (
-                            <div className="p-8 sm:p-12 text-center">
-                                <p className="text-slate-500 text-sm">Belum ada booking. Yuk mulai booking venue!</p>
-                            </div>
-                        ) : (
-                            <div className="divide-y divide-slate-700/50">
-                                {bookings.map((booking, index) => (
-                                    <motion.div key={booking.id}
-                                        initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.4 + index * 0.05 }}
-                                        className="p-4 sm:p-6 hover:bg-slate-700/20 transition-colors">
-                                        <div className="flex flex-col gap-3">
-                                            {/* Top */}
-                                            <div className="flex items-start justify-between gap-2">
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="text-white font-semibold text-sm sm:text-base leading-snug">{booking.venue}</h4>
-                                                    {booking.booking_code && (
-                                                        <p className="text-[11px] text-slate-600 font-mono mt-0.5">{booking.booking_code}</p>
-                                                    )}
-                                                </div>
-                                                <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[booking.status]?.bg} ${statusColors[booking.status]?.text}`}>
-                                                    {statusColors[booking.status]?.label}
-                                                </span>
-                                            </div>
+                                        {/* Status & Code */}
+                                        <div className="flex-shrink-0 w-full md:w-32 flex flex-col items-center md:items-start">
+                                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${statusColors[booking.status]?.bg} ${statusColors[booking.status]?.text}`}>
+                                                {statusColors[booking.status]?.label}
+                                            </span>
+                                            {booking.id && (
+                                                <p className="text-[10px] text-slate-400 font-mono mt-3 uppercase tracking-widest">MA-{booking.id}</p>
+                                            )}
+                                        </div>
 
-                                            {/* Meta */}
-                                            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-400">
-                                                <span>📅 {booking.date}</span>
-                                                <span>🕐 {booking.time}</span>
+                                        {/* Core Data */}
+                                        <div className="flex-1 min-w-0 text-center md:text-left">
+                                            <h4 className="text-slate-900 font-black text-2xl uppercase tracking-tighter leading-none mb-3 group-hover:text-[#38BDF8] transition-colors">{booking.facility?.name}</h4>
+                                            <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">
+                                                <span>📅 {new Date(booking.starts_at).toLocaleDateString()}</span>
+                                                <span>🕒 {new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.ends_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                 {booking.payment_method && (
-                                                    <span>{PAYMENT_LABEL[booking.payment_method]?.icon} {PAYMENT_LABEL[booking.payment_method]?.label}</span>
+                                                    <span className="text-amber-600 font-black">{PAYMENT_LABEL[booking.payment_method]?.icon} {PAYMENT_LABEL[booking.payment_method]?.label}</span>
                                                 )}
-                                                {booking.points_earned > 0 && (
-                                                    <span className="inline-flex items-center gap-1 rounded-full bg-[#F2D800]/10 text-[#F2D800] px-2 py-0.5 text-[11px] font-semibold">
-                                                        ⭐ +{booking.points_earned} poin
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {/* Bottom */}
-                                            <div className="flex items-center justify-between gap-2">
-                                                <span className="text-white font-semibold text-sm sm:text-base">{booking.price}</span>
-                                                <div className="flex items-center gap-2">
-                                                    {/* Nota button — hanya kalau sudah confirmed */}
-                                                    {booking.status === 'confirmed' && (
-                                                        <button
-                                                            onClick={() => setNota(booking)}
-                                                            className="text-xs bg-[#F2D800]/10 text-[#F2D800] border border-[#F2D800]/30 px-3 py-1.5 rounded-full font-semibold hover:bg-[#F2D800]/20 transition-all flex items-center gap-1.5"
-                                                        >
-                                                            🧾 Lihat Nota
-                                                        </button>
-                                                    )}
-                                                    {['pending', 'confirmed'].includes(booking.status) && (
-                                                        <button
-                                                            onClick={() => handleCancel(booking.id)}
-                                                            className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors border border-red-500/20 rounded-full px-3 py-1.5 hover:bg-red-500/10"
-                                                        >
-                                                            Batalkan
-                                                        </button>
-                                                    )}
-                                                </div>
                                             </div>
                                         </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        )}
-                    </motion.div>
-                </div>
+
+                                        {/* Actions */}
+                                        <div className="flex flex-wrap items-center justify-center gap-4 w-full md:w-auto mt-4 md:mt-0">
+                                            {/* Midtrans Pay Button */}
+                                            {booking.status === 'pending' && booking.payment_token && (
+                                                <button
+                                                    onClick={() => handlePay(booking.payment_token)}
+                                                    className="px-6 py-3 bg-[#38BDF8] text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:bg-[#38BDF8]/90 hover:scale-105 transition-all shadow-md shadow-[#38BDF8]/30"
+                                                >
+                                                    Bayar Sekarang
+                                                </button>
+                                            )}
+
+                                            {/* Invoice / E-Ticket */}
+                                            {booking.status === 'confirmed' && (
+                                                <button
+                                                    onClick={() => setNota(booking)}
+                                                    className="px-6 py-3 bg-slate-900 text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md"
+                                                >
+                                                    E-Ticket
+                                                </button>
+                                            )}
+
+                                            {/* Cancel Option */}
+                                            {['pending'].includes(booking.status) && (
+                                                <button
+                                                    onClick={() => handleCancel(booking.id)}
+                                                    className="px-4 py-3 text-[10px] text-red-400 hover:text-red-500 font-black uppercase tracking-widest transition-colors"
+                                                >
+                                                    Batalkan
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
             </div>
 
-            {/* ── Nota Modal ── */}
+            {/* ── E-Ticket (Nota) Modal ── */}
             <AnimatePresence>
                 {nota && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[80] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 print:bg-white print:p-0"
+                        className="fixed inset-0 z-[80] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6 print:bg-white print:p-0"
                         onClick={() => setNota(null)}
                     >
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-                            className="bg-white text-[#1A1818] rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden print:rounded-none print:shadow-none print:max-w-none"
+                            initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }}
+                            className="bg-white border border-slate-100 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden print:rounded-none print:shadow-none print:max-w-none print:border-none"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Nota Header */}
-                            <div className="bg-[#1A1818] text-white px-6 py-5 flex items-center gap-3">
-                                <img src="/images/janjee-logo.svg" alt="Janjee" className="h-10 w-10" />
-                                <div>
-                                    <p className="text-xl font-black text-[#F2D800]">Janjee</p>
-                                    <p className="text-xs text-slate-400">Nota Pembayaran</p>
+                            {/* Logo & Header */}
+                            <div className="bg-slate-50 p-8 md:p-12 border-b border-slate-100 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-44 h-44 bg-[#38BDF8]/10 rounded-full blur-[80px] -mr-20 -mt-20" />
+                                <div className="flex items-center gap-6 relative z-10">
+                                    <div className="w-16 h-16 bg-[#38BDF8] rounded-2xl flex items-center justify-center font-black italic text-white text-3xl shadow-lg shadow-[#38BDF8]/30 font-['Permanent_Marker']">M</div>
+                                    <div>
+                                        <p className="text-3xl font-['Permanent_Marker'] italic text-slate-800 uppercase tracking-tighter leading-none">Mandala Arena</p>
+                                        <p className="text-[10px] font-black text-[#38BDF8] tracking-[0.2em] uppercase mt-2">Sports Facility E-Ticket</p>
+                                    </div>
+                                    <button onClick={() => setNota(null)} className="ml-auto w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors print:hidden">✕</button>
                                 </div>
-                                <button onClick={() => setNota(null)} className="ml-auto text-slate-500 hover:text-white transition-colors text-lg print:hidden">✕</button>
                             </div>
 
-                            {/* Booking Code */}
-                            <div className="bg-[#F2D800] px-6 py-3 flex items-center justify-between">
-                                <span className="text-[11px] font-bold text-[#1A1818] uppercase tracking-widest">Kode Booking</span>
-                                <span className="text-sm font-black text-[#1A1818] font-mono">{nota.booking_code ?? `BKG-${nota.id}`}</span>
+                            <div className="bg-[#FACC15] px-8 md:px-12 py-3 flex items-center justify-between text-amber-950">
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em]">Kode Booking</span>
+                                <span className="text-sm font-black font-mono uppercase tracking-widest">MA-{nota.id}</span>
                             </div>
 
-                            {/* Nota Body */}
-                            <div className="px-6 py-5 space-y-4">
-                                {/* Status Badge */}
-                                <div className="flex items-center justify-center">
-                                    <span className="inline-flex items-center gap-2 rounded-full bg-green-100 text-green-700 font-bold text-sm px-4 py-2">
-                                        ✅ BOOKING DIKONFIRMASI
-                                    </span>
+                            <div className="p-8 md:p-12 space-y-8">
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="px-6 py-2 bg-green-100 border border-green-200 text-green-700 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
+                                        Terkonfirmasi - Lunas
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Tunjukkan tiket ini kepada staff kami saat di lokasi.</p>
                                 </div>
 
-                                {/* Detail */}
-                                <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200 overflow-hidden">
-                                    <Row label="Venue" value={nota.venue} />
-                                    <Row label="Tanggal" value={formatDate(nota.date)} />
-                                    <Row label="Jam" value={`${nota.start_time} – ${nota.end_time}`} />
-                                    <Row label="Durasi" value={`${durasi(nota.start_time, nota.end_time)} Jam`} />
-                                    <Row label="Nama Pemesan" value={nota.user_name} />
-                                    <Row label="Metode Bayar" value={`${PAYMENT_LABEL[nota.payment_method]?.icon ?? ''} ${PAYMENT_LABEL[nota.payment_method]?.label ?? nota.payment_method ?? '-'}`} />
-                                    <Row label="Dibuat" value={nota.created_at} />
+                                <div className="grid grid-cols-1 gap-2 bg-slate-50 rounded-[2rem] p-6 border border-slate-100">
+                                    <Row label="Fasilitas" value={nota.facility?.name} highlight />
+                                    <Row label="Tanggal" value={new Date(nota.starts_at).toLocaleDateString()} />
+                                    <Row label="Jam" value={`${new Date(nota.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(nota.ends_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`} />
+                                    <Row label="Metode Pembayaran" value={`${PAYMENT_LABEL[nota.payment_method]?.label ?? 'Online'}`} />
                                 </div>
 
-                                {/* Total */}
-                                <div className="flex items-center justify-between bg-[#1A1818] text-white rounded-2xl px-4 py-3">
-                                    <span className="text-sm font-bold">Total Pembayaran</span>
-                                    <span className="text-lg font-black text-[#F2D800]">{nota.price}</span>
+                                <div className="flex flex-col md:flex-row items-center justify-between bg-white p-6 rounded-[2rem] border-2 border-slate-100 gap-4">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Harga (Lunas)</span>
+                                    <span className="text-3xl font-black italic text-slate-900">Rp {Number(nota.total_price).toLocaleString('id-ID')}</span>
                                 </div>
-
-                                {/* Info note */}
-                                <p className="text-[11px] text-slate-400 text-center leading-relaxed">
-                                    Tunjukkan nota ini kepada pegawai / pengelola saat tiba di venue.
-                                    Kode booking berfungsi sebagai tanda masuk.
-                                </p>
                             </div>
 
-                            {/* Actions */}
-                            <div className="px-6 pb-6 flex gap-2 print:hidden">
+                            <div className="p-8 md:p-12 pt-0 flex gap-4 print:hidden">
                                 <button
                                     onClick={handlePrint}
-                                    className="flex-1 rounded-full border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                                    className="flex-1 px-6 py-4 bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-2xl text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
                                 >
-                                    🖨️ Cetak
+                                    Print PDF
                                 </button>
                                 <button
                                     onClick={() => setNota(null)}
-                                    className="flex-1 rounded-full bg-[#1A1818] text-white py-2.5 text-sm font-bold hover:bg-[#2e2a2a] transition-all"
+                                    className="px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl text-[10px] uppercase tracking-widest shadow-md hover:bg-slate-800 transition-all"
                                 >
                                     Tutup
                                 </button>
@@ -218,11 +266,10 @@ export default function BookingsIndex({ bookings, stats }) {
                 )}
             </AnimatePresence>
 
-            {/* Print CSS */}
             <style>{`
                 @media print {
                     body > * { display: none !important; }
-                    .print\\:bg-white { display: flex !important; position: fixed; inset: 0; background: white; }
+                    .print\\:bg-white { display: block !important; position: absolute; left: 0; top: 0; w-full; h-full; z-index: 9999; }
                     .print\\:hidden { display: none !important; }
                 }
             `}</style>
@@ -230,22 +277,11 @@ export default function BookingsIndex({ bookings, stats }) {
     );
 }
 
-function Row({ label, value }) {
+function Row({ label, value, highlight = false }) {
     return (
-        <div className="flex items-center justify-between px-4 py-2.5">
-            <span className="text-xs text-slate-500">{label}</span>
-            <span className="text-xs font-semibold text-slate-800 text-right max-w-[55%]">{value}</span>
+        <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 leading-none">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+            <span className={`text-xs font-black uppercase tracking-widest text-right ${highlight ? 'text-[#38BDF8]' : 'text-slate-800'}`}>{value}</span>
         </div>
     );
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '-';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-function durasi(start, end) {
-    if (!start || !end) return 0;
-    return parseInt(end) - parseInt(start);
 }

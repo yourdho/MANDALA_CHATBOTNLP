@@ -7,25 +7,36 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $fillable = [
-        'booking_code',
         'user_id',
+        'facility_id',
         'guest_name',
+        'guest_email',
         'guest_phone',
-        'venue_id',
-        'booking_date',
-        'start_time',
-        'end_time',
-        'status',
+        'starts_at',
+        'ends_at',
+        'duration_hours',
+        'is_with_referee',
+        'referee_price',
         'total_price',
-        'points_earned',
+        'dp_amount',
+        'points_used',
+        'user_reward_id',
+        'discount_amount',
+        'status',
         'payment_status',
+        'payment_token',
+        'snap_token',
+        'payment_url',
         'payment_method',
     ];
 
     protected $casts = [
-        'booking_date' => 'date',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'is_with_referee' => 'boolean',
         'total_price' => 'decimal:2',
-        'points_earned' => 'integer',
+        'referee_price' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
     ];
 
     // ── Relationships ────────────────────────────────────────────
@@ -35,31 +46,30 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function venue()
+    public function facility()
     {
-        return $this->belongsTo(Venue::class);
+        return $this->belongsTo(Facility::class);
+    }
+
+    public function userReward()
+    {
+        return $this->belongsTo(UserReward::class);
     }
 
     // ── Helpers ──────────────────────────────────────────────────
 
-    /** Nama pemesan: pakai nama user jika login, fallback ke guest_name */
-    public function getBookerNameAttribute(): string
+    public function scopePaid($query)
     {
-        return $this->user?->name ?? $this->guest_name ?? 'Guest';
+        return $query->where('payment_status', 'paid');
     }
 
-    /** Apakah booking ini dilakukan oleh guest (tanpa akun) */
-    public function isGuest(): bool
+    public function isMiniSoccer(): bool
     {
-        return is_null($this->user_id);
+        return str_contains(strtolower($this->facility?->name ?? ''), 'mini soccer');
     }
 
-    /**
-     * Hitung poin yang diperoleh dari total harga.
-     * Rumus: 1 poin per Rp 1.000 yang dibayar.
-     */
-    public static function calculatePoints(float $totalPrice): int
+    public function getBookingCodeAttribute(): string
     {
-        return (int) floor($totalPrice / 1000);
+        return 'MA-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
     }
 }

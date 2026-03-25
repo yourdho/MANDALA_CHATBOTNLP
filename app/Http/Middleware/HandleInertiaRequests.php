@@ -47,10 +47,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
             ],
-            'pendingMitraApps' => fn() =>
-                $user?->role === 'admin'
-                ? \App\Models\MitraApplication::where('status', 'pending')->count()
-                : 0,
+            'ziggy' => fn() => [
+                ...(new \Tighten\Ziggy\Ziggy)->toArray(),
+                'location' => $request->url(),
+            ],
         ];
     }
 }

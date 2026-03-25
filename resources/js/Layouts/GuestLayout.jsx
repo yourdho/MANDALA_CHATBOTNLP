@@ -1,39 +1,40 @@
 import { Link } from '@inertiajs/react';
-import ThemeToggle from '@/Components/ThemeToggle';
+import { motion } from 'framer-motion';
 
 export default function GuestLayout({ children }) {
     return (
-        <div className="flex min-h-screen flex-col items-center font-sans relative overflow-hidden pt-6 sm:justify-center sm:pt-0 theme-transition"
-            style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 font-sans relative overflow-hidden">
+            {/* Background elements */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#38BDF8]/10 rounded-full blur-[100px] -mr-64 -mt-64" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#FACC15]/10 rounded-full blur-[100px] -ml-64 -mb-64" />
 
-            {/* Background glow effects */}
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none"
-                    style={{ backgroundColor: 'var(--glow-color)' }} />
-                <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full blur-[80px] pointer-events-none"
-                    style={{ backgroundColor: 'var(--glow-color)' }} />
-            </div>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-md relative z-10"
+            >
+                {/* Brand Header */}
+                <div className="mb-10 text-center">
+                    <Link href="/" className="inline-flex flex-col items-center gap-4 group">
+                        <div className="w-16 h-16 bg-[#38BDF8] rounded-xl flex items-center justify-center shadow-lg shadow-[#38BDF8]/30 group-hover:rotate-3 transition-transform">
+                            <span className="text-white font-black italic text-3xl font-['Permanent_Marker']">M</span>
+                        </div>
+                        <span className="text-3xl font-black text-slate-900 tracking-wider font-['Permanent_Marker'] mt-2">
+                            Mandala <span className="text-[#38BDF8]">Arena</span>
+                        </span>
+                    </Link>
+                </div>
 
-            {/* Header: logo + toggle */}
-            <div className="mb-8 flex items-center justify-between w-full max-w-md px-4 sm:px-0">
-                <Link href="/" className="flex items-center gap-3">
-                    <img src="/images/janjee-logo.svg" alt="Janjee" className="h-10 w-10" />
-                    <span className="text-3xl font-black tracking-tight" style={{ color: 'var(--accent)' }}>
-                        Janjee
-                    </span>
-                </Link>
-                <ThemeToggle />
-            </div>
+                {/* Form Card */}
+                <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#38BDF8] via-[#FACC15] to-[#38BDF8]" />
+                    {children}
+                </div>
 
-            {/* Card */}
-            <div className="w-full overflow-hidden px-6 py-8 shadow-2xl sm:max-w-md sm:rounded-2xl border theme-transition"
-                style={{
-                    backgroundColor: 'var(--bg-card)',
-                    borderColor: 'var(--border)',
-                    boxShadow: 'var(--shadow)',
-                }}>
-                {children}
-            </div>
+                {/* Footer text */}
+                <p className="mt-10 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    © {new Date().getFullYear()} Mandala Arena Base.
+                </p>
+            </motion.div>
         </div>
     );
 }
