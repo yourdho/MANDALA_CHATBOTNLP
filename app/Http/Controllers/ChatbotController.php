@@ -22,7 +22,10 @@ class ChatbotController extends Controller
         $msgText = mb_strtolower(trim($msgText));
         $dict = ChatbotDictionary::all();
         foreach ($dict as $dbItem) {
-            $msgText = str_replace(mb_strtolower($dbItem->slang), mb_strtolower($dbItem->formal), $msgText);
+            $slang = mb_strtolower($dbItem->slang);
+            $formal = mb_strtolower($dbItem->formal);
+            // Gunakan regex \b agar hanya mengganti kata yang utuh, bukan bagian dari kata (contoh: 'ga' tidak mengganti 'gaul')
+            $msgText = preg_replace('/\b' . preg_quote($slang, '/') . '\b/u', $formal, $msgText);
         }
         return $msgText;
     }
@@ -30,15 +33,17 @@ class ChatbotController extends Controller
     private function getDetectedIntent(string $msgStr): string
     {
         $patternMap = [
-            'sapaan'   => ['halo', 'hai', 'hi', 'hey', 'pagi', 'siang', 'malam', 'assalamualaikum'],
-            'booking'  => ['booking', 'pesan', 'reserve', 'main', 'lapangan', 'daftar'],
-            'cancel'   => ['batal', 'cancel', 'gak jadi', 'nggak jadi', 'stop'],
+            'sapaan' => ['halo', 'hai', 'hi', 'hey', 'pagi', 'siang', 'malam', 'assalamualaikum'],
+            'booking' => ['booking', 'pesan', 'reserve', 'main', 'lapangan', 'daftar'],
+            'cancel' => ['batal', 'cancel', 'gak jadi', 'nggak jadi', 'stop'],
+            'matchmaking' => ['cari lawan', 'sparring', 'lawan', 'mabar', 'matchmaking'],
             'redirect' => ['login', 'register', 'daftar akun', 'masuk'],
         ];
 
         foreach ($patternMap as $intentKey => $words) {
             foreach ($words as $wordItem) {
-                if (str_contains($msgStr, $wordItem)) return $intentKey;
+                if (str_contains($msgStr, $wordItem))
+                    return $intentKey;
             }
         }
         return 'unknown';
@@ -62,24 +67,25 @@ class ChatbotController extends Controller
     private function facilityChips(): array
     {
         return [
-            ['label' => '⚽ Mini Soccer', 'msg' => 'Mini Soccer'],
-            ['label' => '🎾 Padel',       'msg' => 'Padel'],
-            ['label' => '🏸 Badminton',   'msg' => 'Badminton'],
-            ['label' => '🧘 Pilates',     'msg' => 'Pilates'],
+            ['label' => 'Mini Soccer', 'msg' => 'Mini Soccer'],
+            ['label' => 'Padel', 'msg' => 'Padel'],
+            ['label' => 'Badminton', 'msg' => 'Badminton'],
+            ['label' => 'Pilates', 'msg' => 'Pilates'],
         ];
     }
 
     public function handleMessage(Request $reqData)
     {
         $userMsgRaw = trim($reqData->input('message', ''));
-        if (!$userMsgRaw) return $this->respond('Ada yang bisa saya bantu? 😄');
+        if (!$userMsgRaw)
+            return $this->respond('Ada yang bisa saya bantu?');
 
         $cleanMsg = $this->normalize($userMsgRaw);
         $currState = Session::get('chatbot_state', 'IDLE');
 
         if ($this->getDetectedIntent($cleanMsg) === 'cancel') {
             Session::forget(['chatbot_state', 'booking_data']);
-            return $this->respond('Oke, batal ya. Ada lagi? 👍', [['label' => '📅 Booking Baru', 'msg' => 'booking']]);
+            return $this->respond('Oke, batal ya. Ada lagi? ', [['label' => 'Booking Baru', 'msg' => 'booking']]);
         }
 
         if ($currState !== 'IDLE') {
@@ -90,12 +96,16 @@ class ChatbotController extends Controller
 
         switch ($msgIntent) {
             case 'sapaan':
-                return $this->respond("Hai! Mau booking lapangan apa hari ini? 🏟️", $this->facilityChips());
+                return $this->respond("Hai! Mau booking lapangan apa hari ini?", $this->facilityChips());
             case 'booking':
                 return $this->startBookingFlow($cleanMsg);
+            case 'matchmaking':
+                return $this->respond("Mau cari lawan sparring? Saya bisa carikan lawan yang setara di Mandala Arena.", [
+                    ['label' => 'Cari Lawan Sekarang', 'msg' => 'cari lawan'],
+                ], route('matchmaking.index'));
             default:
-                return $this->respond("Boleh dijelasin lebih detail? Atau mau langsung booking aja biar saya bantu 👍", [
-                    ['label' => '📅 Booking Sekarang', 'msg' => 'booking'],
+                return $this->respond("Boleh dijelasin lebih detail? Atau mau langsung booking aja biar saya bantu", [
+                    ['label' => 'Booking Sekarang', 'msg' => 'booking'],
                 ]);
         }
     }
@@ -108,9 +118,9 @@ class ChatbotController extends Controller
         }
 
         Session::put('chatbot_state', 'ASK_HAS_ACCOUNT');
-        return $this->respond("Siap! Sebelumnya, apa Kakak sudah punya akun di Mandala Arena? 😄", [
-            ['label' => '✅ Login', 'msg' => 'Login'],
-            ['label' => '❌ Register', 'msg' => 'Register'],
+        return $this->respond("Siap! Sebelumnya, apa Kakak sudah punya akun di Mandala Arena?", [
+            ['label' => 'Login', 'msg' => 'Login'],
+            ['label' => 'Register', 'msg' => 'Register'],
         ]);
     }
 
@@ -124,7 +134,7 @@ class ChatbotController extends Controller
                 Session::put('chatbot_state', 'ASK_WANT_REGISTER');
                 return $this->respond("Belum punya ya? Mau sekalian buat akun biar dapat Poin Rejeki? 💎", [
                     ['label' => '✨ Register', 'msg' => 'Register'],
-                    ['label' => '👤 Guest Saja',    'msg' => 'guest saja'],
+                    ['label' => '👤 Guest Saja', 'msg' => 'guest saja'],
                 ]);
 
             case 'ASK_WANT_REGISTER':
@@ -139,7 +149,7 @@ class ChatbotController extends Controller
                 foreach ($allFacilities as $facObj) {
                     $facNameLower = strtolower($facObj->name);
                     if (str_contains($msgStr, $facNameLower)) {
-                        Session::put('chatbot_state', 'IDLE'); 
+                        Session::put('chatbot_state', 'IDLE');
                         return $this->respond(
                             "Pilihan yang mantap! Berpindah ke halaman **{$facObj->name}** untuk cek jadwal kosong ya... 🏟️",
                             [],

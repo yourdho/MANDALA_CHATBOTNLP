@@ -24,22 +24,18 @@ class AdminDashboardController extends Controller
         $totalUsers = User::where('role', 'user')->count();
         $activeFacilities = Facility::where('is_active', true)->count();
 
-        // 2. Revenue Trend (6 Months)
+        // 2. Revenue Trend (Last 6 Months)
         $revenueTrend = Booking::where('payment_status', 'paid')
-            ->select(
-                DB::raw('SUM(total_price) as total'),
-                DB::raw("strftime('%m', created_at) as month")
-            )
             ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
             ->get()
-            ->map(function ($item) {
+            ->groupBy(fn($b) => $b->created_at->format('M'))
+            ->map(function ($group, $month) {
                 return [
-                    'label' => Carbon::create()->month((int) $item->month)->format('M'),
-                    'value' => (float) $item->total
+                    'label' => $month,
+                    'value' => (float) $group->sum('total_price')
                 ];
-            });
+            })
+            ->values();
 
         // 3. Most Popular Sports (Categorized)
         $popularSports = Booking::select('facility_id', DB::raw('count(*) as count'))

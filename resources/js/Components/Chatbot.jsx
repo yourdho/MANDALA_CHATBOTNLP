@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,13 +26,13 @@ function RenderText({ text }) {
 }
 
 const INITIAL_CHIPS = [
-    { label: '⚽ Mini Soccer', msg: 'Mau booking Mini Soccer' },
-    { label: '🎾 Padel', msg: 'Mau booking Padel' },
-    { label: '🏀 Basket', msg: 'Mau booking Basket' },
-    { label: '🧘 Pilates', msg: 'Mau booking Pilates' },
+    { label: 'Mini Soccer', msg: 'Mau booking Mini Soccer' },
+    { label: 'Padel', msg: 'Mau booking Padel' },
+    { label: 'Basket', msg: 'Mau booking Basket' },
+    { label: 'Pilates', msg: 'Mau booking Pilates' },
 ];
 
-const WELCOME_TEXT = 'Halo! Selamat datang di **Mandala Arena** ✨\n\nArena olahraga modern di BSD. Mau booking lapangan apa hari ini?';
+const WELCOME_TEXT = 'Halo! Selamat datang di **Mandala Arena** \n\nArena olahraga modern di BSD. Mau booking lapangan apa hari ini?';
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -89,7 +89,7 @@ export default function Chatbot() {
 
             // Check for smart redirect from controller
             if (response.data.redirect) {
-                addMessage('bot', response.data.reply + " ⚡");
+                addMessage('bot', response.data.reply + " ");
                 setIsRedirecting(true);
                 setTimeout(() => {
                     window.location.href = response.data.redirect;
@@ -99,8 +99,8 @@ export default function Chatbot() {
 
             addMessage('bot', response.data.reply, response.data.chips ?? [], response.data.image ?? null);
         } catch {
-            addMessage('bot', 'Koneksi terganggu. Coba lagi ⚡', [
-                { label: '🔄 Retry', msg: text },
+            addMessage('bot', 'Koneksi terganggu. Coba lagi ', [
+                { label: ' Retry', msg: text },
             ]);
         } finally {
             setIsLoading(false);
@@ -246,3 +246,4 @@ export default function Chatbot() {
         </div>
     );
 }
+

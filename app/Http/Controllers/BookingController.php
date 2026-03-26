@@ -31,9 +31,9 @@ class BookingController extends Controller
             'start_time' => 'required|string',
             'end_time' => 'required|string',
             'payment_method' => 'string',
-            'guest_name' => 'nullable|required_if:auth,false|string',
-            'guest_email' => 'nullable|required_if:auth,false|email',
-            'guest_phone' => 'nullable|string',
+            'guest_name' => 'nullable|string|max:255',
+            'guest_email' => 'nullable|email|max:255',
+            'guest_phone' => 'nullable|string|max:20',
             'user_reward_id' => 'nullable|exists:user_rewards,id',
         ]);
 
@@ -141,6 +141,13 @@ class BookingController extends Controller
             $message = urlencode("Halo Admin Mandala Arena, saya ingin konfirmasi DP manual (50%) untuk pesanan Booking saya.\n\nKode Booking: MA-{$booking->id}\nFasilitas: {$facility->name}\nTanggal: {$booking->booking_date}\nTotal DP: Rp " . number_format($dp_amount, 0, ',', '.'));
             $wa_link = "https://wa.me/{$wa_number}?text={$message}";
 
+            if (!auth()->check()) {
+                return redirect()->route('booking.success', $booking->id)->with([
+                    'success' => 'Pesanan Berhasil! Hubungi Admin via WA untuk konfirmasi DP manual.',
+                    'wa_link' => $wa_link
+                ]);
+            }
+
             return redirect()->route('bookings.index')->with([
                 'success' => 'Pesanan berhasil dibuat! Silakan hubungi Admin via WhatsApp untuk melakukan transfer DP manual.',
                 'wa_link' => $wa_link
@@ -154,7 +161,15 @@ class BookingController extends Controller
             $snapToken = $this->midtrans->getSnapToken($booking, $amount_to_bill);
             $booking->update(['payment_token' => $snapToken]);
 
-            return redirect()->route('bookings.index')->with([
+            if (auth()->check()) {
+                return redirect()->route('bookings.index')->with([
+                    'snap_token' => $snapToken,
+                    'booking_id' => $booking->id,
+                    'success' => 'Berhasil dibuat. Silakan selesaikan pembayaran Instan.'
+                ]);
+            }
+
+            return redirect()->route('booking.success', $booking->id)->with([
                 'snap_token' => $snapToken,
                 'booking_id' => $booking->id,
                 'success' => 'Berhasil dibuat. Silakan selesaikan pembayaran Instan.'
@@ -169,6 +184,53 @@ class BookingController extends Controller
         return Inertia::render('Bookings/Index', [
             'bookings' => Booking::with('facility')->where('user_id', auth()->id())->latest()->get(),
         ]);
+    }
+
+    /**
+     * Display the specified booking mission details.
+     */
+    public function show(Booking $booking)
+    {
+        // Guard: Only owner can see their mission
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized Tactical Scan');
+        }
+
+        return Inertia::render('Bookings/Show', [
+            'booking' => $booking->load('facility'),
+            'wa_link' => $this->generateWaAdminLink($booking)
+        ]);
+    }
+
+    private function generateWaAdminLink($booking)
+    {
+        $wa_number = '6282123456789'; // Consumed from standard admin terminal
+        $date = $booking->starts_at->format('d/m/Y');
+        $code = 'MA-' . str_pad($booking->id, 5, '0', STR_PAD_LEFT);
+        $message = urlencode("Halo Admin Mandala Arena, saya ingin bertanya tentang pesanan Booking saya.\n\nKode Booking: {$code}\nFasilitas: {$booking->facility->name}\nTanggal: {$date}\nStatus: " . strtoupper($booking->status));
+        return "https://wa.me/{$wa_number}?text={$message}";
+    }
+
+    /**
+     * Cancel a pending booking.
+     */
+    public function cancel(Booking $booking)
+    {
+        // Guard: Only owner can cancel and only if status is pending
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized Tactical Denial');
+        }
+
+        if ($booking->status !== 'pending') {
+            return back()->withErrors(['error' => 'Confirmed missions cannot be aborted without HQ approval.']);
+        }
+
+        $booking->update([
+            'status' => 'cancelled',
+            'payment_status' => 'failed'
+        ]);
+
+        return back()->with('success', 'Misi booking telah diputus sesuai perintah.');
     }
 
     /**
@@ -208,7 +270,19 @@ class BookingController extends Controller
         $order_id = $payload['order_id'];
         $status = $payload['transaction_status'];
 
-        $booking = Booking::where('id', str_replace('MA-', '', $order_id))->first();
+        // Parse order_id safely (Format: MA-ID-TIMESTAMP)
+        $idParts = explode('-', $order_id);
+        $bookingId = $idParts[1] ?? null; // Get the ID part, if not present, it's null
+        if (!$bookingId && str_starts_with($order_id, 'MA-')) {
+            $bookingId = substr($order_id, 3); // Fallback for older format without timestamp
+        }
+
+        // Reliable ID extraction (MA-ID-TIMESTAMP atau MA-ID)
+        $idBase = str_replace('MA-', '', $order_id);
+        $idParts = explode('-', $idBase);
+        $bookingId = $idParts[0];
+
+        $booking = Booking::where('id', $bookingId)->first();
 
         if ($booking) {
             if ($status == 'settlement' || $status == 'capture') {
@@ -237,7 +311,13 @@ class BookingController extends Controller
 
     public function success(Booking $booking)
     {
-        return Inertia::render('Bookings/Success', ['booking' => $booking->load('facility')]);
+        $payload = ['booking' => $booking->load('facility')];
+
+        if (auth()->check()) {
+            return Inertia::render('Bookings/Success', $payload);
+        }
+
+        return Inertia::render('Bookings/GuestSuccess', $payload);
     }
 
     /**
@@ -245,16 +325,24 @@ class BookingController extends Controller
      */
     public function reports()
     {
+        $bookings = Booking::where('payment_status', 'paid')
+            ->whereYear('created_at', now()->year)
+            ->get();
+
+        $monthlyData = collect(range(1, 12))->map(function ($month) use ($bookings) {
+            $total = $bookings->filter(fn($b) => $b->created_at->month === $month)->sum('total_price');
+            return [
+                'month' => Carbon::create()->month($month)->format('M'),
+                'total' => (float) $total
+            ];
+        });
+
         return Inertia::render('Admin/Reports/Index', [
-            'revenue_total' => Booking::where('payment_status', 'paid')->sum('total_price'),
-            'platform_fee' => Booking::where('payment_status', 'paid')->count() * 2500, // Misal Rp 2.500 per booking
+            'revenue_total' => (float) $bookings->sum('total_price'),
+            'platform_fee' => $bookings->count() * 2500,
             'bookings_count' => Booking::count(),
             'popular_facility' => Facility::withCount('bookings')->orderBy('bookings_count', 'desc')->first(),
-            'monthly_data' => Booking::where('payment_status', 'paid')
-                ->get()
-                ->groupBy(fn($b) => $b->created_at->format('n'))
-                ->map(fn($group, $month) => ['month' => $month, 'total' => $group->sum('total_price')])
-                ->values()
+            'monthly_data' => $monthlyData->values()
         ]);
     }
 }

@@ -1,11 +1,11 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+﻿import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 const PAYMENT_OPTIONS = [
-    { value: 'transfer_bank', label: 'Transfer Bank', icon: '🏦', desc: 'BCA / Mandiri / BNI / BRI' },
-    { value: 'qris', label: 'QRIS', icon: '📱', desc: 'Scan QR di tempat' },
-    { value: 'bayar_ditempat', label: 'Bayar di Tempat', icon: '💵', desc: 'Bayar tunai saat tiba' },
+    { value: 'transfer_bank', label: 'Transfer Bank', icon: '', desc: 'BCA / Mandiri / BNI / BRI' },
+    { value: 'qris', label: 'QRIS', icon: '', desc: 'Scan QR di tempat' },
+    { value: 'bayar_ditempat', label: 'Bayar di Tempat', icon: '', desc: 'Bayar tunai saat tiba' },
 ];
 
 export default function BookingCreate({ venue, date, auth_user, register_incentive }) {
@@ -87,7 +87,7 @@ export default function BookingCreate({ venue, date, auth_user, register_incenti
                         <h1 className="text-2xl sm:text-3xl font-black"
                             style={{ color: 'var(--text-primary)' }}>{venue.name}</h1>
                         <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                            📍 {venue.address}
+                             {venue.address}
                         </p>
                     </motion.div>
 
@@ -104,7 +104,7 @@ export default function BookingCreate({ venue, date, auth_user, register_incenti
                                     <div className="rounded-2xl p-4 border"
                                         style={{ background: 'var(--accent-dim)', borderColor: 'var(--accent-border)' }}>
                                         <div className="flex items-start gap-3">
-                                            <span className="text-2xl">🎁</span>
+                                            <span className="text-2xl"></span>
                                             <div>
                                                 <p className="font-bold text-sm" style={{ color: 'var(--accent)' }}>
                                                     Daftar akun &amp; hemat {register_incentive}!
@@ -219,7 +219,7 @@ export default function BookingCreate({ venue, date, auth_user, register_incenti
                                         </div>
                                         {usePoints && pointsDiscount > 0 && (
                                             <p className="mt-2 text-xs font-semibold text-green-400">
-                                                ✅ Hemat Rp {pointsDiscount.toLocaleString('id-ID')}
+                                                 Hemat Rp {pointsDiscount.toLocaleString('id-ID')}
                                             </p>
                                         )}
                                     </Card>
@@ -353,7 +353,7 @@ export default function BookingCreate({ venue, date, auth_user, register_incenti
                                     <div className="rounded-xl p-3 text-center"
                                         style={{ background: 'var(--accent-dim)' }}>
                                         <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                            🎁 Daftar akun & hemat <strong style={{ color: 'var(--accent)' }}>{register_incentive}</strong> di booking berikutnya
+                                             Daftar akun & hemat <strong style={{ color: 'var(--accent)' }}>{register_incentive}</strong> di booking berikutnya
                                         </p>
                                     </div>
                                 )}
@@ -407,3 +407,4 @@ function FormGroup({ label, error, children }) {
         </div>
     );
 }
+

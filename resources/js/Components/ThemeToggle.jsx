@@ -1,4 +1,4 @@
-import { useTheme } from './ThemeContext';
+﻿import { useTheme } from './ThemeContext';
 import { motion } from 'framer-motion';
 
 export default function ThemeToggle() {
@@ -7,8 +7,8 @@ export default function ThemeToggle() {
     return (
         <button
             onClick={toggleTheme}
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 relative overflow-hidden group shadow-sm active:scale-95"
-            title="Ganti Mode"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 relative overflow-hidden group shadow-lg active:scale-90 pointer-events-auto"
+            title="Ganti Mode (Tactical Shift)"
         >
             <motion.div
                 initial={false}
@@ -24,6 +24,8 @@ export default function ThemeToggle() {
             >
                 ☀️
             </motion.div>
+            <div className="absolute inset-0 bg-[#38BDF8]/10 opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>
     );
 }
+

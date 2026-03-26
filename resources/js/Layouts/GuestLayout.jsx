@@ -13,7 +13,7 @@ export default function GuestLayout({ children }) {
                 className="w-full max-w-md relative z-10"
             >
                 {/* Brand Header */}
-                <div className="mb-10 text-center">
+                {/* <div className="mb-10 text-center">
                     <Link href="/" className="inline-flex flex-col items-center gap-4 group">
                         <div className="w-16 h-16 bg-[#38BDF8] rounded-xl flex items-center justify-center shadow-lg shadow-[#38BDF8]/30 group-hover:rotate-3 transition-transform">
                             <span className="text-white font-black italic text-3xl font-['Permanent_Marker']">M</span>
@@ -22,7 +22,7 @@ export default function GuestLayout({ children }) {
                             Mandala <span className="text-[#38BDF8]">Arena</span>
                         </span>
                     </Link>
-                </div>
+                </div> */}
 
                 {/* Form Card */}
                 <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">

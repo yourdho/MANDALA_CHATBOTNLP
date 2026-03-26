@@ -27,12 +27,14 @@ export default function UpdateProfileInformation({
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-bold text-slate-100">
-                    Profile Information
+                <h2 className="text-2xl font-black italic uppercase tracking-tighter"
+                    style={{ color: 'var(--text-primary)' }}>
+                    Informasi <span className="text-[#38BDF8]">Pilot</span>
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-400">
-                    Update your account's profile information and email address.
+                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest"
+                    style={{ color: 'var(--text-secondary)' }}>
+                    Update identitas akun dan alamat email terdaftar.
                 </p>
             </header>
 
@@ -92,8 +94,8 @@ export default function UpdateProfileInformation({
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                <div className="flex items-center gap-6">
+                    <PrimaryButton disabled={processing} className="px-10 py-4">Save Configuration</PrimaryButton>
 
                     <Transition
                         show={recentlySuccessful}
@@ -102,8 +104,8 @@ export default function UpdateProfileInformation({
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-[#F2D800]">
-                            Saved.
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 italic">
+                            Data Synchronized.
                         </p>
                     </Transition>
                 </div>

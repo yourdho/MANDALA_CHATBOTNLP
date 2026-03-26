@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+﻿import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 
@@ -21,7 +21,7 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2">Dapatkan voucher eksklusif dengan poin Anda.</p>
                     </div>
                     <div className="flex items-center gap-6 bg-white border border-slate-100 p-6 rounded-[2rem] shadow-xl shadow-slate-100/50">
-                        <div className="w-14 h-14 rounded-2xl bg-[#FACC15]/10 flex items-center justify-center text-3xl">✨</div>
+                        <div className="w-14 h-14 rounded-2xl bg-[#FACC15]/10 flex items-center justify-center text-3xl"></div>
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">Saldo Poin</p>
                             <p className="text-3xl font-black italic text-slate-900 leading-none">{user_points || 0} <span className="text-[10px] text-[#FACC15] ml-1 not-italic tracking-widest">PTS</span></p>
@@ -54,7 +54,7 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
 
                                 <div className="flex justify-between items-start mb-8 relative z-10">
                                     <div className="w-16 h-16 rounded-2xl bg-[#38BDF8]/10 flex items-center justify-center text-3xl shadow-sm border border-[#38BDF8]/10 group-hover:rotate-6 transition-transform">
-                                        {r.discount_type === 'percentage' ? '🏷️' : '💰'}
+                                        {r.discount_type === 'percentage' ? '️' : ''}
                                     </div>
                                     <span className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">
                                         {r.quota} Sisa
@@ -94,14 +94,14 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                                         : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                         }`}
                                 >
-                                    {user_points >= r.points_required ? `Tukarkan ${r.points_required} Poin ✨` : `Butuh ${r.points_required} Poin`}
+                                    {user_points >= r.points_required ? `Tukarkan ${r.points_required} Poin ` : `Butuh ${r.points_required} Poin`}
                                 </button>
                             </motion.div>
                         ))}
 
                         {available_rewards.length === 0 && (
                             <div className="col-span-full py-32 text-center rounded-[3rem] bg-slate-50/50 border-2 border-dashed border-slate-200">
-                                <span className="text-6xl opacity-30">✨</span>
+                                <span className="text-6xl opacity-30"></span>
                                 <p className="text-slate-400 font-bold uppercase tracking-widest mt-6">Belum ada promo rewards tersedia hari ini.</p>
                             </div>
                         )}
@@ -132,7 +132,7 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                                             <td className="px-10 py-10">
                                                 <div className="flex items-center gap-6">
                                                     <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl grayscale-[0.5] group-hover:grayscale-0 transition-all">
-                                                        {v.reward?.discount_type === 'percentage' ? '🏷️' : '💰'}
+                                                        {v.reward?.discount_type === 'percentage' ? '️' : ''}
                                                     </div>
                                                     <span className="font-['Permanent_Marker'] italic text-2xl uppercase tracking-tight text-slate-900">{v.reward?.title}</span>
                                                 </div>
@@ -157,7 +157,7 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                                         <tr>
                                             <td colSpan="4" className="py-24 text-center">
                                                 <div className="max-w-xs mx-auto">
-                                                    <span className="text-4xl opacity-20 block mb-6">🎟️</span>
+                                                    <span className="text-4xl opacity-20 block mb-6">️</span>
                                                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Anda belum memiliki voucher. Ayo tukar poin sekarang!</p>
                                                 </div>
                                             </td>
@@ -172,3 +172,4 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
         </AuthenticatedLayout>
     );
 }
+

@@ -34,13 +34,13 @@ class MidtransService
 
         $params = [
             'transaction_details' => [
-                'order_id' => 'BOOK-' . $booking->id . '-' . time(),
+                'order_id' => 'MA-' . $booking->id . '-' . time(),
                 'gross_amount' => (int) $amount,
             ],
             'customer_details' => [
-                'first_name' => $booking->user->name,
-                'email' => $booking->user->email,
-                'phone' => $booking->user->phone,
+                'first_name' => $booking->guest_name ?? ($booking->user->name ?? 'Guest'),
+                'email' => $booking->guest_email ?? ($booking->user->email ?? 'no-email@mandala.arena'),
+                'phone' => $booking->guest_phone ?? ($booking->user->phone ?? '000000000'),
             ],
             // Memaksa opsi Transfer Bank & QRIS keluar di antarmuka Midtrans
             'enabled_payments' => [

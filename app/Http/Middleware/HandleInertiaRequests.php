@@ -44,8 +44,8 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'flash' => [
-                'success' => fn() => $request->session()->get('success'),
-                'error' => fn() => $request->session()->get('error'),
+                'type' => fn() => $request->session()->get('flash')['type'] ?? ($request->session()->get('success') ? 'success' : ($request->session()->get('error') ? 'error' : null)),
+                'message' => fn() => $request->session()->get('flash')['message'] ?? $request->session()->get('success') ?? $request->session()->get('error'),
             ],
             'ziggy' => fn() => [
                 ...(new \Tighten\Ziggy\Ziggy)->toArray(),

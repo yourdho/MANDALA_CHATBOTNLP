@@ -48,15 +48,14 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-bold text-slate-100">
-                    Delete Account
+                <h2 className="text-2xl font-black italic uppercase tracking-tighter"
+                    style={{ color: 'var(--text-primary)' }}>
+                    Terminasi <span className="text-red-500">Akun</span>
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-400">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Before deleting your account,
-                    please download any data or information that you wish to
-                    retain.
+                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-xl"
+                    style={{ color: 'var(--text-secondary)' }}>
+                    Setelah akun dihapus, seluruh data mission points dan riwayat booking akan dihilangkan secara permanen dari server Mandala Arena.
                 </p>
             </header>
 
@@ -65,16 +64,14 @@ export default function DeleteUserForm({ className = '' }) {
             </DangerButton>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-6 bg-slate-800">
-                    <h2 className="text-lg font-bold text-slate-100">
-                        Are you sure you want to delete your account?
+                <form onSubmit={deleteUser} className="p-10" style={{ background: 'var(--bg-card)' }}>
+                    <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-4 text-red-500">
+                        Konfirmasi Penghapusan
                     </h2>
 
-                    <p className="mt-1 text-sm text-slate-400">
-                        Once your account is deleted, all of its resources and
-                        data will be permanently deleted. Please enter your
-                        password to confirm you would like to permanently delete
-                        your account.
+                    <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-8"
+                        style={{ color: 'var(--text-secondary)' }}>
+                        Seluruh sumber daya dan data mission points akan dihilangkan secara permanen. Masukkan password otorisasi untuk melanjutkan proses terminasi.
                     </p>
 
                     <div className="mt-6">

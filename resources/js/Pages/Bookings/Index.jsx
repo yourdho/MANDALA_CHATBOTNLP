@@ -1,11 +1,11 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, usePage } from '@inertiajs/react';
+﻿import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, router, usePage, Link } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
 const PAYMENT_LABEL = {
-    midtrans: { label: 'Online Payment', icon: '⚡' },
-    bayar_ditempat: { label: 'Bayar di Kasir', icon: '📍' },
+    midtrans: { label: 'Online Payment', icon: '' },
+    bayar_ditempat: { label: 'Bayar di Kasir', icon: '' },
 };
 
 export default function BookingsIndex({ bookings }) {
@@ -58,23 +58,26 @@ export default function BookingsIndex({ bookings }) {
     const pendingBookingsCount = bookings.filter(b => b.status === 'pending').length;
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex items-center gap-4">
-                    <h2 className="text-4xl font-['Permanent_Marker'] italic text-slate-900 uppercase tracking-tighter leading-none">
-                        Daftar <span className="text-[#38BDF8]">Booking</span>
-                    </h2>
-                </div>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Booking Saya | Mandala Arena" />
 
             <div className="max-w-7xl mx-auto space-y-12">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-12"
+                    style={{ borderColor: 'var(--border)' }}>
+                    <div>
+                        <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Log</p>
+                        <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                            style={{ color: 'var(--text-primary)' }}>
+                            Daftar <span className="text-[#38BDF8]">Booking</span>
+                        </h1>
+                    </div>
+                </div>
 
                 {flash?.success && !flash?.snap_token && (
                     <div className="p-6 bg-emerald-50 border-2 border-emerald-100 text-emerald-800 rounded-[2rem] font-bold mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
                         <div className="flex items-center gap-4">
-                            <span className="text-3xl">✅</span>
+                            <span className="text-3xl"></span>
                             <span className="text-sm">{flash.success}</span>
                         </div>
                         {flash?.wa_link && (
@@ -105,32 +108,39 @@ export default function BookingsIndex({ bookings }) {
                         <motion.div key={s.title}
                             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="bg-white rounded-[2rem] p-8 border border-slate-100 relative overflow-hidden shadow-sm group">
+                            className="rounded-[2rem] p-8 border relative overflow-hidden shadow-sm group"
+                            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                             <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 pointer-events-none ${s.color === 'primary' ? 'bg-[#38BDF8]' : s.color === 'accent' ? 'bg-[#FACC15]' : 'bg-slate-300'}`} />
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">{s.title}</h3>
-                            <p className="text-4xl font-['Permanent_Marker'] text-slate-800">{s.value}</p>
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4"
+                                style={{ color: 'var(--text-secondary)' }}>{s.title}</h3>
+                            <p className="text-4xl font-['Permanent_Marker']"
+                                style={{ color: 'var(--text-primary)' }}>{s.value}</p>
                         </motion.div>
                     ))}
                 </div>
 
                 {/* Mission Roster */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                    className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/50">
-                    <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                        <h3 className="text-xl font-['Permanent_Marker'] italic text-slate-800 uppercase tracking-wider">Riwayat Transaksi</h3>
+                    className="rounded-[2.5rem] border overflow-hidden shadow-xl"
+                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                    <div className="p-8 border-b flex items-center justify-between"
+                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+                        <h3 className="text-xl font-black italic uppercase tracking-widest"
+                            style={{ color: 'var(--text-primary)' }}>Riwayat Transaksi</h3>
                     </div>
 
                     {bookings.length === 0 ? (
                         <div className="p-32 text-center">
-                            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] animate-pulse">Belum Ada Riwayat Booking.</p>
+                            <p className="font-bold uppercase tracking-[0.2em] animate-pulse"
+                                style={{ color: 'var(--text-secondary)' }}>Belum Ada Riwayat Booking.</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-slate-50">
+                        <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                             {bookings.map((booking, index) => (
                                 <motion.div key={booking.id}
                                     initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4 + index * 0.05 }}
-                                    className="p-6 md:p-8 hover:bg-slate-50/80 transition-all group overflow-hidden relative">
+                                    className="p-6 md:p-8 hover:opacity-80 transition-all group overflow-hidden relative">
                                     <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
 
                                         {/* Status & Code */}
@@ -145,13 +155,23 @@ export default function BookingsIndex({ bookings }) {
 
                                         {/* Core Data */}
                                         <div className="flex-1 min-w-0 text-center md:text-left">
-                                            <h4 className="text-slate-900 font-black text-2xl uppercase tracking-tighter leading-none mb-3 group-hover:text-[#38BDF8] transition-colors">{booking.facility?.name}</h4>
+                                            <Link href={route('bookings.show', booking.id)} className="block group/title">
+                                                <h4 className="text-slate-900 font-black text-2xl uppercase tracking-tighter leading-none mb-3 group-hover/title:text-[#38BDF8] transition-colors"
+                                                    style={{ color: 'var(--text-primary)' }}>
+                                                    {booking.facility?.name}
+                                                </h4>
+                                            </Link>
                                             <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">
-                                                <span>📅 {new Date(booking.starts_at).toLocaleDateString()}</span>
-                                                <span>🕒 {new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.ends_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span> {new Date(booking.starts_at).toLocaleDateString()}</span>
+                                                <span> {new Date(booking.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.ends_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                 {booking.payment_method && (
-                                                    <span className="text-amber-600 font-black">{PAYMENT_LABEL[booking.payment_method]?.icon} {PAYMENT_LABEL[booking.payment_method]?.label}</span>
+                                                    <span className="text-amber-600 font-black">
+                                                        {PAYMENT_LABEL[booking.payment_method]?.label || booking.payment_method.replace('_', ' ').toUpperCase()}
+                                                    </span>
                                                 )}
+                                                <Link href={route('bookings.show', booking.id)} className="text-[#38BDF8] hover:underline">
+                                                    TACTICAL SCAN →
+                                                </Link>
                                             </div>
                                         </div>
 
@@ -205,19 +225,22 @@ export default function BookingsIndex({ bookings }) {
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }}
-                            className="bg-white border border-slate-100 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden print:rounded-none print:shadow-none print:max-w-none print:border-none"
+                            className="rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden print:rounded-none print:shadow-none print:max-w-none print:border-none"
+                            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', border: '1px solid var(--border)' }}
                             onClick={e => e.stopPropagation()}
                         >
                             {/* Logo & Header */}
-                            <div className="bg-slate-50 p-8 md:p-12 border-b border-slate-100 relative overflow-hidden">
+                            <div className="p-8 md:p-12 border-b relative overflow-hidden"
+                                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                                 <div className="absolute top-0 right-0 w-44 h-44 bg-[#38BDF8]/10 rounded-full blur-[80px] -mr-20 -mt-20" />
                                 <div className="flex items-center gap-6 relative z-10">
-                                    <div className="w-16 h-16 bg-[#38BDF8] rounded-2xl flex items-center justify-center font-black italic text-white text-3xl shadow-lg shadow-[#38BDF8]/30 font-['Permanent_Marker']">M</div>
+                                    <div className="w-16 h-16 bg-[#38BDF8] rounded-2xl flex items-center justify-center font-black italic text-white text-3xl shadow-lg shadow-[#38BDF8]/30">M</div>
                                     <div>
-                                        <p className="text-3xl font-['Permanent_Marker'] italic text-slate-800 uppercase tracking-tighter leading-none">Mandala Arena</p>
+                                        <p className="text-3xl font-black italic uppercase tracking-tighter leading-none"
+                                            style={{ color: 'var(--text-primary)' }}>Mandala Arena</p>
                                         <p className="text-[10px] font-black text-[#38BDF8] tracking-[0.2em] uppercase mt-2">Sports Facility E-Ticket</p>
                                     </div>
-                                    <button onClick={() => setNota(null)} className="ml-auto w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors print:hidden">✕</button>
+                                    <button onClick={() => setNota(null)} className="ml-auto w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors print:hidden"></button>
                                 </div>
                             </div>
 
@@ -268,9 +291,15 @@ export default function BookingsIndex({ bookings }) {
 
             <style>{`
                 @media print {
-                    body > * { display: none !important; }
-                    .print\\:bg-white { display: block !important; position: absolute; left: 0; top: 0; w-full; h-full; z-index: 9999; }
-                    .print\\:hidden { display: none !important; }
+                    .print\\:hidden, nav, header, aside, .chatbot-container, .max-w-7xl, button { display: none !important; }
+                    .print\\:p-0 { padding: 0 !important; }
+                    .print\\:bg-white { background-color: white !important; display: block !important; position: static !important; width: 100% !important; z-index: auto !important; }
+                    .print\\:rounded-none { border-radius: 0 !important; }
+                    .print\\:shadow-none { box-shadow: none !important; }
+                    .print\\:max-w-none { max-width: none !important; }
+                    .print\\:border-none { border: none !important; }
+                    body { background: white !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    main { padding: 0 !important; margin: 0 !important; }
                 }
             `}</style>
         </AuthenticatedLayout>
@@ -279,9 +308,13 @@ export default function BookingsIndex({ bookings }) {
 
 function Row({ label, value, highlight = false }) {
     return (
-        <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 leading-none">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
-            <span className={`text-xs font-black uppercase tracking-widest text-right ${highlight ? 'text-[#38BDF8]' : 'text-slate-800'}`}>{value}</span>
+        <div className="flex items-center justify-between py-3 border-b last:border-0 leading-none"
+            style={{ borderColor: 'var(--border)' }}>
+            <span className="text-[10px] font-bold uppercase tracking-widest"
+                style={{ color: 'var(--text-secondary)' }}>{label}</span>
+            <span className={`text-xs font-black uppercase tracking-widest text-right ${highlight ? 'text-[#38BDF8]' : ''}`}
+                style={{ color: highlight ? '#38BDF8' : 'var(--text-primary)' }}>{value}</span>
         </div>
     );
 }
+

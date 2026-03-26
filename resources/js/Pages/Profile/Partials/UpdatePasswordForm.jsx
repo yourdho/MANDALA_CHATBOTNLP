@@ -47,13 +47,14 @@ export default function UpdatePasswordForm({ className = '' }) {
     return (
         <section className={className}>
             <header>
-                <h2 className="text-lg font-bold text-slate-100">
-                    Update Password
+                <h2 className="text-2xl font-black italic uppercase tracking-tighter"
+                    style={{ color: 'var(--text-primary)' }}>
+                    Parameter <span className="text-[#38BDF8]">Keamanan</span>
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-400">
-                    Ensure your account is using a long, random password to stay
-                    secure.
+                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest"
+                    style={{ color: 'var(--text-secondary)' }}>
+                    Pastikan akun menggunakan enkripsi password yang kuat.
                 </p>
             </header>
 
@@ -121,8 +122,8 @@ export default function UpdatePasswordForm({ className = '' }) {
                     />
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                <div className="flex items-center gap-6">
+                    <PrimaryButton disabled={processing} className="px-10 py-4">Synchronize Password</PrimaryButton>
 
                     <Transition
                         show={recentlySuccessful}
@@ -131,8 +132,8 @@ export default function UpdatePasswordForm({ className = '' }) {
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-[#F2D800]">
-                            Saved.
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 italic">
+                            Encryption Updated.
                         </p>
                     </Transition>
                 </div>

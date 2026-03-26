@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AutoCarousel({ images = [], name = 'Facility' }) {
@@ -16,7 +16,7 @@ export default function AutoCarousel({ images = [], name = 'Facility' }) {
     if (!images || images.length === 0) {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 border border-slate-200">
-                <span className="text-4xl opacity-20 block mb-2">📸</span>
+                <span className="text-4xl opacity-20 block mb-2"></span>
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Gambar Belum Tersedia</span>
             </div>
         );
@@ -69,3 +69,4 @@ export default function AutoCarousel({ images = [], name = 'Facility' }) {
         </div>
     );
 }
+

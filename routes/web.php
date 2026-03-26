@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\MatchController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -20,6 +21,7 @@ Route::post('/payment/create/{booking_id}', [\App\Http\Controllers\PaymentContro
 Route::post('/payment/callback', [\App\Http\Controllers\PaymentController::class, 'callbackHandler'])->name('payment.callback');
 
 Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
 // ── Authenticated Routes ──────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -51,12 +53,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     // Booking Process
-    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
     Route::get('/bookings', [BookingController::class, 'history'])->name('bookings.index');
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 
     // ── User Loyalty (Redeem) ───────────────────────────────────
     Route::get('/reward-market', [\App\Http\Controllers\UserRewardController::class, 'index'])->name('user.rewards.index');
     Route::post('/reward-redeem', [\App\Http\Controllers\UserRewardController::class, 'redeem'])->name('user.rewards.redeem');
+
+    // ── Matchmaking (Cari Lawan) ─────────────────────────────────
+    Route::get('/matchmaking', function () {
+        $matches = \App\Models\SportsMatch::where('user_id', auth()->id())
+            ->latest()
+            ->get()
+            ->map(function ($m) {
+                if ($m->status === 'matched') {
+                    // Cek entry lawan yang match dengan kriteria ini
+                    $oppMatch = \App\Models\SportsMatch::where('user_id', $m->matched_with)
+                        ->where('matched_with', auth()->id())
+                        ->where('date', $m->date)
+                        ->first();
+                    $m->opponent_contact_type = $oppMatch?->contact_type;
+                    $m->opponent_contact_value = $oppMatch?->contact_value;
+                    $m->opponent_team_name = $oppMatch?->team_name;
+                }
+                return $m;
+            });
+
+        return Inertia::render('Matches/Index', [
+            'my_matches' => $matches
+        ]);
+    })->name('matchmaking.index');
+    Route::post('/matchmaking', [MatchController::class, 'store'])->name('matchmaking.store');
+    Route::get('/matchmaking/{match}/status', [MatchController::class, 'findMatch'])->name('matchmaking.status');
 
 
     // ── Admin Area ───────────────────────────────────────────
@@ -76,7 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('facilities.destroy');
 
         // Booking Management
-        Route::get('/bookings', [BookingController::class, 'adminIndex'])->name('bookings.index');
+        Route::get('/bookings', [BookingController::class, 'adminIndex'])->name('bookings.manage');
         Route::patch('/bookings/{booking}/confirm', [BookingController::class, 'adminConfirm'])->name('bookings.confirm');
 
         // Reports (Super Admin only check inside controller or middleware)

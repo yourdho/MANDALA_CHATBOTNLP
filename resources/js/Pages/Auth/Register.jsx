@@ -1,4 +1,4 @@
-import InputError from '@/Components/InputError';
+﻿import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
@@ -22,12 +22,12 @@ export default function Register() {
         <GuestLayout>
             <Head title="Gabung Arena | Mandala Arena" />
 
-            <div className="mb-10 text-center md:text-left">
+            <div className="mb-10 text-center md:text-center">
                 <h1 className="text-3xl font-black italic tracking-tighter text-slate-900 uppercase leading-none">
-                    Daftar Akun Baru
+                    Mandala <span className="text-[#38BDF8]">Arena</span>
                 </h1>
                 <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-3">
-                    Bikin profil olahraga kamu hari ini juga
+                    Buat akun olahraga kamu hari ini juga
                 </p>
             </div>
 
@@ -41,7 +41,7 @@ export default function Register() {
                         autoFocus
                         onChange={(e) => setData('name', e.target.value)}
                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
-                        placeholder="John Doe"
+                        placeholder="Ujang"
                     />
                     <InputError message={errors.name} className="mt-2 ml-2" />
                 </div>
@@ -54,7 +54,7 @@ export default function Register() {
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
-                        placeholder="your@email.com"
+                        placeholder="ujang@gmail.com"
                     />
                     <InputError message={errors.email} className="mt-2 ml-2" />
                 </div>
@@ -93,7 +93,7 @@ export default function Register() {
                         disabled={processing}
                         className="w-full bg-[#FACC15] text-amber-950 rounded-2xl py-5 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-[#FACC15]/30 hover:bg-[#FACC15]/90 transition-all disabled:opacity-50"
                     >
-                        {processing ? 'Memproses...' : 'Daftar Sekarang 🔥'}
+                        {processing ? 'Memproses...' : 'Daftar Sekarang '}
                     </motion.button>
                 </div>
 
@@ -109,3 +109,4 @@ export default function Register() {
         </GuestLayout>
     );
 }
+

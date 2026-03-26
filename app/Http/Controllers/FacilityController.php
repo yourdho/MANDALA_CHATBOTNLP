@@ -40,8 +40,12 @@ class FacilityController extends Controller
 
         $facility->load([
             'bookings' => function ($q) use ($date) {
-                $q->whereDate('starts_at', $date)
-                    ->whereIn('status', ['pending', 'confirmed']);
+                // Tactical Span Guard: Include bookings that cross this day threshold
+                $q->where(function ($qq) use ($date) {
+                    $qq->whereDate('starts_at', '<=', $date)
+                        ->whereDate('ends_at', '>=', $date);
+                })
+                    ->whereIn('payment_status', ['paid', 'settlement', 'confirmed']);
             }
         ]);
 
@@ -67,11 +71,22 @@ class FacilityController extends Controller
         $closeHour = $facility->close_time ? (int) substr($facility->close_time, 0, 2) : 22;
 
         $timeSlots = [];
+        $currentHour = (int) now()->format('H');
+        $isToday = $date === now()->format('Y-m-d');
+
         for ($h = $openHour; $h < $closeHour; $h++) {
             $time = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+
+            $isAvailable = !in_array($time, $bookedSlots);
+
+            // Real-time Guard: If it's today and the hour has passed, it's unavailable
+            if ($isToday && $h <= $currentHour) {
+                $isAvailable = false;
+            }
+
             $timeSlots[] = [
                 'time' => $time,
-                'available' => !in_array($time, $bookedSlots)
+                'available' => $isAvailable
             ];
         }
 
