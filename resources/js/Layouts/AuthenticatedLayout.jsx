@@ -128,7 +128,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                 {!isAdmin && (
                     <SideNavItem href={route('user.rewards.index')} active={route().current('user.rewards.*')} icon={Icons.shoppingBag}>
                         <div className="flex flex-col gap-1">
-                            <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Reward Market</span>
+                            <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Promo diskon</span>
                             <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Tukar poin loyalty</span>
                         </div>
                     </SideNavItem>

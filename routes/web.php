@@ -63,15 +63,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Matchmaking (Cari Lawan) ─────────────────────────────────
     Route::get('/matchmaking', function () {
-        $matches = \App\Models\SportsMatch::where('user_id', auth()->id())
+        $userId = auth()->id();
+
+        // My Submissions
+        $myMatches = \App\Models\SportsMatch::where('user_id', $userId)
             ->latest()
             ->get()
-            ->map(function ($m) {
+            ->map(function ($m) use ($userId) {
                 if ($m->status === 'matched') {
                     // Cek entry lawan yang match dengan kriteria ini
                     $oppMatch = \App\Models\SportsMatch::where('user_id', $m->matched_with)
-                        ->where('matched_with', auth()->id())
+                        ->where('matched_with', $userId)
                         ->where('date', $m->date)
+                        ->where('time', $m->time)
                         ->first();
                     $m->opponent_contact_type = $oppMatch?->contact_type;
                     $m->opponent_contact_value = $oppMatch?->contact_value;
@@ -80,8 +84,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 return $m;
             });
 
+        // Other people searching (Global Radar)
+        $availableMatches = \App\Models\SportsMatch::where('user_id', '!=', $userId)
+            ->where('status', 'searching')
+            ->where('date', '>=', now()->toDateString())
+            ->latest()
+            ->get();
+
         return Inertia::render('Matches/Index', [
-            'my_matches' => $matches
+            'my_matches' => $myMatches,
+            'available_matches' => $availableMatches
         ]);
     })->name('matchmaking.index');
     Route::post('/matchmaking', [MatchController::class, 'store'])->name('matchmaking.store');
