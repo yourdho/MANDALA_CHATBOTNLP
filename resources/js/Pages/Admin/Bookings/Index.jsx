@@ -116,16 +116,16 @@ export default function BookingAdminIndex({ bookings }) {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                     className="rounded-[2.5rem] border overflow-hidden shadow-3xl"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <div className="p-8 border-b flex flex-col md:flex-row items-center justify-between gap-4"
+                    <div className="p-4 md:p-8 border-b flex flex-col md:flex-row items-center justify-between gap-4"
                         style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                        <h3 className="text-xl font-black italic uppercase tracking-wider"
+                        <h3 className="text-lg md:text-xl font-black italic uppercase tracking-wider"
                             style={{ color: 'var(--text-primary)' }}>Antrean Transaksi</h3>
 
                         <div className="flex gap-2">
                             {['all', 'pending', 'confirmed'].map(f => (
                                 <button key={f}
                                     onClick={() => setFilter(f)}
-                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-slate-900 text-white shadow-md' : 'bg-white border text-slate-500 hover:border-[#38BDF8]'}`}
+                                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-slate-900 text-white shadow-md' : 'bg-white border text-slate-500 hover:border-[#38BDF8]'}`}
                                     style={filter === f ? {} : { background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                                     {f}
                                 </button>
@@ -133,16 +133,16 @@ export default function BookingAdminIndex({ bookings }) {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[800px]">
+                    <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
                             <thead className="text-[10px] font-black uppercase tracking-[0.2em] italic border-b"
                                 style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)', borderColor: 'var(--border)' }}>
                                 <tr>
-                                    <th className="px-8 py-6 rounded-tl-xl w-32">Kode Booking</th>
+                                    <th className="px-8 py-6 rounded-tl-xl w-32">Kode</th>
                                     <th className="px-4 py-6 text-[#38BDF8]">Fasilitas</th>
                                     <th className="px-4 py-6">Penyewa</th>
-                                    <th className="px-4 py-6">Jadwal & Pembayaran</th>
-                                    <th className="px-4 py-6">Total Harga / DP</th>
+                                    <th className="px-4 py-6">Jadwal</th>
+                                    <th className="px-4 py-6">Harga</th>
                                     <th className="px-4 py-6 text-center">Status</th>
                                     <th className="px-8 py-6 text-right rounded-tr-xl">Aksi</th>
                                 </tr>
@@ -252,6 +252,70 @@ export default function BookingAdminIndex({ bookings }) {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card List */}
+                    <div className="md:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+                        {filteredBookings.length === 0 ? (
+                            <div className="p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Belum Ada Data.</div>
+                        ) : filteredBookings.map((b, i) => (
+                            <motion.div key={b.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black italic text-lg shadow-lg">
+                                            {b.facility?.name?.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.2em]">#MA-{b.id}</p>
+                                            <h4 className="text-sm font-black italic uppercase leading-tight" style={{ color: 'var(--text-primary)' }}>{b.facility?.name}</h4>
+                                        </div>
+                                    </div>
+                                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${statusColors[b.status]?.text}`} style={{ background: 'var(--bg-base)' }}>
+                                        {statusColors[b.status]?.label}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Penyewa</p>
+                                        <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{b.guest_name || b.user?.name}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-[9px] font-medium" style={{ color: 'var(--text-secondary)' }}>{b.guest_phone || b.user?.phone || 'No Phone'}</p>
+                                            {(b.guest_phone || b.user?.phone) && (
+                                                <a href={`https://wa.me/${(b.guest_phone || b.user?.phone).replace(/\D/g, '').replace(/^0/, '62')}`} target="_blank" className="p-1 bg-emerald-500 text-white rounded shadow-sm">
+                                                    <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.764-5.766zm3.392 8.221c-.142.399-.833.723-1.141.774-.285.051-.613.082-.994-.039-.233-.073-.539-.169-.991-.355-1.924-.788-3.137-2.722-3.235-2.852-.097-.13-.807-1.077-.807-2.062s.521-1.469.707-1.676c.186-.206.408-.258.544-.258.136 0 .272.003.39.01.12.007.281-.045.44.337.162.39.551 1.336.6 1.439.049.103.082.224.013.355-.069.13-.157.283-.313.456-.156.173-.328.385-.168.658.16.272.71 1.171 1.522 1.892.684.608 1.265.798 1.543.917.278.12.441.101.608-.091.168-.192.712-.826.903-1.11.192-.284.383-.24.646-.142.263.099 1.666.784 1.954.929.288.146.48.217.55.337.072.12.072.699-.071 1.098z" /></svg>
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Jadwal</p>
+                                        <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{new Date(b.starts_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</p>
+                                        <p className="text-[9px] font-medium" style={{ color: 'var(--text-secondary)' }}>{new Date(b.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} WIB</p>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 bg-slate-500/5 rounded-2xl border border-dashed flex justify-between items-center" style={{ borderColor: 'var(--border)' }}>
+                                    <div>
+                                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Biaya</p>
+                                        <p className="text-sm font-black italic tracking-tighter" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(b.total_price).toLocaleString()}</p>
+                                    </div>
+                                    {b.payment_status === 'paid' && (
+                                        <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                                            <div className="w-1 h-1 bg-emerald-500 rounded-full" />
+                                            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Paid</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex gap-2 pt-2">
+                                    <button onClick={() => setNota(b)} className="flex-1 py-3 rounded-xl border text-[9px] font-black uppercase tracking-widest" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}>Cetak Nota</button>
+                                    {b.status === 'pending' && (
+                                        <button onClick={() => handleConfirm(b.id)} className="flex-1 py-3 rounded-xl bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">ACC Konfirmasi</button>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 </motion.div>
             </div>

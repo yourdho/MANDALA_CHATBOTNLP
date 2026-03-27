@@ -61,14 +61,14 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                                 Lihat Semua →
                             </Link>
                         </div>
-                        <div className="overflow-x-auto">
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="text-[10px] font-bold uppercase tracking-widest"
                                     style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                                     <tr>
                                         <th className="px-6 py-4">Pelanggan</th>
                                         <th className="px-6 py-4">Fasilitas</th>
-                                        <th className="px-6 py-4">Total</th>
+                                        <th className="px-6 py-4 text-right">Total</th>
                                         <th className="px-6 py-4 text-center">Status</th>
                                         <th className="px-6 py-4"></th>
                                     </tr>
@@ -92,7 +92,7 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                                             <td className="px-6 py-4">
                                                 <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider">{booking.facility?.name}</span>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 text-right">
                                                 <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(booking?.total_price || 0).toLocaleString('id-ID')}</span>
                                             </td>
                                             <td className="px-6 py-4 text-center">
@@ -109,6 +109,29 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Dashboard List */}
+                        <div className="md:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+                            {recent_bookings?.map((booking, idx) => (
+                                <div key={idx} className="p-5 space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-[#38BDF8] mb-1">{booking.facility?.name}</span>
+                                            <span className="text-sm font-black italic uppercase" style={{ color: 'var(--text-primary)' }}>{booking.guest_name || booking.user?.name}</span>
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${booking.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
+                                            {booking.payment_status === 'paid' ? 'Paid' : 'Pending'}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-slate-500/5 p-3 rounded-xl border border-dashed" style={{ borderColor: 'var(--border)' }}>
+                                        <span className="text-xs font-black italic" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(booking?.total_price || 0).toLocaleString('id-ID')}</span>
+                                        <Link href={route('admin.bookings.manage')} className="text-[10px] font-black text-[#38BDF8] uppercase tracking-widest italic group">
+                                            Detail <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
