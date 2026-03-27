@@ -301,7 +301,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
 
                 {/* MAIN CONTENT AREA */}
                 <main className={`flex-1 w-full ${sidebarVisible ? 'pt-16 lg:pt-0' : 'pt-0'}`}>
-                    <div className={`${sidebarVisible ? 'p-4 lg:p-12' : ''} max-w-[1600px] mx-auto`}>
+                    <div className={`${sidebarVisible ? 'p-4 lg:p-12 max-w-[1600px] mx-auto' : ''}`}>
                         {children}
                     </div>
                 </main>
