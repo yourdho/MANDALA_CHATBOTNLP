@@ -52,7 +52,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-12 mb-12"
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
-                    <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Matchmaking System</p>
+                    <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Sistem Matchmaking Taktis</p>
                     <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Radar <span className="text-[#38BDF8]">Matchmaking</span>
@@ -60,7 +60,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="w-3 h-3 bg-[#38BDF8] rounded-full animate-ping shadow-[0_0_15px_rgba(56,189,248,0.5)]" />
-                    <span className="text-[10px] font-black uppercase tracking-widest italic" style={{ color: 'var(--text-secondary)' }}>System Active</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest italic" style={{ color: 'var(--text-secondary)' }}>Sistem Aktif</span>
                 </div>
             </div>
 
@@ -80,7 +80,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
                                     <span className="w-10 h-10 rounded-full bg-[#38BDF8] text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">01</span>
-                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-[#38BDF8]">Select Arena Unit</h3>
+                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-[#38BDF8]">Pilih Unit Arena</h3>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     {FACILITIES.map(f => (
@@ -109,7 +109,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
                                     <span className="w-10 h-10 rounded-full bg-[#FACC15] text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">02</span>
-                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-[#FACC15]">Select Date</h3>
+                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-[#FACC15]">Pilih Tanggal</h3>
                                 </div>
                                 <div className="flex overflow-x-auto pb-6 gap-3 no-scrollbar mask-fade-right -mx-6 px-6 md:mx-0 md:px-0">
                                     {dates.map((date, i) => {
@@ -144,7 +144,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                 <div className="space-y-8">
                                     <div className="flex items-center gap-4">
                                         <span className="w-10 h-10 rounded-full bg-emerald-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">03</span>
-                                        <h3 className="text-xl font-black italic uppercase tracking-widest text-emerald-500">Operation window</h3>
+                                        <h3 className="text-xl font-black italic uppercase tracking-widest text-emerald-500">Waktu Operasi</h3>
                                     </div>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                                         {TIME_SLOTS.map(t => {
@@ -172,7 +172,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                 <div className="space-y-8">
                                     <div className="flex items-center gap-4">
                                         <span className="w-10 h-10 rounded-full bg-rose-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">04</span>
-                                        <h3 className="text-xl font-black italic uppercase tracking-widest text-rose-500">Combat Lvl</h3>
+                                        <h3 className="text-xl font-black italic uppercase tracking-widest text-rose-500">Level Tempur</h3>
                                     </div>
                                     <div className="space-y-10">
                                         <div className="flex justify-between items-end mb-4">
@@ -189,7 +189,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                             ))}
                                         </div>
                                         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-center opacity-40 italic">
-                                            {data.skill_level <= 2 ? 'RECRUIT / CASUAL' : data.skill_level <= 4 ? 'VETERAN / COMPETITIVE' : 'ELITE / PRO PILOT'}
+                                            {data.skill_level <= 2 ? 'PEMULA / SANTAI' : data.skill_level <= 4 ? 'VETERAN / KOMPETITIF' : 'ELITE / PILOT PRO'}
                                         </p>
                                     </div>
                                 </div>
@@ -199,14 +199,14 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
                                     <span className="w-10 h-10 rounded-full bg-orange-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">05</span>
-                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-orange-500">Unit ID & Comms</h3>
+                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-orange-500">ID Unit & Kontak</h3>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:ml-14">
                                     <div className="space-y-2">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 italic">Squad Name (Nama Tim)</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 italic">Nama Skuad (Tim)</p>
                                         <input
                                             type="text"
-                                            placeholder="SQUAD.ID.BRAVO..."
+                                            placeholder="NAMA.SKUAD.ANDA..."
                                             value={data.team_name}
                                             onChange={e => setData('team_name', e.target.value)}
                                             className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-orange-500/30 transition-all placeholder:opacity-30"
@@ -250,7 +250,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                 disabled={processing}
                                 className="w-full py-8 rounded-[2.5rem] bg-[#38BDF8] text-slate-900 font-black text-lg uppercase tracking-[0.4em] shadow-2xl shadow-[#38BDF8]/40 hover:scale-[1.02] hover:bg-[#38BDF8]/90 transition-all italic relative overflow-hidden group"
                             >
-                                <span className="relative z-10">{processing ? 'SYNCHRONIZING RADAR...' : 'BROADCAST CHALLENGE SIGNAL'}</span>
+                                <span className="relative z-10">{processing ? 'MENYINKRONKAN RADAR...' : 'SIARKAN SINYAL TANTANGAN'}</span>
                                 <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                             </button>
                         </form>
@@ -279,7 +279,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                 onClick={() => setActiveTab('my')}
                                 className={`py-8 font-black uppercase tracking-[0.3em] text-xs transition-all relative ${activeTab === 'my' ? 'text-[#FACC15]' : 'text-slate-500 hover:text-slate-300 bg-slate-500/5'}`}
                             >
-                                MY SIGNALS ({my_matches.length})
+                                SINYAL SAYA ({my_matches.length})
                                 {activeTab === 'my' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#FACC15] shadow-[0_-5px_15px_rgba(250,204,21,0.5)]" />}
                             </button>
                         </div>
@@ -296,7 +296,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                         style={{ borderColor: 'var(--border)' }}
                                     >
                                         {available_matches.length === 0 ? (
-                                            <EmptyRadar message="NO EXTERNAL SIGNALS DETECTED. BE THE FIRST TO BROADCAST." />
+                                            <EmptyRadar message="TIDAK ADA SINYAL TERDETEKSI. JADI YANG PERTAMA MENYIARKAN." />
                                         ) : (
                                             available_matches.map((match, i) => (
                                                 <MatchSignalItem key={match.id} match={match} index={i} isGlobal />
@@ -313,7 +313,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                         style={{ borderColor: 'var(--border)' }}
                                     >
                                         {my_matches.length === 0 ? (
-                                            <EmptyRadar message="YOU HAVE NO ACTIVE BROADCASTS." />
+                                            <EmptyRadar message="ANDA TIDAK MEMILIKI SIARAN AKTIF." />
                                         ) : (
                                             my_matches.map((match, i) => (
                                                 <MatchSignalItem key={match.id} match={match} index={i} />
@@ -379,7 +379,7 @@ function MatchSignalItem({ match, index, isGlobal = false }) {
                     <div className="space-y-4">
                         <div className="flex flex-wrap items-center gap-4">
                             <span className={`px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border italic ${isMatched ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' : isGlobal ? 'bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/30' : 'bg-[#FACC15]/10 text-[#FACC15] border-[#FACC15]/30'}`}>
-                                {isMatched ? 'TARGET LOCKED' : isGlobal ? 'ACTIVE BROADCAST' : 'PENDING RESPONSE'}
+                                {isMatched ? 'TARGET TERKUNCI' : isGlobal ? 'SIARAN AKTIF' : 'MENUNGGU RESPON'}
                             </span>
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] font-mono italic">
                                 {format(new Date(match.date), 'dd MMM yyyy')} @ {match.time}
@@ -388,12 +388,12 @@ function MatchSignalItem({ match, index, isGlobal = false }) {
                         <div className="flex flex-col">
                             <h4 className="text-xl sm:text-4xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{match.facility}</h4>
                             <p className="text-[#38BDF8] font-black italic uppercase tracking-widest text-[11px] mt-3">
-                                {isGlobal ? 'SQUAD:' : (isMatched ? 'OPPONENT:' : 'MY UNIT:')} <span className="text-white ml-2">{isGlobal ? match.team_name : (isMatched ? match.opponent_team_name : match.team_name)}</span>
+                                {isGlobal ? 'SKUAD:' : (isMatched ? 'LAWAN:' : 'UNIT SAYA:')} <span className="text-white ml-2">{isGlobal ? match.team_name : (isMatched ? match.opponent_team_name : match.team_name)}</span>
                             </p>
                         </div>
                         <div className="flex items-center gap-6">
                             <p className="text-[9px] font-black uppercase tracking-[0.2em] italic" style={{ color: 'var(--text-secondary)' }}>
-                                CMD LEVEL: <span className="text-[#38BDF8] ml-2">LVL {match.skill_level}</span>
+                                LEVEL CMD: <span className="text-[#38BDF8] ml-2">LVL {match.skill_level}</span>
                             </p>
                         </div>
                     </div>
@@ -410,20 +410,20 @@ function MatchSignalItem({ match, index, isGlobal = false }) {
                                 {contactLabel}
                             </a>
                             {isGlobal && (
-                                <p className="text-[8px] font-black text-slate-500 uppercase italic tracking-widest">SIGNAL STRENGTH: 100% SECURE</p>
+                                <p className="text-[8px] font-black text-slate-500 uppercase italic tracking-widest">KEKUATAN SINYAL: 100% AMAN</p>
                             )}
                         </div>
                     ) : (
                         <div className="flex items-center gap-4 px-8 py-5 rounded-2xl border bg-slate-500/5 italic w-full md:w-auto justify-center" style={{ borderColor: 'var(--border)' }}>
                             <div className="w-2 h-2 bg-[#FACC15] rounded-full animate-ping" />
-                            <span className="text-[10px] font-black text-[#FACC15] uppercase tracking-[0.3em]">Pinging frequencies...</span>
+                            <span className="text-[10px] font-black text-[#FACC15] uppercase tracking-[0.3em]">Memantau frekuensi...</span>
                         </div>
                     )}
                     <Link
                         href={route('facilities.public')}
                         className="text-[10px] font-black text-slate-500 hover:text-[#38BDF8] uppercase tracking-[0.3em] transition-all italic border-b-2 border-transparent hover:border-[#38BDF8] pb-1"
                     >
-                        DEPLOY RESERVATION
+                        RESERVASI ARENA
                     </Link>
                 </div>
             </div>
