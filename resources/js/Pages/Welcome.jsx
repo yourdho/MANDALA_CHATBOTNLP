@@ -85,12 +85,10 @@ export default function Welcome({ auth }) {
                     {/* ──────────── HERO SECTION ──────────── */}
                     <section className="relative pt-32 pb-24 lg:pt-56 lg:pb-40 px-6 lg:px-20 overflow-hidden"
                         style={{ background: 'var(--bg-base)' }}>
-                        <div className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
-                            <img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1200&q=80" alt="Sports Background" className="w-full h-full object-cover grayscale" />
-                            <div className="absolute inset-0 bg-gradient-to-t" style={{ backgroundImage: `linear-gradient(to top, var(--bg-base), transparent 70%)` }} />
-                            <div className="absolute inset-0 bg-gradient-to-b" style={{ backgroundImage: `linear-gradient(to bottom, var(--bg-base), transparent 30%)` }} />
-                            <div className="absolute inset-0 bg-gradient-to-r" style={{ backgroundImage: `linear-gradient(to right, var(--bg-base), transparent 40%)` }} />
-                            <div className="absolute inset-0 bg-gradient-to-l" style={{ backgroundImage: `linear-gradient(to left, var(--bg-base), transparent 40%)` }} />
+                        <div className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
+                            <img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1600&q=80" alt="Sports Background" className="w-full h-full object-cover scale-110 grayscale brightness-50" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-base)] via-transparent to-transparent opacity-60" />
                         </div>
                         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#38BDF8]/10 rounded-full blur-[100px]" />
                         <div className="absolute bottom-0 -left-20 w-[400px] h-[400px] bg-[#FACC15]/10 rounded-full blur-[100px]" />
