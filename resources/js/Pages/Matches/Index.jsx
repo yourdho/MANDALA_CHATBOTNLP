@@ -140,13 +140,13 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                {/* Time Matrix */}
-                                <div className="space-y-8">
+                                {/* Waktu Operasi */}
+                                <div className="space-y-8 md:col-span-2">
                                     <div className="flex items-center gap-4">
                                         <span className="w-10 h-10 rounded-full bg-emerald-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">03</span>
                                         <h3 className="text-xl font-black italic uppercase tracking-widest text-emerald-500">Waktu Operasi</h3>
                                     </div>
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3">
                                         {TIME_SLOTS.map(t => {
                                             const isSelected = data.time === t;
                                             return (
@@ -167,38 +167,12 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                     </div>
                                     {errors.time && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-14">{errors.time}</p>}
                                 </div>
-
-                                {/* Combat Level */}
-                                <div className="space-y-8">
-                                    <div className="flex items-center gap-4">
-                                        <span className="w-10 h-10 rounded-full bg-rose-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">04</span>
-                                        <h3 className="text-xl font-black italic uppercase tracking-widest text-rose-500">Level Tempur</h3>
-                                    </div>
-                                    <div className="space-y-10">
-                                        <div className="flex justify-between items-end mb-4">
-                                            {[1, 2, 3, 4, 5].map(lvl => (
-                                                <button
-                                                    key={lvl}
-                                                    type="button"
-                                                    onClick={() => setData('skill_level', lvl)}
-                                                    className={`w-12 h-12 rounded-xl border-2 font-black italic transition-all ${data.skill_level === lvl ? 'scale-125 border-rose-500 bg-rose-500 text-slate-900 shadow-xl shadow-rose-500/20' : 'opacity-20 hover:opacity-100'}`}
-                                                    style={{ borderColor: data.skill_level === lvl ? '#F43F5E' : 'var(--border)', color: data.skill_level === lvl ? '#000' : 'var(--text-primary)' }}
-                                                >
-                                                    {lvl}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-center opacity-40 italic">
-                                            {data.skill_level <= 2 ? 'PEMULA / SANTAI' : data.skill_level <= 4 ? 'VETERAN / KOMPETITIF' : 'ELITE / PILOT PRO'}
-                                        </p>
-                                    </div>
-                                </div>
                             </div>
 
-                            {/* Squad & Comms */}
+                            {/* ID Unit & Kontak */}
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
-                                    <span className="w-10 h-10 rounded-full bg-orange-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">05</span>
+                                    <span className="w-10 h-10 rounded-full bg-orange-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">04</span>
                                     <h3 className="text-xl font-black italic uppercase tracking-widest text-orange-500">ID Unit & Kontak</h3>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:ml-14">
@@ -250,7 +224,7 @@ export default function MatchesIndex({ my_matches, available_matches }) {
                                 disabled={processing}
                                 className="w-full py-8 rounded-[2.5rem] bg-[#38BDF8] text-slate-900 font-black text-lg uppercase tracking-[0.4em] shadow-2xl shadow-[#38BDF8]/40 hover:scale-[1.02] hover:bg-[#38BDF8]/90 transition-all italic relative overflow-hidden group"
                             >
-                                <span className="relative z-10">{processing ? 'MENYINKRONKAN RADAR...' : 'SIARKAN SINYAL TANTANGAN'}</span>
+                                <span className="relative z-10">{processing ? 'MENYINKRONKAN RADAR...' : 'Cari Lawan '}</span>
                                 <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                             </button>
                         </form>
@@ -391,11 +365,6 @@ function MatchSignalItem({ match, index, isGlobal = false }) {
                                 {isGlobal ? 'SKUAD:' : (isMatched ? 'LAWAN:' : 'UNIT SAYA:')} <span className="text-white ml-2">{isGlobal ? match.team_name : (isMatched ? match.opponent_team_name : match.team_name)}</span>
                             </p>
                         </div>
-                        <div className="flex items-center gap-6">
-                            <p className="text-[9px] font-black uppercase tracking-[0.2em] italic" style={{ color: 'var(--text-secondary)' }}>
-                                LEVEL CMD: <span className="text-[#38BDF8] ml-2">LVL {match.skill_level}</span>
-                            </p>
-                        </div>
                     </div>
                 </div>
 
@@ -427,6 +396,6 @@ function MatchSignalItem({ match, index, isGlobal = false }) {
                     </Link>
                 </div>
             </div>
-        </motion.div>
+        </motion.div >
     );
 }
