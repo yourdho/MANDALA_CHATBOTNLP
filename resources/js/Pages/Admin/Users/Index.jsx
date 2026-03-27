@@ -12,7 +12,7 @@ export default function UserAdminIndex({ users }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Personnel Registry Terminal</p>
-                    <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Daftar <span className="text-[#38BDF8]">Pengguna</span>
                     </h1>
@@ -35,11 +35,11 @@ export default function UserAdminIndex({ users }) {
                             <thead className="text-[10px] font-black uppercase tracking-[0.3em] border-b"
                                 style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
                                 <tr>
-                                    <th className="px-10 py-10 whitespace-nowrap">Pilot Profile</th>
-                                    <th className="px-10 py-10 whitespace-nowrap">Comm Link</th>
-                                    <th className="px-10 py-10 whitespace-nowrap">Clearance Level</th>
-                                    <th className="px-10 py-10 whitespace-nowrap">Enlistment Date</th>
-                                    <th className="px-10 py-10 text-right whitespace-nowrap">Aksi</th>
+                                    <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Pilot Profile</th>
+                                    <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Comm Link</th>
+                                    <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Clearance Level</th>
+                                    <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Enlistment Date</th>
+                                    <th className="px-6 py-6 md:px-10 md:py-10 text-right whitespace-nowrap">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
@@ -51,35 +51,35 @@ export default function UserAdminIndex({ users }) {
                                         key={u.id}
                                         className="transition-all group hover:bg-slate-500/5"
                                     >
-                                        <td className="px-10 py-10">
+                                        <td className="px-6 py-6 md:px-10 md:py-10">
                                             <div className="flex items-center gap-6">
-                                                <div className="w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center font-black italic text-3xl text-[#38BDF8] border"
+                                                <div className="w-12 h-12 md:w-16 md:h-16 shrink-0 rounded-xl md:rounded-2xl flex items-center justify-center font-black italic text-2xl md:text-3xl text-[#38BDF8] border"
                                                     style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                                                     {u.name?.charAt(0)}
                                                 </div>
-                                                <span className="text-2xl font-black italic uppercase tracking-tighter group-hover:text-[#38BDF8] transition-colors leading-none"
+                                                <span className="text-xl md:text-2xl font-black italic uppercase tracking-tighter group-hover:text-[#38BDF8] transition-colors leading-none"
                                                     style={{ color: 'var(--text-primary)' }}>
                                                     {u.name}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-10">
+                                        <td className="px-6 py-6 md:px-10 md:py-10">
                                             <div className="flex flex-col">
                                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1" style={{ color: 'var(--text-primary)' }}>{u.email}</p>
                                                 <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.2em]">{u.phone || 'NO COMM LINK'}</p>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-10">
+                                        <td className="px-6 py-6 md:px-10 md:py-10">
                                             <RoleBadge role={u.role || 'user'} />
                                         </td>
-                                        <td className="px-10 py-10">
+                                        <td className="px-6 py-6 md:px-10 md:py-10">
                                             <div className="flex flex-col">
                                                 <p className="text-sm font-black italic tracking-tighter mb-2 uppercase leading-none" style={{ color: 'var(--text-primary)' }}>{new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                                                 <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: 'var(--text-secondary)' }}>{new Date(u.created_at).toLocaleTimeString().slice(0, 5)} ZULU</p>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-10 text-right">
-                                            <button className="px-8 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all"
+                                        <td className="px-6 py-6 md:px-10 md:py-10 text-right">
+                                            <button className="px-6 py-2.5 md:px-8 md:py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all"
                                                 style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
                                                 Detail File
                                             </button>

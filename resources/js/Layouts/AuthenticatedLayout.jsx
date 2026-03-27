@@ -35,6 +35,38 @@ export default function AuthenticatedLayout({ children, showSidebar = true }) {
 
     const closeSidebar = () => setSidebarOpen(false);
 
+    // Mobile Swipe-Back Support Fallback
+    useEffect(() => {
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        const handleTouchStart = (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+
+        const handleTouchEnd = (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+
+            // Detect horizontal swipe from left edge (dx > 100 and startX < 50)
+            // and ensure it's mostly horizontal (|dx| > |dy|)
+            if (dx > 100 && Math.abs(dx) > Math.abs(dy) * 2 && touchStartX < 60) {
+                window.history.back();
+            }
+        };
+
+        window.addEventListener('touchstart', handleTouchStart);
+        window.addEventListener('touchend', handleTouchEnd);
+        return () => {
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
+
     const SidebarContent = () => (
         <div className="flex flex-col h-full border-r overflow-hidden transition-colors duration-300"
             style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
@@ -198,7 +230,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true }) {
     const { flash } = usePage().props;
 
     return (
-        <div className="min-h-screen transition-colors duration-300"
+        <div className="min-h-screen transition-colors duration-300 overflow-x-hidden"
             style={{ background: 'var(--bg-base)' }}>
 
             {/* Flash Overlay */}

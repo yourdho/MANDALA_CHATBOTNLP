@@ -1,9 +1,39 @@
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function GuestLayout({ children }) {
+    useEffect(() => {
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        const handleTouchStart = (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+
+        const handleTouchEnd = (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+
+            // Detect horizontal swipe from left edge (dx > 100 and startX < 60)
+            if (dx > 100 && Math.abs(dx) > Math.abs(dy) * 2 && touchStartX < 60) {
+                window.history.back();
+            }
+        };
+
+        window.addEventListener('touchstart', handleTouchStart);
+        window.addEventListener('touchend', handleTouchEnd);
+        return () => {
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 font-sans relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 font-sans relative">
             {/* Background elements */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#38BDF8]/10 rounded-full blur-[100px] -mr-64 -mt-64" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#FACC15]/10 rounded-full blur-[100px] -ml-64 -mb-64" />

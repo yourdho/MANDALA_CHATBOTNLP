@@ -68,7 +68,7 @@ export default function BookingAdminIndex({ bookings }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Registry</p>
-                    <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Daftar <span className="text-[#38BDF8]">Booking</span>
                     </h1>

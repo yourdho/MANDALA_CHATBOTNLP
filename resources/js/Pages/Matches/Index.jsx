@@ -51,7 +51,7 @@ export default function MatchesIndex({ my_matches }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Matchmaking System</p>
-                    <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Cari <span className="text-[#38BDF8]">Lawan</span>
                     </h1>
@@ -69,7 +69,7 @@ export default function MatchesIndex({ my_matches }) {
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                     className="lg:col-span-12 space-y-12"
                 >
-                    <div className="rounded-[3.5rem] border p-12 shadow-3xl relative overflow-hidden"
+                    <div className="rounded-[2.5rem] md:rounded-[3.5rem] border p-6 md:p-12 shadow-3xl relative overflow-hidden"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                         <div className="absolute top-0 right-0 w-64 h-64 bg-[#38BDF8]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
@@ -109,7 +109,7 @@ export default function MatchesIndex({ my_matches }) {
                                     <span className="w-10 h-10 rounded-full bg-[#FACC15] text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">02</span>
                                     <h3 className="text-xl font-black italic uppercase tracking-widest text-[#FACC15]">Mission Date</h3>
                                 </div>
-                                <div className="flex overflow-x-auto pb-6 gap-3 no-scrollbar mask-fade-right">
+                                <div className="flex overflow-x-auto pb-6 gap-3 no-scrollbar mask-fade-right -mx-6 px-6 md:mx-0 md:px-0">
                                     {dates.map((date, i) => {
                                         const dateStr = format(date, 'yyyy-MM-dd');
                                         const isSelected = data.date === dateStr;
@@ -258,13 +258,13 @@ export default function MatchesIndex({ my_matches }) {
                     transition={{ delay: 0.2 }}
                     className="lg:col-span-12 space-y-8"
                 >
-                    <div className="rounded-[3.5rem] border overflow-hidden shadow-3xl"
+                    <div className="rounded-[2.5rem] md:rounded-[3.5rem] border overflow-hidden shadow-3xl"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                        <div className="p-12 border-b flex flex-col md:flex-row md:items-end justify-between gap-6"
+                        <div className="p-8 md:p-12 border-b flex flex-col md:flex-row md:items-end justify-between gap-6"
                             style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                             <div>
                                 <p className="text-[10px] font-black text-[#FACC15] uppercase tracking-[0.4em] mb-2">Live Telemetry Feed</p>
-                                <h3 className="text-4xl font-black italic uppercase tracking-tighter"
+                                <h3 className="text-2xl sm:text-4xl font-black italic uppercase tracking-tighter"
                                     style={{ color: 'var(--text-primary)' }}>Radar <span className="text-[#FACC15]">Monitoring</span></h3>
                             </div>
                             <div className="flex items-center gap-6">
@@ -292,11 +292,11 @@ export default function MatchesIndex({ my_matches }) {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 + (i * 0.1) }}
-                                        className="p-12 hover:bg-slate-500/5 transition-all group relative"
+                                        className="p-6 md:p-12 hover:bg-slate-500/5 transition-all group relative"
                                     >
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
                                             <div className="flex items-start gap-8">
-                                                <div className="w-20 h-20 rounded-3xl border shadow-xl flex items-center justify-center text-3xl shrink-0"
+                                                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border shadow-xl flex items-center justify-center text-2xl md:text-3xl shrink-0"
                                                     style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                                                     {match.facility.includes('Soccer') ? '⚽' : match.facility.includes('Padel') ? '🎾' : match.facility.includes('Basket') ? '🏀' : '🧘'}
                                                 </div>
@@ -308,7 +308,7 @@ export default function MatchesIndex({ my_matches }) {
                                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] font-mono italic">{match.date} @ {match.time}</span>
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <h4 className="text-4xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{match.facility}</h4>
+                                                        <h4 className="text-2xl sm:text-4xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{match.facility}</h4>
                                                         <p className="text-[#FACC15] font-black italic uppercase tracking-widest text-[11px] mt-2">SQUAD: {match.team_name || 'N/A'}</p>
                                                     </div>
                                                     <div className="flex items-center gap-6">
@@ -323,7 +323,7 @@ export default function MatchesIndex({ my_matches }) {
                                                 </div>
                                             </div>
 
-                                            <div className="flex flex-col items-end gap-6">
+                                            <div className="flex flex-col items-start md:items-end gap-6 shrink-0">
                                                 {match.status === 'matched' ? (
                                                     <div className="space-y-4 flex flex-col items-end">
                                                         <div className="flex flex-col items-end gap-1 mb-2">

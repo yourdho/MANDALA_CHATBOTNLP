@@ -100,13 +100,13 @@ export default function Welcome({ auth }) {
 
                                 <motion.h1
                                     initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                                    className="text-[14vw] sm:text-7xl md:text-9xl lg:text-[12rem] font-['Rock_Salt'] font-normal leading-[0.85] tracking-tighter mb-12 drop-shadow-2xl -rotate-3 sm:-rotate-6"
+                                    className="text-[12vw] sm:text-7xl md:text-9xl lg:text-[12rem] font-['Rock_Salt'] font-normal leading-[0.85] tracking-tighter mb-12 drop-shadow-2xl -rotate-2 sm:-rotate-6"
                                     style={{ color: 'var(--text-primary)' }}
                                 >
                                     Mandala <br className="xl:hidden" />
                                     <span className="text-[#38BDF8] relative inline-block">
                                         Arena
-                                        <div className="absolute -bottom-2 sm:-bottom-4 left-0 w-full h-2 sm:h-6 bg-[#FACC15] -z-10 -skew-x-[30deg] opacity-90" />
+                                        <div className="absolute -bottom-1 sm:-bottom-4 left-0 w-full h-1 sm:h-6 bg-[#FACC15] -z-10 -skew-x-[30deg] opacity-90" />
                                     </span>
                                 </motion.h1>
                                 <p className="text-base sm:text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto px-4"
