@@ -7,228 +7,197 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
         <AuthenticatedLayout>
             <Head title="Admin Dashboard | Mandala Arena" />
 
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-12 mb-12"
-                style={{ borderColor: 'var(--border)' }}>
-                <div>
-                    <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Strategic Command Center</p>
-                    <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
-                        style={{ color: 'var(--text-primary)' }}>
-                        Mission <span className="text-[#38BDF8]">Control</span>
-                    </h1>
-                </div>
-                <div className="flex items-center gap-3 px-5 py-2 rounded-full border"
-                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <div className="w-2 h-2 bg-[#38BDF8] rounded-full animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest"
-                        style={{ color: 'var(--text-secondary)' }}>Live Telemetry</span>
-                </div>
-            </div>
-
-            <div className="max-w-7xl mx-auto space-y-10">
-
-                {/* 4. Recent Bookings Feed (Moved to Top) */}
-                <div className="rounded-[3.5rem] overflow-hidden border shadow-3xl transition-all"
-                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <div className="px-12 py-12 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b"
-                        style={{ borderColor: 'var(--border)' }}>
-                        <div>
-                            <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.4em] mb-4">Real-time Deployment Log</p>
-                            <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none"
-                                style={{ color: 'var(--text-primary)' }}>Antrean <span className="text-[#38BDF8]">Transaksi</span></h3>
-                        </div>
-                        <Link href={route('admin.bookings.manage')} className="text-[10px] font-black uppercase tracking-[0.4em] text-[#38BDF8] hover:translate-x-2 transition-transform italic">
-                            Operational Archive →
-                        </Link>
+            <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+                {/* ── Page Header ── */}
+                <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b"
+                    style={{ borderColor: 'var(--border)' }}>
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Dashboard Utama</h1>
+                        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Ringkasan performa operasional hari ini.</p>
                     </div>
-                    <div className="overflow-x-auto scrollbar-hide">
-                        <table className="w-full text-left">
-                            <thead className="text-[10px] font-black uppercase tracking-[0.3em] border-b"
-                                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-                                <tr>
-                                    <th className="px-12 py-10 whitespace-nowrap">Pilot Registry</th>
-                                    <th className="px-10 py-10 whitespace-nowrap">Asset Unit</th>
-                                    <th className="px-10 py-10 whitespace-nowrap">Yield</th>
-                                    <th className="px-10 py-10 whitespace-nowrap">Status</th>
-                                    <th className="px-12 py-10 text-right whitespace-nowrap">Relay</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
-                                {recent_bookings?.map((booking, idx) => (
-                                    <tr key={idx} className="transition-all group hover:bg-slate-500/5">
-                                        <td className="px-12 py-10">
-                                            <div className="flex flex-col gap-2">
-                                                <span className="text-lg font-black uppercase italic tracking-tighter leading-none"
-                                                    style={{ color: 'var(--text-primary)' }}>
-                                                    {booking.guest_name || booking.user?.name || 'UNKNOWN PILOT'}
-                                                </span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60" style={{ color: 'var(--text-secondary)' }}>
-                                                        {booking.guest_phone || booking.user?.phone || booking.guest_email || booking.user?.email}
-                                                    </span>
-                                                    {(booking.guest_phone || booking.user?.phone) && (
-                                                        <a
-                                                            href={`https://wa.me/${(booking.guest_phone || booking.user?.phone).replace(/\D/g, '').replace(/^0/, '62')}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="p-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20"
-                                                        >
-                                                            <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
-                                                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.764-5.766zm3.392 8.221c-.142.399-.833.723-1.141.774-.285.051-.613.082-.994-.039-.233-.073-.539-.169-.991-.355-1.924-.788-3.137-2.722-3.235-2.852-.097-.13-.807-1.077-.807-2.062s.521-1.469.707-1.676c.186-.206.408-.258.544-.258.136 0 .272.003.39.01.12.007.281-.045.44.337.162.39.551 1.336.6 1.439.049.103.082.224.013.355-.069.13-.157.283-.313.456-.156.173-.328.385-.168.658.16.272.71 1.171 1.522 1.892.684.608 1.265.798 1.543.917.278.12.441.101.608-.091.168-.192.712-.826.903-1.11.192-.284.383-.24.646-.142.263.099 1.666.784 1.954.929.288.146.48.217.55.337.072.12.072.699-.071 1.098z" />
-                                                            </svg>
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-10 py-10">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#38BDF8] italic">
-                                                {booking.facility?.name}
-                                            </span>
-                                        </td>
-                                        <td className="px-10 py-10">
-                                            <span className="text-xl font-black italic tracking-tighter" style={{ color: 'var(--text-primary)' }}>
-                                                Rp {parseInt(booking?.total_price || 0).toLocaleString('id-ID')}
-                                            </span>
-                                        </td>
-                                        <td className="px-10 py-10">
-                                            <span className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] border shadow-sm ${booking.payment_status === 'paid' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-red-400 border-red-500/30 bg-red-500/10'
-                                                }`}>
-                                                {booking.payment_status === 'paid' ? 'MISSION SETTLED' : (booking.payment_status?.toUpperCase() || 'STANDBY')}
-                                            </span>
-                                        </td>
-                                        <td className="px-12 py-10 text-right">
-                                            <Link href={route('admin.bookings.manage')}
-                                                className="inline-flex w-14 h-14 rounded-2xl border items-center justify-center text-[#38BDF8] hover:bg-[#38BDF8] hover:text-slate-900 transition-all ml-auto group-hover:scale-110 shadow-xl"
-                                                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                                                <span className="font-black italic text-xl">→</span>
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Sistem Aktif</span>
                     </div>
+                </header>
+
+                {/* ── Key Metrics ── */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <DashboardStat
+                        label="Total Omzet"
+                        value={`Rp ${parseInt(stats?.revenue || 0).toLocaleString('id-ID')}`}
+                        color="#38BDF8"
+                        sub="Akumulasi pendapatan"
+                    />
+                    <DashboardStat
+                        label="Booking Hari Ini"
+                        value={stats?.today_bookings || 0}
+                        color="#FACC15"
+                        sub="Sesi terjadwal hari ini"
+                    />
+                    <DashboardStat
+                        label="Total Pelanggan"
+                        value={stats?.total_pilots || 0}
+                        color="#A855F7"
+                        sub="User terdaftar aktif"
+                    />
+                    <DashboardStat
+                        label="Venue Aktif"
+                        value={stats?.active_venues || 0}
+                        color="#10B981"
+                        sub="Fasilitas siap dipesan"
+                    />
                 </div>
 
-                {/* 1. Tactical Stat matrix */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <StatCard label="Yield Generated" value={`Rp ${parseInt(stats?.revenue || 0).toLocaleString()}`} icon="" color="#38BDF8" />
-                    <StatCard label="Mission Today" value={stats?.today_bookings || 0} icon="" color="#FACC15" />
-                    <StatCard label="Total Pilots" value={stats?.total_pilots || 0} icon="" color="#A855F7" />
-                    <StatCard label="Deployable Units" value={stats?.active_venues || 0} icon="" color="#10B981" />
-                </div>
-
+                {/* ── Main Content Grid ── */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    {/* 2. Revenue Telemetry Trend */}
-                    <div className="lg:col-span-2 rounded-[3.5rem] p-12 border shadow-3xl relative overflow-hidden group transition-all"
+                    {/* Recent Transactions Table */}
+                    <div className="lg:col-span-2 rounded-2xl border overflow-hidden shadow-sm flex flex-col"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                        <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-[#38BDF8]/5 rounded-full blur-[120px] -mr-64 -mt-64 group-hover:scale-110 transition-transform duration-[4s]" />
-
-                        <div className="flex justify-between items-end mb-16 relative z-10">
-                            <div>
-                                <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.4em] mb-4">Yield Trajectory</p>
-                                <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none"
-                                    style={{ color: 'var(--text-primary)' }}>Revenue <span className="text-[#38BDF8]">Matrix</span></h3>
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40 italic"
-                                style={{ color: 'var(--text-secondary)' }}>LAST 06 MO TELEMETRY</span>
+                        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)' }}>
+                            <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Antrean Transaksi Terbaru</h3>
+                            <Link href={route('admin.bookings.manage')} className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider hover:underline">
+                                Lihat Semua →
+                            </Link>
                         </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="text-[10px] font-bold uppercase tracking-widest"
+                                    style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                                    <tr>
+                                        <th className="px-6 py-4">Pelanggan</th>
+                                        <th className="px-6 py-4">Fasilitas</th>
+                                        <th className="px-6 py-4">Total</th>
+                                        <th className="px-6 py-4 text-center">Status</th>
+                                        <th className="px-6 py-4"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
+                                    {recent_bookings?.map((booking, idx) => (
+                                        <tr key={idx} className="hover:bg-slate-500/5 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{booking.guest_name || booking.user?.name || 'User'}</span>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{booking.guest_phone || booking.user?.phone}</span>
+                                                        {(booking.guest_phone || booking.user?.phone) && (
+                                                            <a href={`https://wa.me/${(booking.guest_phone || booking.user?.phone).replace(/\D/g, '').replace(/^0/, '62')}`} target="_blank" className="p-1 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors">
+                                                                <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.764-5.766zm3.392 8.221c-.142.399-.833.723-1.141.774-.285.051-.613.082-.994-.039-.233-.073-.539-.169-.991-.355-1.924-.788-3.137-2.722-3.235-2.852-.097-.13-.807-1.077-.807-2.062s.521-1.469.707-1.676c.186-.206.408-.258.544-.258.136 0 .272.003.39.01.12.007.281-.045.44.337.162.39.551 1.336.6 1.439.049.103.082.224.013.355-.069.13-.157.283-.313.456-.156.173-.328.385-.168.658.16.272.71 1.171 1.522 1.892.684.608 1.265.798 1.543.917.278.12.441.101.608-.091.168-.192.712-.826.903-1.11.192-.284.383-.24.646-.142.263.099 1.666.784 1.954.929.288.146.48.217.55.337.072.12.072.699-.071 1.098z" /></svg>
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider">{booking.facility?.name}</span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(booking?.total_price || 0).toLocaleString('id-ID')}</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase border ${booking.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
+                                                    {booking.payment_status === 'paid' ? 'Success' : 'Pending'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <Link href={route('admin.bookings.manage')} className="p-2 hover:bg-[#38BDF8]/10 rounded-lg text-[#38BDF8] transition-colors inline-block">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 5l7 7-7 7" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                        <div className="overflow-x-auto pb-4 scrollbar-hide">
-                            <div className="h-64 flex items-end justify-between gap-4 px-4 min-w-[500px] sm:min-w-0">
-                                {charts?.revenue_trend?.map((item, i) => (
-                                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
-                                        <motion.div
-                                            initial={{ height: 0 }}
-                                            animate={{ height: `${(item.value / (Math.max(...(charts.revenue_trend.map(x => x.value))) || 1)) * 100}%` }}
-                                            className="w-full rounded-2xl group-hover:bg-[#38BDF8] transition-all relative overflow-hidden border border-transparent"
-                                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}
-                                        >
-                                            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#38BDF8]/10 to-transparent" />
-                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 border text-white text-[10px] font-black px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-2xl whitespace-nowrap"
-                                                style={{ borderColor: 'var(--border)' }}>
-                                                Rp {(item.value / 1000).toLocaleString('id-ID')}k
-                                            </div>
-                                        </motion.div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest"
-                                            style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                    {/* Operational Overview Sidebars */}
+                    <div className="space-y-6">
+                        <div className="rounded-2xl p-6 border shadow-sm" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                            <h3 className="text-sm font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Jam Sibuk Latihan</h3>
+                            <div className="space-y-4">
+                                {charts?.peak_hours?.slice(0, 4).map((item, i) => (
+                                    <div key={i} className="flex items-center justify-between p-3 bg-slate-500/5 rounded-xl border border-transparent hover:border-[#38BDF8]/30 transition-all">
+                                        <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{item.hour}</span>
+                                        <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider">{item.count} Sesi</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    </div>
 
-                    {/* 3. Operational Analysis */}
-                    <div className="space-y-8">
-                        <div className="rounded-[3.5rem] p-10 border shadow-3xl transition-all"
-                            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                            <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.4em] mb-4">Peak Engagement</p>
-                            <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-8"
-                                style={{ color: 'var(--text-primary)' }}>Sector <span className="text-[#38BDF8]">Load</span></h3>
-                            <div className="space-y-5">
-                                {charts?.peak_hours?.map((item, i) => (
-                                    <div key={i} className="flex justify-between items-center p-5 rounded-2xl border transition-all hover:bg-slate-500/5"
-                                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                                        <div className="flex items-center gap-4">
-                                            <span className="w-10 h-10 rounded-xl border flex items-center justify-center text-[10px] font-black uppercase italic"
-                                                style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: '#38BDF8' }}>T{i + 1}</span>
-                                            <span className="text-xs font-black uppercase tracking-widest"
-                                                style={{ color: 'var(--text-primary)' }}>{item.hour}</span>
+                        <div className="rounded-2xl p-6 border shadow-sm" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                            <h3 className="text-sm font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Venue Terlaris</h3>
+                            <div className="space-y-4">
+                                {charts?.popular_sports?.slice(0, 3).map((item, i) => (
+                                    <div key={i} className="flex flex-col gap-1">
+                                        <div className="flex justify-between items-end mb-1">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider truncate w-32" style={{ color: 'var(--text-secondary)' }}>{item.name}</span>
+                                            <span className="text-[10px] font-bold text-[#38BDF8]">{item.count} Sesi</span>
                                         </div>
-                                        <span className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.2em]">{item.count} SESSIONS</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="rounded-[3.5rem] p-10 shadow-3xl border transition-all"
-                            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                            <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.4em] mb-4">Asset Performance</p>
-                            <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-8"
-                                style={{ color: 'var(--text-primary)' }}>Top <span className="text-[#38BDF8]">Assets</span></h3>
-                            <div className="space-y-5">
-                                {charts?.popular_sports?.map((item, i) => (
-                                    <div key={i} className="flex justify-between items-center border-b pb-4" style={{ borderColor: 'var(--border)' }}>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] truncate max-w-[180px]" style={{ color: 'var(--text-primary)' }}>{item.name}</span>
-                                        <span className="text-[10px] font-black text-[#38BDF8] uppercase italic tracking-tighter">{item.count} DEPLOYMENTS</span>
+                                        <div className="h-1.5 w-full bg-slate-500/10 rounded-full overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${(item.count / (Math.max(...charts.popular_sports.map(x => x.count)) || 1)) * 100}%` }}
+                                                className="h-full bg-[#38BDF8]"
+                                            />
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
+
                 </div>
 
-
+                {/* ── Revenue Progress ── */}
+                <div className="rounded-2xl p-8 border shadow-sm" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                    <div className="flex items-center justify-between mb-10 text-center sm:text-left">
+                        <div>
+                            <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Tren Pendapatan</h3>
+                            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Evaluasi omzet bulanan dalam Rp.</p>
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">Live Update</span>
+                    </div>
+                    <div className="h-48 flex items-end gap-2 sm:gap-4 border-b pb-4" style={{ borderColor: 'var(--border)' }}>
+                        {charts?.revenue_trend?.map((item, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-3 h-full justify-end group">
+                                <div className="relative w-full flex flex-col items-center justify-end h-full">
+                                    <div className="absolute -top-10 scale-0 group-hover:scale-100 transition-transform bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl whitespace-nowrap z-20">
+                                        Rp {(item.value / 1000).toLocaleString('id-ID')}k
+                                    </div>
+                                    <motion.div
+                                        initial={{ scaleY: 0 }}
+                                        animate={{ height: `${(item.value / (Math.max(...charts.revenue_trend.map(x => x.value)) || 1)) * 100}%` }}
+                                        className="w-full max-w-[50px] rounded-t-lg bg-[#38BDF8]/20 border-t-4 border-[#38BDF8] group-hover:bg-[#38BDF8]/40 transition-colors"
+                                    />
+                                </div>
+                                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
             </div>
         </AuthenticatedLayout>
     );
 }
 
-function StatCard({ label, value, icon, color }) {
+function DashboardStat({ label, value, color, sub }) {
     return (
-        <motion.div
-            whileHover={{ y: -8 }}
-            className="rounded-[3rem] p-10 border shadow-2xl group overflow-hidden relative transition-all"
-            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
-        >
-            <div className="absolute top-0 right-0 w-32 h-32 opacity-10 group-hover:opacity-20 transition-opacity blur-2xl"
-                style={{ backgroundColor: color }} />
-
-            <div className="w-16 h-16 rounded-3xl mb-10 flex items-center justify-center text-3xl transition-transform group-hover:scale-110 shadow-xl border"
-                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                {icon || '📊'}
+        <div className="rounded-2xl p-6 border shadow-sm hover:shadow-md transition-all group"
+            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+            <h4 className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-secondary)' }}>{label}</h4>
+            <div className="space-y-1">
+                <p className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>{value}</p>
+                <p className="text-[9px] font-medium" style={{ color: 'var(--text-secondary)', opacity: 0.7 }}>{sub}</p>
             </div>
-
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-3 block"
-                style={{ color: 'var(--text-secondary)' }}>{label}</span>
-            <span className="text-4xl font-black italic tracking-tighter block uppercase leading-none"
-                style={{ color: color }}>{value}</span>
-
-            <div className="absolute bottom-0 left-0 h-1.5 transition-all duration-700 w-0 group-hover:w-full opacity-50"
-                style={{ background: color }} />
-        </motion.div>
+            <div className="mt-4 flex items-center justify-between text-[10px] font-bold">
+                <div className="flex items-center gap-1.5 p-1 px-2 rounded-md bg-slate-500/5 border border-transparent group-hover:border-[#38BDF8]/20 transition-all">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                    <span style={{ color: 'var(--text-secondary)' }}>Aktif</span>
+                </div>
+            </div>
+        </div>
     );
 }
