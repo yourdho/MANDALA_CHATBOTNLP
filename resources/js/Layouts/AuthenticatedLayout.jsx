@@ -15,7 +15,7 @@ const Icons = {
     shoppingBag: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>,
 };
 
-export default function AuthenticatedLayout({ children, showSidebar = true }) {
+export default function AuthenticatedLayout({ children, showSidebar = true, showChatbot = true }) {
     const { auth } = usePage().props;
     const user = auth?.user;
     const isAdmin = user?.role === 'admin';
@@ -312,7 +312,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true }) {
                 <div className="shadow-2xl rounded-full overflow-hidden">
                     <ThemeToggle />
                 </div>
-                <Chatbot />
+                {showChatbot && <Chatbot />}
             </div>
         </div>
     );

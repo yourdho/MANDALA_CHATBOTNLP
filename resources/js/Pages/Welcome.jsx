@@ -33,7 +33,7 @@ export default function Welcome({ auth }) {
     const user = auth.user;
 
     return (
-        <AuthenticatedLayout showSidebar={false}>
+        <AuthenticatedLayout showSidebar={false} showChatbot={false}>
             <Head>
                 <title>Mandala Arena - Booking Olahraga Modern</title>
                 <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet" />
@@ -173,7 +173,7 @@ export default function Welcome({ auth }) {
                     </div>
                 </footer>
 
-                <Chatbot />
+
             </div>
         </AuthenticatedLayout>
     );
