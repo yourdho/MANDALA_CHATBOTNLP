@@ -113,13 +113,10 @@ export default function Welcome({ auth }) {
                                     style={{ color: 'var(--text-secondary)' }}>
 
                                 </p>
-                                <div className="flex flex-col sm:flex-row justify-center gap-4 px-6">
-                                    <Link href={route('facilities.public')} className="w-full sm:w-auto px-8 py-5 bg-[#38BDF8] text-slate-900 font-black rounded-full hover:bg-slate-900 hover:text-white hover:scale-105 transition-all uppercase tracking-widest text-xs md:text-sm shadow-lg shadow-[#38BDF8]/20 flex items-center justify-center gap-2">
-                                        Mulai Booking
+                                <div className="flex justify-center px-6">
+                                    <Link href={route('facilities.public')} className="w-full sm:w-auto px-12 py-6 bg-[#38BDF8] text-slate-900 font-black rounded-full hover:bg-slate-900 hover:text-white hover:scale-105 transition-all uppercase tracking-[0.2em] text-sm md:text-base shadow-2xl shadow-[#38BDF8]/40 flex items-center justify-center gap-3 italic">
+                                        Mulai Booking Sekarang
                                     </Link>
-                                    <a href="https://mandalaarenavt.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-5 bg-[#FACC15] text-slate-900 font-black rounded-full hover:scale-105 transition-all uppercase tracking-widest text-xs md:text-sm shadow-lg shadow-[#FACC15]/20 flex items-center justify-center gap-2">
-                                        VR Tour Lokasi
-                                    </a>
                                 </div>
                             </motion.div>
                         </div>
