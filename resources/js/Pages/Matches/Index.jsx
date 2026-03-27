@@ -51,7 +51,7 @@ export default function MatchesIndex({ my_matches }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Matchmaking System</p>
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Cari <span className="text-[#38BDF8]">Lawan</span>
                     </h1>
@@ -295,7 +295,7 @@ export default function MatchesIndex({ my_matches }) {
                                         className="p-6 md:p-12 hover:bg-slate-500/5 transition-all group relative"
                                     >
                                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
-                                            <div className="flex items-start gap-8">
+                                            <div className="flex items-start gap-4 md:gap-8">
                                                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border shadow-xl flex items-center justify-center text-2xl md:text-3xl shrink-0"
                                                     style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                                                     {match.facility.includes('Soccer') ? '⚽' : match.facility.includes('Padel') ? '🎾' : match.facility.includes('Basket') ? '🏀' : '🧘'}
@@ -308,7 +308,7 @@ export default function MatchesIndex({ my_matches }) {
                                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] font-mono italic">{match.date} @ {match.time}</span>
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <h4 className="text-2xl sm:text-4xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{match.facility}</h4>
+                                                        <h4 className="text-xl sm:text-4xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{match.facility}</h4>
                                                         <p className="text-[#FACC15] font-black italic uppercase tracking-widest text-[11px] mt-2">SQUAD: {match.team_name || 'N/A'}</p>
                                                     </div>
                                                     <div className="flex items-center gap-6">
@@ -333,7 +333,7 @@ export default function MatchesIndex({ my_matches }) {
                                                         <a
                                                             href={match.opponent_contact_type === 'whatsapp' ? `https://wa.me/${match.opponent_contact_value.replace(/\D/g, '')}` : `https://instagram.com/${match.opponent_contact_value?.replace('@', '')}`}
                                                             target="_blank" rel="noreferrer"
-                                                            className="px-10 py-5 bg-emerald-500 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl shadow-emerald-500/20 hover:scale-105 transition-all italic"
+                                                            className="w-full md:w-auto text-center px-6 md:px-10 py-4 md:py-5 bg-emerald-500 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl shadow-emerald-500/20 hover:scale-105 transition-all italic"
                                                         >
                                                             {match.opponent_contact_type === 'whatsapp' ? 'ESTABLISH COMMS (WA)' : 'ESTABLISH COMMS (IG)'}
                                                         </a>
