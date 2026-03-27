@@ -41,7 +41,7 @@ export default function IndexPublic({ auth, facilities = [] }) {
                             className="space-y-12"
                         >
                             <div className="text-center mb-16">
-                                <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-6"
+                                <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-6"
                                     style={{ color: 'var(--text-primary)' }}>
                                     Fasilitas <span className="text-[#38BDF8]">Mandala</span>
                                 </h1>
@@ -56,12 +56,12 @@ export default function IndexPublic({ auth, facilities = [] }) {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.1 }}
                                         onClick={() => handleCategorySelect(cat.id)}
-                                        className="group relative rounded-[3rem] p-10 text-left border-2 hover:border-[#38BDF8] shadow-xl hover:shadow-[#38BDF8]/20 transition-all overflow-hidden"
+                                        className="group relative rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 text-left border-2 hover:border-[#38BDF8] shadow-xl hover:shadow-[#38BDF8]/20 transition-all overflow-hidden"
                                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
                                     >
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-[#38BDF8]/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500" />
                                         <span className="text-6xl block mb-6 filter group-hover:drop-shadow-[0_0_10px_rgba(56,189,248,0.5)] transition-all grayscale opacity-50">{cat.icon}</span>
-                                        <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-2"
+                                        <h3 className="text-xl md:text-3xl font-black italic uppercase tracking-tighter mb-2"
                                             style={{ color: 'var(--text-primary)' }}>{cat.label}</h3>
                                         <p className="text-[10px] font-bold uppercase tracking-widest"
                                             style={{ color: 'var(--text-secondary)' }}>{cat.desc}</p>
@@ -91,7 +91,7 @@ export default function IndexPublic({ auth, facilities = [] }) {
                                     >
                                         Kembali ke Semua Arena
                                     </button>
-                                    <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                                         style={{ color: 'var(--text-primary)' }}>
                                         Zona <span className="text-[#38BDF8]">{selectedCategory === 'all' ? 'Lengkap' : selectedCategory}</span>
                                     </h2>
@@ -109,7 +109,7 @@ export default function IndexPublic({ auth, facilities = [] }) {
                                         initial={{ opacity: 0, y: 30 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.1 }}
-                                        className="group rounded-[3rem] overflow-hidden shadow-2xl border flex flex-col"
+                                        className="group rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl border flex flex-col"
                                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
                                     >
                                         <div className="relative aspect-video overflow-hidden bg-slate-900">
@@ -118,11 +118,11 @@ export default function IndexPublic({ auth, facilities = [] }) {
                                                 <span className="text-white font-black text-[10px] uppercase tracking-widest">Premium Zona</span>
                                             </div>
                                             <div className="absolute bottom-6 left-8 z-30 pointer-events-none w-[80%]">
-                                                <h3 className="text-3xl md:text-5xl font-['Permanent_Marker'] italic text-white uppercase tracking-tighter drop-shadow-2xl truncate">{f.name}</h3>
+                                                <h3 className="text-2xl md:text-5xl font-['Permanent_Marker'] italic text-white uppercase tracking-tighter drop-shadow-2xl truncate">{f.name}</h3>
                                             </div>
                                         </div>
 
-                                        <div className="p-8 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6 border-t-[6px] border-[#38BDF8]"
+                                        <div className="p-6 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6 border-t-[6px] border-[#38BDF8]"
                                             style={{ background: 'var(--bg-card)' }}>
                                             <div>
                                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1"

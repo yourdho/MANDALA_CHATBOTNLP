@@ -67,7 +67,7 @@ export default function BookingsIndex({ bookings }) {
                     style={{ borderColor: 'var(--border)' }}>
                     <div>
                         <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Log</p>
-                        <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                             style={{ color: 'var(--text-primary)' }}>
                             Daftar <span className="text-[#38BDF8]">Booking</span>
                         </h1>
@@ -108,12 +108,12 @@ export default function BookingsIndex({ bookings }) {
                         <motion.div key={s.title}
                             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="rounded-[2rem] p-8 border relative overflow-hidden shadow-sm group"
+                            className="rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 border relative overflow-hidden shadow-sm group"
                             style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                             <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 pointer-events-none ${s.color === 'primary' ? 'bg-[#38BDF8]' : s.color === 'accent' ? 'bg-[#FACC15]' : 'bg-slate-300'}`} />
                             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4"
                                 style={{ color: 'var(--text-secondary)' }}>{s.title}</h3>
-                            <p className="text-4xl font-['Permanent_Marker']"
+                            <p className="text-3xl md:text-4xl font-['Permanent_Marker']"
                                 style={{ color: 'var(--text-primary)' }}>{s.value}</p>
                         </motion.div>
                     ))}
@@ -123,9 +123,9 @@ export default function BookingsIndex({ bookings }) {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                     className="rounded-[2.5rem] border overflow-hidden shadow-xl"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <div className="p-8 border-b flex items-center justify-between"
+                    <div className="p-6 md:p-8 border-b flex items-center justify-between"
                         style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                        <h3 className="text-xl font-black italic uppercase tracking-widest"
+                        <h3 className="text-lg md:text-xl font-black italic uppercase tracking-widest"
                             style={{ color: 'var(--text-primary)' }}>Riwayat Transaksi</h3>
                     </div>
 

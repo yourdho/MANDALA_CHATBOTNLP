@@ -172,7 +172,7 @@ export default function FacilityShow({ facility, timeSlots, user_vouchers = [] }
                                 <span className="w-2 h-2 bg-[#38BDF8] rounded-full animate-pulse" />
                                 Fasilitas Tersedia
                             </div>
-                            <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-6" style={{ color: 'var(--text-primary)' }}>
+                            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-6" style={{ color: 'var(--text-primary)' }}>
                                 {facility.name}
                             </h1>
                             <div className="flex flex-wrap items-center gap-4">
@@ -193,7 +193,7 @@ export default function FacilityShow({ facility, timeSlots, user_vouchers = [] }
                     <div className="lg:col-span-12 xl:col-span-4 xl:row-span-2">
                         <motion.div
                             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-                            className="rounded-[2.5rem] p-8 shadow-2xl sticky top-32 border-2"
+                            className="rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-2xl sticky top-32 border-2"
                             style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
                         >
                             <h3 className="text-2xl font-black italic uppercase tracking-tight mb-8" style={{ color: 'var(--text-primary)' }}>
@@ -308,7 +308,7 @@ export default function FacilityShow({ facility, timeSlots, user_vouchers = [] }
                     {/* Interactive Main Content Area */}
                     <div className="lg:col-span-12 xl:col-span-8 space-y-12">
                         {/* SLOT PICKER */}
-                        <div className="rounded-[2.5rem] p-8 md:p-10 shadow-xl border overflow-hidden relative" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                        <div className="rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 shadow-xl border overflow-hidden relative" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#38BDF8] to-[#FACC15]" />
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                                 <h3 className="text-2xl font-black italic uppercase tracking-tight" style={{ color: 'var(--text-primary)' }}>Pilih Jam <span className="text-[#38BDF8]">Main</span></h3>

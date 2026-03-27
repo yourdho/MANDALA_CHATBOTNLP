@@ -58,7 +58,7 @@ export default function ReportIndex({ revenue_total, platform_fee, bookings_coun
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* ── Revenue Chart ── */}
-                    <div className="lg:col-span-2 rounded-3xl p-8 border shadow-sm transition-all"
+                    <div className="lg:col-span-2 rounded-2xl md:rounded-3xl p-6 md:p-8 border shadow-sm transition-all"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                         <div className="flex items-center justify-between mb-10">
                             <div>
@@ -94,7 +94,7 @@ export default function ReportIndex({ revenue_total, platform_fee, bookings_coun
                     </div>
 
                     {/* ── Operational Benchmarks ── */}
-                    <div className="rounded-3xl p-8 border shadow-sm flex flex-col justify-between"
+                    <div className="rounded-2xl md:rounded-3xl p-6 md:p-8 border shadow-sm flex flex-col justify-between"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                         <div className="mb-8">
                             <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Metrik Operasional</h3>
