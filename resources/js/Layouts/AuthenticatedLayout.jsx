@@ -309,9 +309,6 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
 
             {/* Always Shown Floating Controls */}
             <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-4">
-                <div className="shadow-2xl rounded-full overflow-hidden">
-                    <ThemeToggle />
-                </div>
                 {showChatbot && <Chatbot />}
             </div>
         </div>
