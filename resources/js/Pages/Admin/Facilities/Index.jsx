@@ -69,7 +69,7 @@ export default function FacilityAdminIndex({ facilities }) {
                             <div className="flex-1 flex flex-col">
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
-                                        <h4 className="text-4xl font-black italic uppercase tracking-tighter mb-2" style={{ color: 'var(--text-primary)' }}>{f.name}</h4>
+                                        <h4 className="text-2xl md:text-4xl font-black italic uppercase tracking-tighter mb-2" style={{ color: 'var(--text-primary)' }}>{f.name}</h4>
                                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#38BDF8]">
                                             {f.category}
                                         </span>

@@ -30,7 +30,8 @@ export default function UserAdminIndex({ users }) {
             <div className="max-w-7xl mx-auto space-y-12">
                 <div className="rounded-[2.5rem] p-0 overflow-hidden border shadow-sm transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead className="text-[10px] font-black uppercase tracking-[0.3em] border-b"
                                 style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
@@ -88,14 +89,45 @@ export default function UserAdminIndex({ users }) {
                                 ))}
                             </tbody>
                         </table>
-
-                        {users.length === 0 && (
-                            <div className="py-40 text-center" style={{ background: 'var(--bg-base)' }}>
-                                <span className="text-9xl font-black italic text-[#38BDF8] opacity-10 uppercase tracking-tighter">Zero Host</span>
-                                <p className="text-[10px] font-black uppercase tracking-[0.4em] mt-12" style={{ color: 'var(--text-secondary)' }}>No personnel records found in the current sector.</p>
-                            </div>
-                        )}
                     </div>
+
+                    {/* Mobile Card List */}
+                    <div className="md:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+                        {users.map((u, i) => (
+                            <motion.div key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-[#38BDF8] font-black italic text-xl">
+                                        {u.name?.charAt(0)}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="text-xl font-black italic uppercase leading-tight" style={{ color: 'var(--text-primary)' }}>{u.name}</h4>
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Enlisted: {new Date(u.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                    <RoleBadge role={u.role || 'user'} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dashed" style={{ borderColor: 'var(--border)' }}>
+                                    <div>
+                                        <p className="text-[8px] font-black uppercase tracking-widest text-[#38BDF8] mb-1">Email</p>
+                                        <p className="text-[10px] font-bold truncate" style={{ color: 'var(--text-primary)' }}>{u.email}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[8px] font-black uppercase tracking-widest text-[#38BDF8] mb-1">WhatsApp</p>
+                                        <p className="text-[10px] font-bold" style={{ color: 'var(--text-primary)' }}>{u.phone || '-'}</p>
+                                    </div>
+                                </div>
+                                <button className="w-full py-3 rounded-xl border text-[9px] font-black uppercase tracking-widest"
+                                    style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+                                    View Full Profile File
+                                </button>
+                            </motion.div>
+                        ))}
+                    </div>
+                    {users.length === 0 && (
+                        <div className="py-40 text-center" style={{ background: 'var(--bg-base)' }}>
+                            <span className="text-9xl font-black italic text-[#38BDF8] opacity-10 uppercase tracking-tighter">Zero Host</span>
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] mt-12" style={{ color: 'var(--text-secondary)' }}>No personnel records found in the current sector.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

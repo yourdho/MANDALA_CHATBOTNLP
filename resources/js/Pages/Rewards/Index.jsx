@@ -15,7 +15,7 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
             header={
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h2 className="text-4xl font-['Permanent_Marker'] italic text-slate-900 uppercase tracking-tighter leading-none">
+                        <h2 className="text-3xl md:text-4xl font-['Permanent_Marker'] italic text-slate-900 uppercase tracking-tighter leading-none">
                             Loyalty <span className="text-[#38BDF8]">Market</span>
                         </h2>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-2">Dapatkan voucher eksklusif dengan poin Anda.</p>
@@ -115,8 +115,9 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                         <div className="h-[1px] flex-1 bg-slate-200" />
                     </div>
 
-                    <div className="bg-white rounded-[3rem] p-12 border border-slate-100 shadow-xl shadow-slate-100/50 overflow-hidden">
-                        <div className="overflow-x-auto">
+                    <div className="bg-white rounded-[3rem] p-6 md:p-12 border border-slate-100 shadow-xl shadow-slate-100/50 overflow-hidden">
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] border-b border-slate-100">
                                     <tr>
@@ -153,19 +154,46 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                                             </td>
                                         </tr>
                                     ))}
-                                    {my_vouchers.length === 0 && (
-                                        <tr>
-                                            <td colSpan="4" className="py-24 text-center">
-                                                <div className="max-w-xs mx-auto">
-                                                    <span className="text-4xl opacity-20 block mb-6">️</span>
-                                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Anda belum memiliki voucher. Ayo tukar poin sekarang!</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden space-y-4">
+                            {my_vouchers.map((v, i) => (
+                                <div key={v.id} className="p-6 rounded-[2rem] border border-slate-100 space-y-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg">
+                                            {v.reward?.discount_type === 'percentage' ? '️' : ''}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="font-['Permanent_Marker'] text-xl italic uppercase text-slate-900 leading-none">{v.reward?.title}</h4>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{new Date(v.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                        <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${v.status === 'unused' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                            v.status === 'used' ? 'bg-slate-50 text-slate-400 border-slate-100' : 'bg-red-50 text-red-400 border-red-100'
+                                            }`}>
+                                            {v.status === 'unused' ? 'Siap Pakai' : v.status}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nilai Voucher</p>
+                                        <p className="text-xl font-black italic text-[#38BDF8]">
+                                            {v.reward?.discount_type === 'percentage' ? `${parseFloat(v.reward?.discount_value)}%` : `Rp ${parseInt(v.reward?.discount_value).toLocaleString()}`}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {my_vouchers.length === 0 && (
+                            <div className="py-24 text-center">
+                                <div className="max-w-xs mx-auto">
+                                    <span className="text-4xl opacity-20 block mb-6">️</span>
+                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Anda belum memiliki voucher. Ayo tukar poin sekarang!</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -24,7 +24,7 @@ export default function Dashboard({ stats, facilities = [] }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Pilot Terminal</p>
-                    <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                    <h1 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Dashboard <span className="text-[#38BDF8]">Arena</span>
                     </h1>
@@ -53,11 +53,11 @@ export default function Dashboard({ stats, facilities = [] }) {
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-12 items-center text-center md:text-left">
                         <div className="md:col-span-8">
                             <p className="font-black text-[#38BDF8] uppercase text-[10px] tracking-[0.4em] mb-6">Identification Protocol</p>
-                            <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-none mb-6"
+                            <h1 className="text-3xl md:text-6xl font-black italic uppercase tracking-tighter leading-none mb-6"
                                 style={{ color: 'var(--text-primary)' }}>
-                                Selamat datang, <span className="text-[#38BDF8] underline decoration-4 decoration-[#38BDF8]/20">{user?.name}</span>
+                                Selamat datang, <br className="sm:hidden" /> <span className="text-[#38BDF8] underline decoration-2 md:decoration-4 decoration-[#38BDF8]/20">{user?.name}</span>
                             </h1>
-                            <p className="font-bold max-w-lg leading-relaxed text-sm uppercase tracking-wide opacity-80"
+                            <p className="font-bold max-w-lg leading-relaxed text-[11px] md:text-sm uppercase tracking-wide opacity-80"
                                 style={{ color: 'var(--text-secondary)' }}>
                                 Siap untuk berolahraga hari ini? Cek ketersediaan lapangan dan booking sekarang juga.
                             </p>
@@ -93,7 +93,7 @@ export default function Dashboard({ stats, facilities = [] }) {
                     <div className="space-y-10">
                         <div className="flex items-center justify-between">
                             <div className="space-y-4">
-                                <h3 className="text-4xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
+                                <h3 className="text-2xl md:text-4xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
                                     Fasilitas <span className="text-[#38BDF8]">Tersedia</span>
                                 </h3>
                                 <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.4em]">Strategic Area Selection</p>
@@ -148,7 +148,7 @@ export default function Dashboard({ stats, facilities = [] }) {
                 <div className="space-y-12">
                     <div className="flex items-center gap-8 px-4">
                         <div className="space-y-4">
-                            <h3 className="text-4xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
+                            <h3 className="text-2xl md:text-4xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
                                 Riwayat <span className="text-[#38BDF8]">Terbaru</span>
                             </h3>
                             <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.4em]">Mission Log Telemetry</p>
@@ -173,16 +173,16 @@ export default function Dashboard({ stats, facilities = [] }) {
                                                     {m.facility?.name?.charAt(0) || 'F'}
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-xl font-black italic uppercase tracking-tight mb-1 group-hover:text-[#38BDF8] transition-colors"
+                                                    <h4 className="text-lg md:text-xl font-black italic uppercase tracking-tight mb-1 group-hover:text-[#38BDF8] transition-colors"
                                                         style={{ color: 'var(--text-primary)' }}>{m.facility?.name}</h4>
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)' }}>
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60" style={{ color: 'var(--text-secondary)' }}>
                                                         {new Date(m.starts_at).toLocaleDateString()} • {new Date(m.starts_at).toLocaleTimeString('id-ID').slice(0, 5)} - {new Date(m.ends_at).toLocaleTimeString('id-ID').slice(0, 5)}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center justify-between sm:justify-end sm:gap-8 ml-20 sm:ml-0">
+                                            <div className="flex items-center justify-between sm:justify-end sm:gap-8 mt-4 sm:mt-0 p-4 sm:p-0 rounded-2xl bg-slate-500/5 sm:bg-transparent border sm:border-0 border-white/5">
                                                 <div className="text-left sm:text-right">
-                                                    <p className="text-2xl font-black italic tracking-tighter uppercase mb-2" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(m.total_price).toLocaleString()}</p>
+                                                    <p className="text-xl md:text-2xl font-black italic tracking-tighter uppercase mb-1 sm:mb-2" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(m.total_price).toLocaleString()}</p>
                                                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest inline-block border ${m.status === 'confirmed'
                                                         ? 'text-[#38BDF8] border-[#38BDF8]/20 bg-[#38BDF8]/5'
                                                         : m.status === 'cancelled' || m.status === 'failed'

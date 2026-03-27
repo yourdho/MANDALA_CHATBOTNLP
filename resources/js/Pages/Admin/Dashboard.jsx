@@ -12,8 +12,8 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                 <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b"
                     style={{ borderColor: 'var(--border)' }}>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Dashboard Utama</h1>
-                        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Ringkasan performa operasional hari ini.</p>
+                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Dashboard Utama</h1>
+                        <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Ringkasan performa operasional hari ini.</p>
                     </div>
                     <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
@@ -61,76 +61,97 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                                 Lihat Semua →
                             </Link>
                         </div>
+                        {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                            <table className="w-full text-left border-collapse">
+                                <thead className="text-[10px] font-black uppercase tracking-[0.3em] border-b"
+                                    style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
                                     <tr>
-                                        <th className="px-6 py-4">Pelanggan</th>
-                                        <th className="px-6 py-4">Fasilitas</th>
-                                        <th className="px-6 py-4 text-right">Total</th>
-                                        <th className="px-6 py-4 text-center">Status</th>
-                                        <th className="px-6 py-4"></th>
+                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Pelanggan</th>
+                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Fasilitas</th>
+                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Pembayaran</th>
+                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Tanggal</th>
+                                        <th className="px-6 py-6 md:px-10 md:py-10 text-right whitespace-nowrap">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
-                                    {recent_bookings?.map((booking, idx) => (
-                                        <tr key={idx} className="hover:bg-slate-500/5 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{booking.guest_name || booking.user?.name || 'User'}</span>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{booking.guest_phone || booking.user?.phone}</span>
-                                                        {(booking.guest_phone || booking.user?.phone) && (
-                                                            <a href={`https://wa.me/${(booking.guest_phone || booking.user?.phone).replace(/\D/g, '').replace(/^0/, '62')}`} target="_blank" className="p-1 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors">
-                                                                <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.764-5.766zm3.392 8.221c-.142.399-.833.723-1.141.774-.285.051-.613.082-.994-.039-.233-.073-.539-.169-.991-.355-1.924-.788-3.137-2.722-3.235-2.852-.097-.13-.807-1.077-.807-2.062s.521-1.469.707-1.676c.186-.206.408-.258.544-.258.136 0 .272.003.39.01.12.007.281-.045.44.337.162.39.551 1.336.6 1.439.049.103.082.224.013.355-.069.13-.157.283-.313.456-.156.173-.328.385-.168.658.16.272.71 1.171 1.522 1.892.684.608 1.265.798 1.543.917.278.12.441.101.608-.091.168-.192.712-.826.903-1.11.192-.284.383-.24.646-.142.263.099 1.666.784 1.954.929.288.146.48.217.55.337.072.12.072.699-.071 1.098z" /></svg>
-                                                            </a>
-                                                        )}
+                                    {recent_bookings?.map((u, i) => (
+                                        <motion.tr
+                                            initial={{ opacity: 0, scale: 0.98 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: i * 0.05 }}
+                                            key={u.id}
+                                            className="transition-all group hover:bg-slate-500/5"
+                                        >
+                                            <td className="px-6 py-6 md:px-10 md:py-10">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-12 h-12 md:w-16 md:h-16 shrink-0 rounded-xl md:rounded-2xl flex items-center justify-center font-black italic text-2xl md:text-3xl text-[#38BDF8] border"
+                                                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+                                                        {u.guest_name?.charAt(0) || u.user?.name?.charAt(0)}
                                                     </div>
+                                                    <span className="text-xl md:text-2xl font-black italic uppercase tracking-tighter group-hover:text-[#38BDF8] transition-colors leading-none"
+                                                        style={{ color: 'var(--text-primary)' }}>
+                                                        {u.guest_name || u.user?.name}
+                                                    </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider">{booking.facility?.name}</span>
+                                            <td className="px-6 py-6 md:px-10 md:py-10">
+                                                <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider">{u.facility?.name}</span>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(booking?.total_price || 0).toLocaleString('id-ID')}</span>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase border ${booking.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
-                                                    {booking.payment_status === 'paid' ? 'Success' : 'Pending'}
+                                            <td className="px-6 py-6 md:px-10 md:py-10">
+                                                <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase border ${u.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
+                                                    {u.payment_status === 'paid' ? 'Success' : 'Pending'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <Link href={route('admin.bookings.manage')} className="p-2 hover:bg-[#38BDF8]/10 rounded-lg text-[#38BDF8] transition-colors inline-block">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 5l7 7-7 7" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                            <td className="px-6 py-6 md:px-10 md:py-10">
+                                                <div className="flex flex-col">
+                                                    <p className="text-sm font-black italic tracking-tighter mb-2 uppercase leading-none" style={{ color: 'var(--text-primary)' }}>{new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: 'var(--text-secondary)' }}>{new Date(u.created_at).toLocaleTimeString().slice(0, 5)} ZULU</p>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6 md:px-10 md:py-10 text-right">
+                                                <Link href={route('admin.bookings.manage')} className="px-6 py-2.5 md:px-8 md:py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all"
+                                                    style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+                                                    Detail File
                                                 </Link>
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* Mobile Dashboard List */}
+                        {/* Mobile Card List */}
                         <div className="md:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
-                            {recent_bookings?.map((booking, idx) => (
-                                <div key={idx} className="p-5 space-y-3">
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-[#38BDF8] mb-1">{booking.facility?.name}</span>
-                                            <span className="text-sm font-black italic uppercase" style={{ color: 'var(--text-primary)' }}>{booking.guest_name || booking.user?.name}</span>
+                            {recent_bookings?.map((u, i) => (
+                                <motion.div key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-6 space-y-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-[#38BDF8] font-black italic text-xl">
+                                            {u.guest_name?.charAt(0) || u.user?.name?.charAt(0)}
                                         </div>
-                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${booking.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
-                                            {booking.payment_status === 'paid' ? 'Paid' : 'Pending'}
+                                        <div className="flex-1">
+                                            <h4 className="text-xl font-black italic uppercase leading-tight" style={{ color: 'var(--text-primary)' }}>{u.guest_name || u.user?.name}</h4>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Booked: {new Date(u.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${u.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
+                                            {u.payment_status === 'paid' ? 'Paid' : 'Pending'}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between items-center bg-slate-500/5 p-3 rounded-xl border border-dashed" style={{ borderColor: 'var(--border)' }}>
-                                        <span className="text-xs font-black italic" style={{ color: 'var(--text-primary)' }}>Rp {parseInt(booking?.total_price || 0).toLocaleString('id-ID')}</span>
-                                        <Link href={route('admin.bookings.manage')} className="text-[10px] font-black text-[#38BDF8] uppercase tracking-widest italic group">
-                                            Detail <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-                                        </Link>
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dashed" style={{ borderColor: 'var(--border)' }}>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase tracking-widest text-[#38BDF8] mb-1">Email</p>
+                                            <p className="text-[10px] font-bold truncate" style={{ color: 'var(--text-primary)' }}>{u.guest_email || u.user?.email}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase tracking-widest text-[#38BDF8] mb-1">WhatsApp</p>
+                                            <p className="text-[10px] font-bold" style={{ color: 'var(--text-primary)' }}>{u.guest_phone || u.user?.phone || '-'}</p>
+                                        </div>
                                     </div>
-                                </div>
+                                    <Link href={route('admin.bookings.manage')} className="w-full py-3 rounded-xl border text-[9px] font-black uppercase tracking-widest text-center"
+                                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
+                                        View Full Booking File
+                                    </Link>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
