@@ -204,7 +204,7 @@ export default function MatchesIndex({ my_matches }) {
                                         </div>
                                         <input
                                             type="text"
-                                            placeholder={data.contact_type === 'whatsapp' ? 'SIGNAL.NUMBER.0812...' : '@PILOT.IDENTIFIER...'}
+                                            placeholder={data.contact_type === 'whatsapp' ? 'Nomor WA (contoh: 087892312759)...' : '@ID.INSTAGRAM...'}
                                             value={data.contact_value}
                                             onChange={e => setData('contact_value', e.target.value)}
                                             className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all placeholder:opacity-30"

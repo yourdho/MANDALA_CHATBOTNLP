@@ -34,7 +34,7 @@ class MatchController extends Controller
         // Custom Cross-Validation
         if ($request->contact_type === 'whatsapp') {
             if (!preg_match('/^\+?\d{8,15}$/', $request->contact_value)) {
-                return redirect()->back()->withErrors(['contact_value' => 'Nomor WhatsApp tidak valid (contoh: 08123456789)']);
+                return redirect()->back()->withErrors(['contact_value' => 'Nomor WhatsApp tidak valid (contoh: 087892312759)']);
             }
         } else {
             if (!str_starts_with($request->contact_value, '@') || strlen($request->contact_value) < 4) {

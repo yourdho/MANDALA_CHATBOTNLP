@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@mandala.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
-            'phone' => '08123456789',
+            'phone' => '087892312759',
             'email_verified_at' => now(),
         ]);
 
