@@ -49,12 +49,11 @@ export default function AuthenticatedLayout({ children, showSidebar = true }) {
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
 
-            const dx = touchEndX - touchStartX;
-            const dy = touchEndY - touchStartY;
-
-            // Detect horizontal swipe from left edge (dx > 100 and startX < 50)
-            // and ensure it's mostly horizontal (|dx| > |dy|)
-            if (dx > 100 && Math.abs(dx) > Math.abs(dy) * 2 && touchStartX < 60) {
+            // Detect horizontal swipe from left side (swipe right)
+            // dx > 60: distance
+            // |dx| > |dy| * 1.2: mostly horizontal
+            // touchStartX < 100: start from left edge area
+            if (dx > 60 && Math.abs(dx) > Math.abs(dy) * 1.2 && touchStartX < 100) {
                 window.history.back();
             }
         };
@@ -230,7 +229,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true }) {
     const { flash } = usePage().props;
 
     return (
-        <div className="min-h-screen transition-colors duration-300 overflow-x-hidden"
+        <div className="min-h-screen transition-colors duration-300"
             style={{ background: 'var(--bg-base)' }}>
 
             {/* Flash Overlay */}

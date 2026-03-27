@@ -16,11 +16,8 @@ export default function GuestLayout({ children }) {
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
 
-            const dx = touchEndX - touchStartX;
-            const dy = touchEndY - touchStartY;
-
-            // Detect horizontal swipe from left edge (dx > 100 and startX < 60)
-            if (dx > 100 && Math.abs(dx) > Math.abs(dy) * 2 && touchStartX < 60) {
+            // Detect horizontal swipe from left side (swipe right)
+            if (dx > 60 && Math.abs(dx) > Math.abs(dy) * 1.2 && touchStartX < 100) {
                 window.history.back();
             }
         };
