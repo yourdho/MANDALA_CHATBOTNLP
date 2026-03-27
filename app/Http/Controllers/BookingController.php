@@ -137,7 +137,7 @@ class BookingController extends Controller
 
         if ($request->payment_method === 'dp_manual') {
             // WA Admin Redirect logic
-            $wa_number = '6282123456789'; // Contoh nomor WA Admin
+            $wa_number = '6287892312759'; // Contoh nomor WA Admin
             $message = urlencode("Halo Admin Mandala Arena, saya ingin konfirmasi DP manual (50%) untuk pesanan Booking saya.\n\nKode Booking: MA-{$booking->id}\nFasilitas: {$facility->name}\nTanggal: {$booking->booking_date}\nTotal DP: Rp " . number_format($dp_amount, 0, ',', '.'));
             $wa_link = "https://wa.me/{$wa_number}?text={$message}";
 
@@ -204,7 +204,7 @@ class BookingController extends Controller
 
     private function generateWaAdminLink($booking)
     {
-        $wa_number = '6282123456789'; // Consumed from standard admin terminal
+        $wa_number = '6287892312759'; // Consumed from standard admin terminal
         $date = $booking->starts_at->format('d/m/Y');
         $code = 'MA-' . str_pad($booking->id, 5, '0', STR_PAD_LEFT);
         $message = urlencode("Halo Admin Mandala Arena, saya ingin bertanya tentang pesanan Booking saya.\n\nKode Booking: {$code}\nFasilitas: {$booking->facility->name}\nTanggal: {$date}\nStatus: " . strtoupper($booking->status));

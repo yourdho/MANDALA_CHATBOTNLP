@@ -85,25 +85,28 @@ export default function Welcome({ auth }) {
                     {/* ──────────── HERO SECTION ──────────── */}
                     <section className="relative pt-32 pb-24 lg:pt-56 lg:pb-40 px-6 lg:px-20 overflow-hidden"
                         style={{ background: 'var(--bg-base)' }}>
-                        <div className="absolute top-0 right-0 w-3/4 h-full opacity-10 pointer-events-none">
-                            <img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1200&q=80" alt="Sports Background" className="w-full h-full object-cover mix-blend-multiply" />
-                            <div className="absolute inset-0 bg-gradient-to-r" style={{ backgroundImage: `linear-gradient(to right, var(--bg-base), transparent)` }} />
+                        <div className="absolute inset-0 w-full h-full opacity-20 pointer-events-none">
+                            <img src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1200&q=80" alt="Sports Background" className="w-full h-full object-cover grayscale" />
+                            <div className="absolute inset-0 bg-gradient-to-t" style={{ backgroundImage: `linear-gradient(to top, var(--bg-base), transparent 70%)` }} />
+                            <div className="absolute inset-0 bg-gradient-to-b" style={{ backgroundImage: `linear-gradient(to bottom, var(--bg-base), transparent 30%)` }} />
+                            <div className="absolute inset-0 bg-gradient-to-r" style={{ backgroundImage: `linear-gradient(to right, var(--bg-base), transparent 40%)` }} />
+                            <div className="absolute inset-0 bg-gradient-to-l" style={{ backgroundImage: `linear-gradient(to left, var(--bg-base), transparent 40%)` }} />
                         </div>
                         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#38BDF8]/10 rounded-full blur-[100px]" />
                         <div className="absolute bottom-0 -left-20 w-[400px] h-[400px] bg-[#FACC15]/10 rounded-full blur-[100px]" />
 
-                        <div className="max-w-5xl mx-auto relative z-10 text-center">
+                        <div className="max-w-7xl mx-auto relative z-10 text-center px-4">
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center">
-                                
+
                                 <motion.h1
                                     initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                                    className="text-[12vw] sm:text-6xl md:text-8xl lg:text-[10rem] font-['Rock_Salt'] font-normal leading-tight tracking-tighter mb-8 drop-shadow-2xl -rotate-3 sm:-rotate-6"
+                                    className="text-[14vw] sm:text-7xl md:text-9xl lg:text-[12rem] font-['Rock_Salt'] font-normal leading-[0.85] tracking-tighter mb-12 drop-shadow-2xl -rotate-3 sm:-rotate-6"
                                     style={{ color: 'var(--text-primary)' }}
                                 >
-                                    Mandala <br className="sm:hidden" />
+                                    Mandala <br className="xl:hidden" />
                                     <span className="text-[#38BDF8] relative inline-block">
                                         Arena
-                                        <div className="absolute -bottom-2 sm:-bottom-4 left-0 w-full h-2 sm:h-4 bg-[#FACC15] -z-10 -skew-x-[30deg] opacity-90" />
+                                        <div className="absolute -bottom-2 sm:-bottom-4 left-0 w-full h-2 sm:h-6 bg-[#FACC15] -z-10 -skew-x-[30deg] opacity-90" />
                                     </span>
                                 </motion.h1>
                                 <p className="text-base sm:text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto px-4"
@@ -143,7 +146,7 @@ export default function Welcome({ auth }) {
                             {/* SOCIAL BUTTONS */}
                             <div className="flex justify-center md:justify-start gap-4">
                                 <SocialLink icon={Icons.instagram} href="https://www.instagram.com/mandalaarena" color="#E1306C" label="Instagram" />
-                                <SocialLink icon={Icons.whatsapp} href="https://wa.me/6281234567890" color="#25D366" label="WhatsApp" />
+                                <SocialLink icon={Icons.whatsapp} href="https://wa.me/6287892312759" color="#25D366" label="WhatsApp" />
                                 <SocialLink icon={Icons.gmail} href="mailto:contact@mandalaarena.com" color="#EA4335" label="Gmail" />
                                 <SocialLink icon={Icons.location} href="https://maps.app.goo.gl/9RkguMERWbxZiMpx8" color="#38BDF8" label="Google Maps" />
                             </div>
@@ -155,7 +158,7 @@ export default function Welcome({ auth }) {
                             <ul className="space-y-3 font-medium"
                                 style={{ color: 'var(--text-secondary)' }}>
                                 <li className="text-sm"> Jalan Jenderal Sudirman, Mandala Residence Blok H 2,<br />Kecamatan Garut Kota, Kabupaten Garut</li>
-                                <li> +62 812 3456 7890</li>
+                                <li> 087892312759</li>
                                 <li className="flex items-center justify-center md:justify-end gap-2">
                                 </li>
                             </ul>
@@ -170,7 +173,7 @@ export default function Welcome({ auth }) {
                     </div>
                 </footer>
 
-                {/* <Chatbot /> */}
+                <Chatbot />
             </div>
         </AuthenticatedLayout>
     );

@@ -180,8 +180,23 @@ export default function BookingAdminIndex({ bookings }) {
                                         <td className="px-4 py-6">
                                             <div className="flex flex-col">
                                                 <p className="font-black uppercase tracking-tight text-xs mb-1 group-hover:text-[#38BDF8] transition-colors"
-                                                    style={{ color: 'var(--text-primary)' }}>{b.user?.name}</p>
-                                                <p className="text-[9px] font-bold" style={{ color: 'var(--text-secondary)' }}>{b.user?.phone || b.user?.email}</p>
+                                                    style={{ color: 'var(--text-primary)' }}>{b.guest_name || b.user?.name}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-[9px] font-bold" style={{ color: 'var(--text-secondary)' }}>{b.guest_phone || b.user?.phone || b.guest_email || b.user?.email}</p>
+                                                    {(b.guest_phone || b.user?.phone) && (
+                                                        <a
+                                                            href={`https://wa.me/${(b.guest_phone || b.user?.phone).replace(/\D/g, '').replace(/^0/, '62')}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
+                                                            title="Chat WhatsApp"
+                                                        >
+                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.764-5.766zm3.392 8.221c-.142.399-.833.723-1.141.774-.285.051-.613.082-.994-.039-.233-.073-.539-.169-.991-.355-1.924-.788-3.137-2.722-3.235-2.852-.097-.13-.807-1.077-.807-2.062s.521-1.469.707-1.676c.186-.206.408-.258.544-.258.136 0 .272.003.39.01.12.007.281-.045.44.337.162.39.551 1.336.6 1.439.049.103.082.224.013.355-.069.13-.157.283-.313.456-.156.173-.328.385-.168.658.16.272.71 1.171 1.522 1.892.684.608 1.265.798 1.543.917.278.12.441.101.608-.091.168-.192.712-.826.903-1.11.192-.284.383-.24.646-.142.263.099 1.666.784 1.954.929.288.146.48.217.55.337.072.12.072.699-.071 1.098z" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-6">

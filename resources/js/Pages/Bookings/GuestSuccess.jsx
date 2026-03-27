@@ -66,7 +66,7 @@ export default function GuestSuccess({ booking }) {
         `Waktu: ${startStr} – ${endStr}\n` +
         `Total: Rp ${Number(booking.total_price).toLocaleString('id-ID')}`
     );
-    const whatsappUrl = `https://wa.me/6282123456789?text=${whatsappMsg}`;
+    const whatsappUrl = `https://wa.me/6287892312759?text=${whatsappMsg}`;
 
     const isPaid = booking.payment_status === 'paid' || booking.payment_status === 'settlement' || booking.payment_status === 'confirmed';
 
@@ -147,7 +147,7 @@ export default function GuestSuccess({ booking }) {
 
                                 <div className="pt-4 text-center">
                                     <Link href={route('welcome')} className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-[#38BDF8] transition-colors">
-                                        Kembali ke Beranda 
+                                        Kembali ke Beranda
                                     </Link>
                                 </div>
                             </div>
