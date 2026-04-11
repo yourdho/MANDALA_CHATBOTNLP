@@ -92,4 +92,42 @@ php artisan schedule:work
 - `routes/web.php`: Definisi rute halaman Inertia.
 
 ---
+
+## 🌐 Panduan Deployment Server (Production)
+
+Saat mengunggah (hosting) aplikasi ini ke server VPS atau CPanel, ada beberapa konfigurasi dan *best practice* yang diwajibkan demi performa dan keamanan sistem:
+
+### 1. Environment & Database Server
+Edit file `.env` di server Anda dengan konfigurasi berikut:
+```env
+APP_ENV=production
+APP_DEBUG=false
+```
+**Database Production:** Di environment lokal (development) kita bisa menggunakan `sqlite`. Namun, untuk hosting wajib menggunakan **MySQL** atau **PostgreSQL** untuk menangani concurrency data (terhadap kemungkinan konflik tabel saat pengguna menekan tombol *booking* secara bersamaan).
+```env
+DB_CONNECTION=mysql
+# Sesuaikan parameter di bawah ini
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mandala_arena
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+### 2. Queue Worker (Supervisor)
+Aplikasi ini menjalankan banyak proses di latar belakang (*background processes*) seperti:
+- Pengiriman Email Invoice.
+- Pengiriman Notifikasi WhatsApp (via API).
+- Proses pembersihan otomatis untuk "pending" tiket (expired payment).
+
+Agar pekerjaan (*job*) ini tidak menghambat *response time* ke pengguna, fitur-fitur di atas didorong ke Queue. Di server development Anda cukup mengetik `php artisan queue:work`. Namun di **server production**, Anda wajib menggunakan Process Monitor seperti **Supervisor** atau PM2 agar *worker* tetap hidup meski server ter-restart.
+
+### 3. Server Scheduler (Cron Job)
+Tambahkan konfigurasi *Cron* berikut pada setting (Cron Jobs) di kontrol panel CPanel/VPS Anda:
+```bash
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+Cron job ini memastikan seluruh *smart analytics*, update poin diskon member, dan pembatalan timeout otomatis sistem dieksekusi secara periodik per menit.
+
+---
 *Dibuat dengan ❤️ oleh Nadhif M Yusuf untuk pengalaman olahraga yang lebih baik.*
