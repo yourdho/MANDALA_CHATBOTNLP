@@ -1,7 +1,7 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import AutoCarousel from '@/Components/AutoCarousel';
+import AutoCarousel from '@/Components/Shared/AutoCarousel';
 
 export default function Dashboard({ stats, facilities = [], promos = [] }) {
     const user = usePage().props.auth.user;

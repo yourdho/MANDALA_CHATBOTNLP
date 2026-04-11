@@ -1,5 +1,5 @@
-﻿import InputError from '@/Components/InputError';
-import GuestLayout from '@/Layouts/GuestLayout';
+﻿import InputError from '@/Components/UI/InputError';
+import GuestLayout from '@/Components/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 

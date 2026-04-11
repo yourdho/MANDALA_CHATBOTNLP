@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\FacilityController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ChatbotController;
-use App\Http\Controllers\MatchController;
+use App\Http\Controllers\Web\ProfileController;
+use App\Http\Controllers\Web\FacilityController;
+use App\Http\Controllers\Web\BookingController;
+use App\Http\Controllers\Web\ChatbotController;
+use App\Http\Controllers\Web\MatchController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,11 +17,11 @@ Route::get('/facilities', [FacilityController::class, 'indexPublic'])->name('fac
 Route::get('/facility/{facility}', [FacilityController::class, 'show'])->name('facility.show');
 
 // ── Blog (Frontend) ──────────────────────────────────────────
-Route::get('/blog', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog', [\App\Http\Controllers\Web\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'show'])->name('blog.show');
 
 // ── Payment & Callback ───────────────────────────────────────
-Route::post('/payment/create/{booking_id}', [\App\Http\Controllers\PaymentController::class, 'createTransaction'])->name('payment.create');
+Route::post('/payment/create/{booking_id}', [\App\Http\Controllers\Web\PaymentController::class, 'createTransaction'])->name('payment.create');
 Route::post('/payment/callback', [BookingController::class, 'callback'])->name('payment.callback');
 
 Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard (Unified with simple role split)
     Route::get('/dashboard', function () {
         if (auth()->user()->role === 'admin') {
-            return (new \App\Http\Controllers\AdminDashboardController())->index();
+            return (new \App\Http\Controllers\Admin\AdminDashboardController())->index();
         }
 
         // Standard User Tactical Recap
@@ -74,8 +74,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 
     // ── User Loyalty (Redeem) ───────────────────────────────────
-    Route::get('/reward-market', [\App\Http\Controllers\UserRewardController::class, 'index'])->name('user.rewards.index');
-    Route::post('/reward-redeem', [\App\Http\Controllers\UserRewardController::class, 'redeem'])->name('user.rewards.redeem');
+    Route::get('/reward-market', [\App\Http\Controllers\Web\UserRewardController::class, 'index'])->name('user.rewards.index');
+    Route::post('/reward-redeem', [\App\Http\Controllers\Web\UserRewardController::class, 'redeem'])->name('user.rewards.redeem');
 
     // ── Matchmaking (Cari Lawan) ─────────────────────────────────
     Route::get('/matchmaking', function () {

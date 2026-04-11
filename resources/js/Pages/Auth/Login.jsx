@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import GuestLayout from '@/Layouts/GuestLayout';
+import Checkbox from '@/Components/UI/Checkbox';
+import InputError from '@/Components/UI/InputError';
+import GuestLayout from '@/Components/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 

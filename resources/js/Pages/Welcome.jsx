@@ -1,9 +1,9 @@
 ﻿import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import Chatbot from '@/Components/Chatbot';
-import ThemeToggle from '@/Components/ThemeToggle';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import AutoCarousel from '@/Components/AutoCarousel';
+import Chatbot from '@/Components/Shared/Chatbot';
+import ThemeToggle from '@/Components/UI/ThemeToggle';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
+import AutoCarousel from '@/Components/Shared/AutoCarousel';
 
 /* ── Custom SVGs for Socials ── */
 const Icons = {

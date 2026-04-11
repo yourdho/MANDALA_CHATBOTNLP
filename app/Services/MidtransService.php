@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\MidtransServiceInterface;
+
 use Midtrans\Config;
 use Midtrans\Snap;
 
-class MidtransService
+class MidtransService  implements MidtransServiceInterface
 {
     public function __construct()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Contracts\Repositories;
 
 use App\Models\Booking;
 use Illuminate\Database\Eloquent\Collection;

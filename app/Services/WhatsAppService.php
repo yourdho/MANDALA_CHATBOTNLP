@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\WhatsAppServiceInterface;
+
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class WhatsAppService
+class WhatsAppService  implements WhatsAppServiceInterface
 {
     /**
      * Mengirim pesan WhatsApp menggunakan API Fonnte (contoh).

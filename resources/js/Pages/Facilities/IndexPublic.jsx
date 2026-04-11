@@ -1,10 +1,10 @@
 ﻿import { Head, Link } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import Chatbot from '@/Components/Chatbot';
-import AutoCarousel from '@/Components/AutoCarousel';
-import ThemeToggle from '@/Components/ThemeToggle';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Chatbot from '@/Components/Shared/Chatbot';
+import AutoCarousel from '@/Components/Shared/AutoCarousel';
+import ThemeToggle from '@/Components/UI/ThemeToggle';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import {
     TrophyIcon,
     SparklesIcon,

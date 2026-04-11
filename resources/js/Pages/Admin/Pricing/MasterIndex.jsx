@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 
 export default function MasterPricingIndex({ price_schedules = [], additional_items = [] }) {

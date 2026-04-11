@@ -1,9 +1,9 @@
 ﻿import { Head, Link, usePage, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Chatbot from '@/Components/Chatbot';
-import AutoCarousel from '@/Components/AutoCarousel';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
+import Chatbot from '@/Components/Shared/Chatbot';
+import AutoCarousel from '@/Components/Shared/AutoCarousel';
 
 const PAYMENT_METHODS = [
     {

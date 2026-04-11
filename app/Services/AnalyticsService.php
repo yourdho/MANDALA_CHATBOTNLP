@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
-class AnalyticsService
+use App\Contracts\Services\AnalyticsServiceInterface;
+
+class AnalyticsService  implements AnalyticsServiceInterface
 {
     public function getPopularVenues()
     {

@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\MatchServiceInterface;
+
 use App\Models\SportsMatch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class MatchService
+class MatchService  implements MatchServiceInterface
 {
     /**
      * Attempt to find a match for a given sports session request.

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\RewardServiceInterface;
+
 use App\Models\Reward;
 use App\Models\User;
 use App\Models\UserReward;
@@ -9,7 +11,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class RewardService
+class RewardService  implements RewardServiceInterface
 {
     /**
      * User menukarkan poin dengan Reward.

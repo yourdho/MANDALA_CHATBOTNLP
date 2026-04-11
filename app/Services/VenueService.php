@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
-use App\Repositories\VenueRepositoryInterface;
+use App\Contracts\Services\VenueServiceInterface;
+
+use App\Contracts\Repositories\VenueRepositoryInterface;
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Collection;
 
-class VenueService
+class VenueService  implements VenueServiceInterface
 {
     protected $venueRepository;
 

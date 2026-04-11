@@ -1,8 +1,8 @@
 ﻿import { Head, Link, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import ThemeToggle from '@/Components/ThemeToggle';
-import Chatbot from '@/Components/Chatbot';
+import ThemeToggle from '@/Components/UI/ThemeToggle';
+import Chatbot from '@/Components/Shared/Chatbot';
 
 /* ── SVG Icons ── */
 const Icons = {
