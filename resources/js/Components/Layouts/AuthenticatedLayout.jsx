@@ -1,10 +1,10 @@
-﻿import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import ThemeToggle from '@/Components/UI/ThemeToggle';
-import Chatbot from '@/Components/Shared/Chatbot';
+import Chatbot from '@/Components/Chatbot';
 
-/* ── SVG Icons ── */
+/* -- SVG Icons -- */
 const Icons = {
     dashboard: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>,
     calendar: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
@@ -141,7 +141,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                 <SideNavItem isExternal={true} href="https://mandalaarenavt.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio" active={false} icon={Icons.location}>
                     <div className="flex flex-col gap-1">
                         <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>VR Tour Lokasi</span>
-                        <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Lihat kondisi arena 360°</span>
+                        <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Lihat kondisi arena 360�</span>
                     </div>
                 </SideNavItem>
 
@@ -362,7 +362,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                 </main>
             </div>
 
-            {/* ── TACTICAL MOBILE BOTTOM DOCK ── */}
+            {/* -- TACTICAL MOBILE BOTTOM DOCK -- */}
             <div className="lg:hidden fixed bottom-0 inset-x-0 z-[110] p-4 pointer-events-none">
                 <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl flex items-center justify-around p-2 pointer-events-auto max-w-sm mx-auto">
                     <Link href={route('facilities.public')} className={`p-3 rounded-2xl flex flex-col items-center gap-1 transition-all ${route().current('facilities.public') || route().current('facility.show') ? 'bg-[#38BDF8] text-slate-900' : 'text-slate-400'}`}>

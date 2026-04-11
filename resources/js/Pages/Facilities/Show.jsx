@@ -1,8 +1,8 @@
-﻿import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
-import Chatbot from '@/Components/Shared/Chatbot';
+import Chatbot from '@/Components/Chatbot';
 import AutoCarousel from '@/Components/Shared/AutoCarousel';
 
 const PAYMENT_METHODS = [
@@ -402,7 +402,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                 className={`p-6 rounded-[2rem] border-2 flex items-center gap-4 transition-all cursor-pointer select-none ${selectedAddons.includes(addon.name) ? 'bg-[#FACC15]/10 border-[#FACC15]' : 'bg-slate-400/5'}`}
                                 style={{ borderColor: selectedAddons.includes(addon.name) ? '#FACC15' : 'var(--border)' }}>
                                 <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${selectedAddons.includes(addon.name) ? 'bg-[#FACC15] border-[#FACC15]' : 'border-slate-300 dark:border-slate-700'}`}>
-                                    {selectedAddons.includes(addon.name) && <span className="text-slate-900 font-black text-[10px]">✓</span>}
+                                    {selectedAddons.includes(addon.name) && <span className="text-slate-900 font-black text-[10px]">?</span>}
                                 </div>
                                 <div className="flex-1">
                                     <span className="text-xs font-black italic uppercase tracking-widest block" style={{ color: 'var(--text-primary)' }}>{addon.name}</span>
@@ -459,7 +459,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                         <span className="text-2xl md:text-5xl font-black italic text-[#FACC15]">RP {totalHarga.toLocaleString('id-ID')}</span>
                                     </div>
                                     <button onClick={openPaymentModal} className="w-full sm:w-auto px-12 py-5 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] md:text-xs uppercase tracking-[0.4em] shadow-xl hover:scale-105 active:scale-95 transition-all italic hover:bg-white group">
-                                        GASS BOOKING <span className="inline-block transition-transform group-hover:translate-x-2">→</span>
+                                        GASS BOOKING <span className="inline-block transition-transform group-hover:translate-x-2">?</span>
                                     </button>
                                 </div>
                             </div>
@@ -478,7 +478,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                             onClick={e => e.stopPropagation()}>
                             <div className="bg-slate-950 p-8 md:p-10 flex items-center justify-between text-white border-b border-white/5">
                                 <div className="flex items-center gap-3"><div className="w-2 h-8 bg-[#38BDF8] rounded-full" /><div><h3 className="text-2xl font-black italic uppercase tracking-tighter">Otorisasi <span className="text-[#38BDF8]">Main</span></h3><p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Mandala Final Authorization</p></div></div>
-                                <button onClick={() => !processing && setShowPaymentModal(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white text-white hover:text-slate-900 transition-all font-bold">✕</button>
+                                <button onClick={() => !processing && setShowPaymentModal(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white text-white hover:text-slate-900 transition-all font-bold">?</button>
                             </div>
                             <div className="p-8 md:p-12 space-y-10 overflow-y-auto max-h-[75vh] no-scrollbar">
                                 {guestErrors.error && (
@@ -625,7 +625,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                 {paymentMethod === 'cod' && (
                                                     <div className="py-6 text-center space-y-4">
                                                         <div className="w-16 h-16 bg-[#38BDF8]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#38BDF8]/20 animate-pulse">
-                                                            <span className="text-2xl">🤝</span>
+                                                            <span className="text-2xl">??</span>
                                                         </div>
                                                         <h5 className="text-xs font-black italic uppercase tracking-widest text-white">BAYAR TUNAI DI LOKASI</h5>
                                                         <p className="text-[9px] font-bold opacity-40 text-white italic leading-relaxed uppercase max-w-[300px] mx-auto">
@@ -642,7 +642,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                     )}
                                 </div>
                                 <button onClick={confirmBooking} disabled={!paymentMethod || processing} className={`w-full rounded-3xl py-7 text-sm font-black transition-all shadow-2xl uppercase tracking-[0.5em] italic ${paymentMethod && !processing ? 'bg-[#38BDF8] text-slate-900 hover:bg-white' : 'bg-white/5 text-white/20 cursor-not-allowed'}`}>
-                                    {processing ? 'KOMUNIKASI SERVER...' : 'KONFIRMASI PEMBAYARAN →'}
+                                    {processing ? 'KOMUNIKASI SERVER...' : 'KONFIRMASI PEMBAYARAN ?'}
                                 </button>
                             </div>
                         </motion.div>

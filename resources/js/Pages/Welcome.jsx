@@ -1,11 +1,11 @@
-﻿import { Head, Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import Chatbot from '@/Components/Shared/Chatbot';
+import Chatbot from '@/Components/Chatbot';
 import ThemeToggle from '@/Components/UI/ThemeToggle';
 import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import AutoCarousel from '@/Components/Shared/AutoCarousel';
 
-/* ── Custom SVGs for Socials ── */
+/* -- Custom SVGs for Socials -- */
 const Icons = {
     instagram: (
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
             <div className="min-h-screen font-sans selection:bg-[#38BDF8] selection:text-white transition-colors duration-300"
                 style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
-                {/* ── HORIZONTAL NAVBAR ── */}
+                {/* -- HORIZONTAL NAVBAR -- */}
                 <nav className="fixed inset-x-0 top-0 z-[60] h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 lg:px-20 border-b backdrop-blur-md transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                     <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
@@ -88,7 +88,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                 </nav>
 
                 <main className="pt-20">
-                    {/* ──────────── HERO SECTION ──────────── */}
+                    {/* ------------ HERO SECTION ------------ */}
                     <section className="relative pt-20 pb-12 md:pt-32 lg:pt-56 lg:pb-40 px-6 lg:px-20 overflow-hidden"
                         style={{ background: 'var(--bg-base)' }}>
                         <div className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
@@ -137,7 +137,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                         </div>
                     </section>
 
-                    {/* ──────────── PROMOTIONS SECTION ──────────── */}
+                    {/* ------------ PROMOTIONS SECTION ------------ */}
                     {promos.length > 0 && (
                         <section className="py-24 px-6 lg:px-20 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
                             <div className="max-w-7xl mx-auto relative z-10">
@@ -165,7 +165,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                         className="hidden md:block flex-1 h-[1px] mx-12 bg-gradient-to-r from-[#38BDF8]/20 to-transparent"
                                     />
                                     <Link href={route('register')} className="text-xs font-black uppercase tracking-widest text-[#FACC15] hover:text-white transition-colors flex items-center gap-2 group">
-                                        Dapatkan Semua <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                        Dapatkan Semua <span className="group-hover:translate-x-1 transition-transform">?</span>
                                     </Link>
                                 </div>
 
@@ -187,7 +187,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                             <div className="relative z-10 flex flex-col h-full gap-8">
                                                 <div className="flex justify-between items-start">
                                                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#38BDF8]/20 to-[#38BDF8]/5 flex items-center justify-center text-3xl shadow-inner border border-[#38BDF8]/10">
-                                                        ⚡
+                                                        ?
                                                     </div>
                                                     {promo.discount_type === 'percentage' && (
                                                         <div className="px-4 py-2 rounded-full bg-[#FACC15] text-slate-900 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#FACC15]/20">
@@ -227,7 +227,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                         </section>
                     )}
 
-                    {/* ──────────── FACILITIES SECTION ──────────── */}
+                    {/* ------------ FACILITIES SECTION ------------ */}
                     {facilities.length > 0 && (
                         <section className="py-24 px-6 lg:px-20 border-t border-white/5" style={{ background: 'var(--bg-base)' }}>
                             <div className="max-w-7xl mx-auto">
@@ -239,7 +239,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                         </motion.h2>
                                     </div>
                                     <Link href={route('facilities.public')} className="text-xs font-black uppercase tracking-widest text-[#38BDF8] hover:text-white transition-colors group italic">
-                                        Eksplor Semua <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+                                        Eksplor Semua <span className="group-hover:translate-x-1 transition-transform inline-block">?</span>
                                     </Link>
                                 </div>
 
@@ -287,7 +287,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                         </section>
                     )}
 
-                    {/* ──────────── BLOGS SECTION ──────────── */}
+                    {/* ------------ BLOGS SECTION ------------ */}
                     {(featuredBlog || (recentBlogs && recentBlogs.length > 0)) && (
                         <section className="py-24 px-6 lg:px-20 border-t border-white/5" style={{ background: 'var(--bg-card)' }}>
                             <div className="max-w-7xl mx-auto">
@@ -299,7 +299,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                         </motion.h2>
                                     </div>
                                     <Link href={route('blog.index')} className="text-xs font-black uppercase tracking-widest text-[#A855F7] hover:text-white transition-colors group italic">
-                                        Selengkapnya <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+                                        Selengkapnya <span className="group-hover:translate-x-1 transition-transform inline-block">?</span>
                                     </Link>
                                 </div>
 
@@ -343,7 +343,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                 </main>
 
 
-                {/* ──────────── FOOTER ──────────── */}
+                {/* ------------ FOOTER ------------ */}
                 <footer className="pt-20 pb-10 px-6 lg:px-20 border-t-4 border-[#38BDF8]"
                     style={{ background: 'var(--bg-card)' }}>
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center sm:items-start gap-12">
@@ -383,7 +383,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                     <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 text-center">
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em]"
                             style={{ color: 'var(--text-secondary)' }}>
-                            © {new Date().getFullYear()} KPM CORP. Hak Cipta Dilindungi Undang-Undang.
+                            � {new Date().getFullYear()} KPM CORP. Hak Cipta Dilindungi Undang-Undang.
                         </p>
                     </div>
                 </footer>
