@@ -3,21 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\SportsMatch;
-use App\Services\MatchService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class MatchController extends Controller
 {
-    private $matchService;
-
-    public function __construct(MatchService $matchService)
-    {
-        $this->matchService = $matchService;
-    }
-
     /**
-     * Store and Search for a tactical match.
+     * Simpan iklan cari lawan baru.
      */
     public function store(Request $request)
     {
@@ -26,81 +18,126 @@ class MatchController extends Controller
             'facility' => 'required|string',
             'date' => 'required|date|after_or_equal:today',
             'time' => 'required|regex:/^\d{2}:\d{2}$/',
+            'notes' => 'nullable|string|max:300',
             'contact_type' => 'required|in:whatsapp,instagram',
             'contact_value' => 'required|string',
             'skill_level' => 'nullable|integer|min:1|max:5',
         ]);
 
-        // Custom Cross-Validation
+        // Validasi format kontak
         if ($request->contact_type === 'whatsapp') {
             if (!preg_match('/^\+?\d{8,15}$/', $request->contact_value)) {
-                return redirect()->back()->withErrors(['contact_value' => 'Nomor WhatsApp tidak valid (contoh: 087892312759)']);
+                return redirect()->back()
+                    ->withErrors(['contact_value' => 'Nomor WhatsApp tidak valid (contoh: 08789...)'])
+                    ->withInput();
             }
         } else {
             if (!str_starts_with($request->contact_value, '@') || strlen($request->contact_value) < 4) {
-                return redirect()->back()->withErrors(['contact_value' => 'ID Instagram harus diawali @ (contoh: @user)']);
+                return redirect()->back()
+                    ->withErrors(['contact_value' => 'ID Instagram harus diawali @ (contoh: @user)'])
+                    ->withInput();
             }
         }
 
-        $match = SportsMatch::create([
+        SportsMatch::create([
             'user_id' => auth()->id(),
-            'team_name' => $request->team_name,
-            'facility' => $request->facility,
-            'date' => $request->date,
-            'time' => $request->time,
-            'skill_level' => $request->skill_level,
-            'contact_type' => $request->contact_type,
-            'contact_value' => $request->contact_value,
+            'team_name' => $data['team_name'],
+            'facility' => $data['facility'],
+            'date' => $data['date'],
+            'time' => $data['time'],
+            'notes' => $data['notes'] ?? null,
+            'skill_level' => $data['skill_level'] ?? 3,
+            'contact_type' => $data['contact_type'],
+            'contact_value' => $data['contact_value'],
+            'status' => 'waiting',
         ]);
 
-        // RUN MATCHMAKING ENGINE
-        $opponent = $this->matchService->findPotentialMatch($match);
-
-        if ($opponent) {
-            $this->matchService->executePairing($match, $opponent);
-            return redirect()->back()->with('flash', [
-                'type' => 'success',
-                'message' => 'MATCH FOUND! Radar signal locked on opponent.'
-            ]);
-        }
-
-        return redirect()->back()->with('flash', [
+        return redirect()->route('matchmaking.index')->with('flash', [
             'type' => 'success',
-            'message' => 'Signal deployed to Radar. Waiting for opponent frequencies.'
+            'message' => 'Iklan cari lawan berhasil dipasang!',
         ]);
     }
 
     /**
-     * Manual search or refresh for a specific match entry.
+     * Tampilkan halaman edit untuk iklan milik user sendiri.
      */
-    public function findMatch(SportsMatch $match)
+    public function edit(SportsMatch $match)
     {
         if ($match->user_id !== auth()->id()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized Access'], 403);
+            abort(403, 'Unauthorized');
         }
 
-        if ($match->status === 'matched') {
-            $opponent = $match->opponent; // Or get the other match entry
-            $otherMatch = SportsMatch::where('matched_with', $match->user_id)
-                ->where('user_id', $match->matched_with)
-                ->where('date', $match->date)
-                ->first();
+        $userId = auth()->id();
+        $myMatches = SportsMatch::where('user_id', $userId)->latest()->get();
+        $availableMatches = SportsMatch::where('user_id', '!=', $userId)
+            ->where('date', '>=', now()->toDateString())
+            ->with('user:id,name')
+            ->latest()
+            ->get();
 
-            return response()->json([
-                'success' => true,
-                'status' => 'matched',
-                'opponent' => [
-                    'name' => $opponent->name,
-                    'contact_type' => $otherMatch->contact_type,
-                    'contact_value' => $otherMatch->contact_value,
-                    'wa_link' => $otherMatch->contact_type === 'whatsapp' ? 'https://wa.me/' . preg_replace('/\D/', '', $otherMatch->contact_value) : null
-                ]
-            ]);
+        return Inertia::render('Matches/Index', [
+            'my_matches' => $myMatches,
+            'available_matches' => $availableMatches,
+            'editing_match' => $match,
+        ]);
+    }
+
+    /**
+     * Update iklan cari lawan.
+     */
+    public function update(Request $request, SportsMatch $match)
+    {
+        if ($match->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
         }
 
-        return response()->json([
-            'success' => true,
-            'status' => 'waiting'
+        $data = $request->validate([
+            'team_name' => 'required|string|max:100',
+            'facility' => 'required|string',
+            'date' => 'required|date|after_or_equal:today',
+            'time' => 'required|regex:/^\d{2}:\d{2}$/',
+            'notes' => 'nullable|string|max:300',
+            'contact_type' => 'required|in:whatsapp,instagram',
+            'contact_value' => 'required|string',
+            'skill_level' => 'nullable|integer|min:1|max:5',
+        ]);
+
+        if ($request->contact_type === 'whatsapp') {
+            if (!preg_match('/^\+?\d{8,15}$/', $request->contact_value)) {
+                return redirect()->back()
+                    ->withErrors(['contact_value' => 'Nomor WhatsApp tidak valid.'])
+                    ->withInput();
+            }
+        } else {
+            if (!str_starts_with($request->contact_value, '@') || strlen($request->contact_value) < 4) {
+                return redirect()->back()
+                    ->withErrors(['contact_value' => 'ID Instagram harus diawali @.'])
+                    ->withInput();
+            }
+        }
+
+        $match->update($data);
+
+        return redirect()->route('matchmaking.index')->with('flash', [
+            'type' => 'success',
+            'message' => 'Iklan berhasil diperbarui!',
+        ]);
+    }
+
+    /**
+     * Hapus iklan cari lawan milik sendiri.
+     */
+    public function destroy(SportsMatch $match)
+    {
+        if ($match->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $match->delete();
+
+        return redirect()->route('matchmaking.index')->with('flash', [
+            'type' => 'success',
+            'message' => 'Iklan cari lawan berhasil dihapus.',
         ]);
     }
 }

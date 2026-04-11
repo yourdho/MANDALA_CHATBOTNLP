@@ -15,9 +15,14 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                         <h1 className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Dashboard Utama</h1>
                         <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Ringkasan performa operasional hari ini.</p>
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Sistem Aktif</span>
+                    <div className="flex items-center gap-4">
+                        <Link href={route('admin.bookings.manage')} className="px-5 py-2 bg-[#38BDF8] text-slate-900 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#38BDF8]/20 hover:scale-105 transition-all italic">
+                            + Input Manual
+                        </Link>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Sistem Aktif</span>
+                        </div>
                     </div>
                 </header>
 
@@ -37,7 +42,7 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                     />
                     <DashboardStat
                         label="Total Pelanggan"
-                        value={stats?.total_pilots || 0}
+                        value={stats?.total_members || 0}
                         color="#A855F7"
                         sub="User terdaftar aktif"
                     />
@@ -62,16 +67,16 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                             </Link>
                         </div>
                         {/* Desktop Table */}
-                        <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead className="text-[10px] font-black uppercase tracking-[0.3em] border-b"
+                        <div className="hidden md:block overflow-x-auto no-scrollbar">
+                            <table className="w-full text-left border-collapse table-fixed">
+                                <thead className="text-[9px] font-black uppercase tracking-[0.2em] border-b"
                                     style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
                                     <tr>
-                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Pelanggan</th>
-                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Fasilitas</th>
-                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Pembayaran</th>
-                                        <th className="px-6 py-6 md:px-10 md:py-10 whitespace-nowrap">Tanggal</th>
-                                        <th className="px-6 py-6 md:px-10 md:py-10 text-right whitespace-nowrap">Aksi</th>
+                                        <th className="px-4 py-6 md:px-5 md:py-8 whitespace-nowrap w-[35%]">Pelanggan</th>
+                                        <th className="px-4 py-6 md:px-5 md:py-8 whitespace-nowrap w-[20%]">Fasilitas</th>
+                                        <th className="px-4 py-6 md:px-5 md:py-8 whitespace-nowrap w-[15%]">Bayar</th>
+                                        <th className="px-4 py-6 md:px-5 md:py-8 whitespace-nowrap w-[20%]">Misi</th>
+                                        <th className="px-4 py-6 md:px-5 md:py-8 text-right whitespace-nowrap w-[10%]">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
@@ -83,36 +88,36 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                                             key={u.id}
                                             className="transition-all group hover:bg-slate-500/5"
                                         >
-                                            <td className="px-6 py-6 md:px-10 md:py-10">
-                                                <div className="flex items-center gap-6">
-                                                    <div className="w-12 h-12 md:w-16 md:h-16 shrink-0 rounded-xl md:rounded-2xl flex items-center justify-center font-black italic text-2xl md:text-3xl text-[#38BDF8] border"
+                                            <td className="px-4 py-6 md:px-5 md:py-8">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-xl flex items-center justify-center font-black italic text-xl text-[#38BDF8] border"
                                                         style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
                                                         {u.guest_name?.charAt(0) || u.user?.name?.charAt(0)}
                                                     </div>
-                                                    <span className="text-xl md:text-2xl font-black italic uppercase tracking-tighter group-hover:text-[#38BDF8] transition-colors leading-none"
+                                                    <span className="text-lg md:text-xl font-black italic uppercase tracking-tighter group-hover:text-[#38BDF8] transition-colors leading-none truncate"
                                                         style={{ color: 'var(--text-primary)' }}>
                                                         {u.guest_name || u.user?.name}
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-6 md:px-10 md:py-10">
-                                                <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider">{u.facility?.name}</span>
+                                            <td className="px-4 py-6 md:px-5 md:py-8">
+                                                <span className="text-[9px] font-bold text-[#38BDF8] uppercase tracking-wider truncate block">{u.facility?.name}</span>
                                             </td>
-                                            <td className="px-6 py-6 md:px-10 md:py-10">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase border ${u.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
-                                                    {u.payment_status === 'paid' ? 'Success' : 'Pending'}
+                                            <td className="px-4 py-6 md:px-5 md:py-8">
+                                                <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold uppercase border ${u.payment_status === 'paid' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-amber-500 border-amber-500/20 bg-amber-500/5'}`}>
+                                                    {u.payment_status === 'paid' ? 'Paid' : 'Wait'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-6 md:px-10 md:py-10">
+                                            <td className="px-4 py-6 md:px-5 md:py-8">
                                                 <div className="flex flex-col">
-                                                    <p className="text-sm font-black italic tracking-tighter mb-2 uppercase leading-none" style={{ color: 'var(--text-primary)' }}>{new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: 'var(--text-secondary)' }}>{new Date(u.created_at).toLocaleTimeString().slice(0, 5)} ZULU</p>
+                                                    <p className="text-xs font-black italic tracking-tighter mb-1 uppercase leading-none" style={{ color: 'var(--text-primary)' }}>{new Date(u.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</p>
+                                                    <p className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)' }}>{new Date(u.created_at).toLocaleTimeString().slice(0, 5)}</p>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-6 md:px-10 md:py-10 text-right">
-                                                <Link href={route('admin.bookings.manage')} className="px-6 py-2.5 md:px-8 md:py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all"
+                                            <td className="px-4 py-6 md:px-5 md:py-8 text-right">
+                                                <Link href={route('admin.bookings.manage')} className="p-2 md:px-4 md:py-2 rounded-lg border text-[8px] font-black uppercase tracking-widest transition-all inline-block"
                                                     style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-                                                    Detail File
+                                                    Detail
                                                 </Link>
                                             </td>
                                         </motion.tr>
@@ -159,7 +164,7 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                     {/* Operational Overview Sidebars */}
                     <div className="space-y-6">
                         <div className="rounded-2xl p-6 border shadow-sm" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                            <h3 className="text-sm font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Jam Sibuk Latihan</h3>
+                            <h3 className="text-sm font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Jam Sibuk </h3>
                             <div className="space-y-4">
                                 {charts?.peak_hours?.slice(0, 4).map((item, i) => (
                                     <div key={i} className="flex items-center justify-between p-3 bg-slate-500/5 rounded-xl border border-transparent hover:border-[#38BDF8]/30 transition-all">
@@ -195,30 +200,60 @@ export default function AdminDashboard({ stats, charts, recent_bookings }) {
                 </div>
 
                 {/* ── Revenue Progress ── */}
-                <div className="rounded-2xl p-8 border shadow-sm" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <div className="flex items-center justify-between mb-10 text-center sm:text-left">
+                <div className="rounded-[2.5rem] p-10 border shadow-sm transition-all hover:shadow-xl"
+                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                    <div className="flex flex-col sm:flex-row items-center justify-between mb-16 gap-6">
                         <div>
-                            <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Tren Pendapatan</h3>
-                            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Evaluasi omzet bulanan dalam Rp.</p>
+                            <h3 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter text-slate-900"
+                                style={{ color: 'var(--text-primary)' }}>
+                                Tren <span className="text-[#38BDF8]">Pendapatan</span>
+                            </h3>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-2" style={{ color: 'var(--text-secondary)' }}>Evaluasi omzet bulanan operasional</p>
                         </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">Live Update</span>
-                    </div>
-                    <div className="h-48 flex items-end gap-2 sm:gap-4 border-b pb-4" style={{ borderColor: 'var(--border)' }}>
-                        {charts?.revenue_trend?.map((item, i) => (
-                            <div key={i} className="flex-1 flex flex-col items-center gap-3 h-full justify-end group">
-                                <div className="relative w-full flex flex-col items-center justify-end h-full">
-                                    <div className="absolute -top-10 scale-0 group-hover:scale-100 transition-transform bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-xl whitespace-nowrap z-20">
-                                        Rp {(item.value / 1000).toLocaleString('id-ID')}k
-                                    </div>
-                                    <motion.div
-                                        initial={{ scaleY: 0 }}
-                                        animate={{ height: `${(item.value / (Math.max(...charts.revenue_trend.map(x => x.value)) || 1)) * 100}%` }}
-                                        className="w-full max-w-[50px] rounded-t-lg bg-[#38BDF8]/20 border-t-4 border-[#38BDF8] group-hover:bg-[#38BDF8]/40 transition-colors"
-                                    />
-                                </div>
-                                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
+                        <div className="flex items-center gap-6 px-8 py-4 rounded-2xl bg-slate-500/5 border" style={{ borderColor: 'var(--border)' }}>
+                            <div className="flex flex-col items-end">
+                                <p className="text-[8px] font-black uppercase tracking-widest opacity-40 italic">Avg Monthly</p>
+                                <p className="text-lg font-black italic tracking-tighter text-[#38BDF8]">
+                                    Rp {(charts?.revenue_trend?.reduce((a, b) => a + b.value, 0) / (charts?.revenue_trend?.length || 1)).toLocaleString('id-ID')}
+                                </p>
                             </div>
-                        ))}
+                        </div>
+                    </div>
+
+                    <div className="h-64 flex items-end gap-3 sm:gap-6 border-b-2 pb-6 px-4" style={{ borderColor: 'var(--border)' }}>
+                        {charts?.revenue_trend?.map((item, i) => {
+                            const maxVal = Math.max(...charts.revenue_trend.map(x => x.value)) || 1;
+                            const heightPercent = (item.value / maxVal) * 100;
+
+                            return (
+                                <div key={i} className="flex-1 flex flex-col items-center gap-4 h-full justify-end group">
+                                    <div className="relative w-full flex flex-col items-center justify-end h-full">
+                                        {/* Tooltip on Hover */}
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            whileHover={{ opacity: 1, y: -5 }}
+                                            className="absolute -top-14 bg-slate-900 text-white p-3 rounded-2xl shadow-2xl z-30 pointer-events-none text-center min-w-[120px]"
+                                        >
+                                            <p className="text-[7px] font-black uppercase tracking-widest opacity-40 mb-1">Omzet {item.label}</p>
+                                            <p className="text-sm font-black italic tracking-tighter text-[#38BDF8]">RP {item.value.toLocaleString('id-ID')}</p>
+                                            <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-slate-900" />
+                                        </motion.div>
+
+                                        {/* Bar */}
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${heightPercent || 4}%` }}
+                                            className={`w-full max-w-[60px] rounded-t-2xl shadow-lg shadow-[#38BDF8]/10 transition-all cursor-crosshair border-t-4
+                                                ${item.value === 0 ? 'bg-slate-500/10 grayscale border-slate-500/20' : 'bg-[#38BDF8] border-[#38BDF8] group-hover:scale-x-110 group-hover:brightness-110'}`}
+                                        />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest italic group-hover:text-[#38BDF8] transition-colors"
+                                        style={{ color: 'var(--text-secondary)' }}>
+                                        {item.label}
+                                    </span>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 

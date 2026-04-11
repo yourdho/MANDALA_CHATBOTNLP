@@ -15,6 +15,7 @@ class SportsMatch extends Model
         'facility',
         'date',
         'time',
+        'notes',
         'skill_level',
         'contact_type',
         'contact_value',

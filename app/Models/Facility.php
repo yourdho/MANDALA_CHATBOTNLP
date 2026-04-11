@@ -17,10 +17,18 @@ class Facility extends Model
         'open_time',
         'close_time',
         'images',
+        'is_active',
+        'addons',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_name',
+        'qris_image_url',
     ];
 
     protected $casts = [
         'images' => 'array',
+        'addons' => 'array',
+        'is_active' => 'boolean',
         'price_per_hour' => 'decimal:2',
     ];
 

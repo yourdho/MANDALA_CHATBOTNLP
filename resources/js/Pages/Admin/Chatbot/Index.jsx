@@ -64,17 +64,6 @@ export default function ChatbotAdmin({ dictionary, greeting }) {
 
             <div className="max-w-5xl mx-auto space-y-10 pb-20">
 
-                {/* Flash Message */}
-                <AnimatePresence>
-                    {flash?.success && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                            className="bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-2xl"
-                        >
-                            {flash.success}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
                 {/* ── Greeting Section ── */}
                 <div className="rounded-[3.5rem] p-12 border shadow-3xl relative overflow-hidden group transition-all"
@@ -117,7 +106,7 @@ export default function ChatbotAdmin({ dictionary, greeting }) {
                             </div>
                             <div>
                                 <p className="text-[10px] font-black text-[#FACC15] uppercase tracking-[0.4em] mb-2">Signal Translation Matrix</p>
-                                <h3 className="text-3xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>Pilot Lexicon</h3>
+                                <h3 className="text-3xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>Member Lexicon</h3>
                                 <p className="text-xs font-bold uppercase tracking-widest mt-2" style={{ color: 'var(--text-secondary)' }}>Mapping informal signals to HQ-approved directives.</p>
                             </div>
                         </div>

@@ -1,401 +1,431 @@
 ﻿import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useMemo } from 'react';
-import { format, addDays, startOfToday } from 'date-fns';
-import { id } from 'date-fns/locale/id';
 
-const FACILITIES = [
-    'Mini Soccer',
-    'Padel',
-    'Basket',
-    'Pilates'
-];
+const FACILITIES = ['Mini Soccer', 'Padel', 'Basket', 'Pilates'];
+const SKILL_LABELS = { 1: 'Pemula', 2: 'Dasar', 3: 'Menengah', 4: 'Mahir', 5: 'Pro' };
+const SKILL_COLORS = { 1: '#94A3B8', 2: '#38BDF8', 3: '#FACC15', 4: '#F97316', 5: '#EF4444' };
+
+const FACILITY_EMOJI = {
+    'Mini Soccer': '⚽',
+    'Padel': '🎾',
+    'Basket': '🏀',
+
+    'Pilates': '🧘',
+};
 
 const TIME_SLOTS = [
-    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
-    '14:00', '15:00', '16:00', '17:00', '18:00', '19:00',
-    '20:00', '21:00', '22:00'
+    '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
+    '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00',
 ];
 
-export default function MatchesIndex({ my_matches, available_matches }) {
-    const [activeTab, setActiveTab] = useState('global'); // 'global' or 'my'
-    const { data, setData, post, processing, errors, reset } = useForm({
-        team_name: '',
-        facility: '',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        time: '',
-        contact_type: 'whatsapp',
-        contact_value: '',
-        skill_level: 3,
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ─── KOMPONEN FORM (dipakai untuk Create & Edit) ──────────────────────────────
+function MatchForm({ initialData = {}, onSuccess, submitLabel = 'Pasang Iklan', matchId = null }) {
+    const isEdit = !!matchId;
+    const { data, setData, post, patch, processing, errors, reset } = useForm({
+        team_name: initialData.team_name || '',
+        facility: initialData.facility || '',
+        date: initialData.date ? initialData.date.substring(0, 10) : new Date().toISOString().split('T')[0],
+        time: initialData.time || '',
+        notes: initialData.notes || '',
+        contact_type: initialData.contact_type || 'whatsapp',
+        contact_value: initialData.contact_value || '',
+        skill_level: initialData.skill_level || 3,
     });
 
     const dates = useMemo(() => {
-        return Array.from({ length: 14 }).map((_, i) => addDays(startOfToday(), i));
+        return Array.from({ length: 30 }).map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            return d;
+        });
     }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('matchmaking.store'), {
-            onSuccess: () => {
-                reset();
-                setActiveTab('my');
-            }
+        if (isEdit) {
+            patch(route('matchmaking.update', matchId), { onSuccess });
+        } else {
+            post(route('matchmaking.store'), { onSuccess: () => { reset(); onSuccess?.(); } });
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-10">
+
+            {/* 01. Nama Tim */}
+            <div className="space-y-3">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#38BDF8]">
+                    <span className="w-7 h-7 rounded-full bg-[#38BDF8] text-slate-900 text-[9px] flex items-center justify-center font-black">01</span>
+                    Nama Tim / Skuad
+                </label>
+                <input
+                    type="text"
+                    placeholder="Contoh: FC MANDALA, GARUDA SQUAD..."
+                    value={data.team_name}
+                    onChange={e => setData('team_name', e.target.value)}
+                    className="w-full border-2 rounded-2xl px-6 py-4 font-bold italic text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/40 transition-all"
+                    style={{ background: 'var(--bg-base)', borderColor: errors.team_name ? '#EF4444' : 'var(--border)', color: 'var(--text-primary)' }}
+                />
+                {errors.team_name && <p className="text-[10px] text-red-500 font-black uppercase ml-2">{errors.team_name}</p>}
+            </div>
+
+            {/* 02. Pilih Cabang Olahraga */}
+            <div className="space-y-4">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#FACC15]">
+                    <span className="w-7 h-7 rounded-full bg-[#FACC15] text-slate-900 text-[9px] flex items-center justify-center font-black">02</span>
+                    Cabang Olahraga
+                </label>
+                <div className="flex flex-wrap gap-3">
+                    {FACILITIES.map(f => (
+                        <button key={f} type="button" onClick={() => setData('facility', f)}
+                            className={`px-5 py-3 rounded-2xl border-2 text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2
+                                ${data.facility === f
+                                    ? 'bg-[#FACC15] border-[#FACC15] text-slate-900 scale-105 shadow-lg'
+                                    : 'opacity-50 hover:opacity-100'}`}
+                            style={{ borderColor: data.facility === f ? '#FACC15' : 'var(--border)', color: data.facility === f ? '#0F172A' : 'var(--text-primary)' }}>
+                            <span>{FACILITY_EMOJI[f]}</span> {f}
+                        </button>
+                    ))}
+                </div>
+                {errors.facility && <p className="text-[10px] text-red-500 font-black uppercase ml-2">{errors.facility}</p>}
+            </div>
+
+            {/* 03. Tanggal */}
+            <div className="space-y-3">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400">
+                    <span className="w-7 h-7 rounded-full bg-emerald-400 text-slate-900 text-[9px] flex items-center justify-center font-black">03</span>
+                    Tanggal Main
+                </label>
+                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                    {dates.map(d => {
+                        const ds = d.toISOString().split('T')[0];
+                        const isActive = data.date === ds;
+                        return (
+                            <button key={ds} type="button" onClick={() => setData('date', ds)}
+                                className={`min-w-[72px] flex-shrink-0 py-4 rounded-2xl border-2 flex flex-col items-center gap-1 transition-all
+                                    ${isActive ? 'bg-emerald-400 border-emerald-400 text-slate-900 scale-105 shadow-xl' : 'opacity-40 hover:opacity-80'}`}
+                                style={{ borderColor: isActive ? '#34D399' : 'var(--border)' }}>
+                                <span className="text-[8px] font-black uppercase">{d.toLocaleDateString('id-ID', { weekday: 'short' })}</span>
+                                <span className="text-xl font-black italic">{d.getDate()}</span>
+                                <span className="text-[8px] font-bold uppercase opacity-70">{d.toLocaleDateString('id-ID', { month: 'short' })}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+                {errors.date && <p className="text-[10px] text-red-500 font-black uppercase ml-2">{errors.date}</p>}
+            </div>
+
+            {/* 04. Jam */}
+            <div className="space-y-3">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-orange-400">
+                    <span className="w-7 h-7 rounded-full bg-orange-400 text-slate-900 text-[9px] flex items-center justify-center font-black">04</span>
+                    Jam Main
+                </label>
+                <div className="flex flex-wrap gap-3">
+                    {TIME_SLOTS.map(t => {
+                        const isActive = data.time === t;
+                        return (
+                            <button key={t} type="button" onClick={() => setData('time', t)}
+                                className={`px-4 py-3 rounded-xl border-2 font-mono text-sm font-black transition-all
+                                    ${isActive ? 'bg-orange-400 border-orange-400 text-slate-900 scale-105 shadow-lg' : 'opacity-40 hover:opacity-80'}`}
+                                style={{ borderColor: isActive ? '#FB923C' : 'var(--border)', color: isActive ? '#0F172A' : 'var(--text-primary)' }}>
+                                {t}
+                            </button>
+                        );
+                    })}
+                </div>
+                {errors.time && <p className="text-[10px] text-red-500 font-black uppercase ml-2">{errors.time}</p>}
+            </div>
+
+            {/* 05. Level Skill */}
+            <div className="space-y-3">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: SKILL_COLORS[data.skill_level] }}>
+                    <span className="w-7 h-7 rounded-full text-slate-900 text-[9px] flex items-center justify-center font-black" style={{ background: SKILL_COLORS[data.skill_level] }}>05</span>
+                    Level Kemampuan · <span style={{ color: SKILL_COLORS[data.skill_level] }}>{SKILL_LABELS[data.skill_level]}</span>
+                </label>
+                <div className="flex gap-3">
+                    {[1, 2, 3, 4, 5].map(lvl => (
+                        <button key={lvl} type="button" onClick={() => setData('skill_level', lvl)}
+                            className={`flex-1 py-3 rounded-2xl border-2 font-black text-xs transition-all ${data.skill_level === lvl ? 'scale-105 shadow-lg' : 'opacity-30 hover:opacity-70'}`}
+                            style={{
+                                borderColor: data.skill_level === lvl ? SKILL_COLORS[lvl] : 'var(--border)',
+                                background: data.skill_level === lvl ? SKILL_COLORS[lvl] + '20' : 'transparent',
+                                color: data.skill_level === lvl ? SKILL_COLORS[lvl] : 'var(--text-primary)'
+                            }}>
+                            {SKILL_LABELS[lvl]}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* 06. Kontak */}
+            <div className="space-y-4">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-purple-400">
+                    <span className="w-7 h-7 rounded-full bg-purple-400 text-slate-900 text-[9px] flex items-center justify-center font-black">06</span>
+                    Kontak (untuk dihubungi lawan)
+                </label>
+                <div className="flex gap-3 p-1 rounded-2xl border w-fit" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+                    {['whatsapp', 'instagram'].map(ct => (
+                        <button key={ct} type="button" onClick={() => setData('contact_type', ct)}
+                            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${data.contact_type === ct ? 'bg-[#38BDF8] text-slate-900 shadow-lg' : 'opacity-40 hover:opacity-70'}`}>
+                            {ct === 'whatsapp' ? '📱 WhatsApp' : '📸 Instagram'}
+                        </button>
+                    ))}
+                </div>
+                <input
+                    type="text"
+                    placeholder={data.contact_type === 'whatsapp' ? 'Nomor WA (contoh: 0878...)' : '@username_instagram'}
+                    value={data.contact_value}
+                    onChange={e => setData('contact_value', e.target.value)}
+                    className="w-full border-2 rounded-2xl px-6 py-4 font-bold italic text-sm outline-none focus:ring-2 focus:ring-purple-400/40 transition-all"
+                    style={{ background: 'var(--bg-base)', borderColor: errors.contact_value ? '#EF4444' : 'var(--border)', color: 'var(--text-primary)' }}
+                />
+                {errors.contact_value && <p className="text-[10px] text-red-500 font-black uppercase ml-2">{errors.contact_value}</p>}
+            </div>
+
+            {/* 07. Catatan tambahan */}
+            <div className="space-y-3">
+                <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] opacity-60" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="w-7 h-7 rounded-full bg-slate-500 text-white text-[9px] flex items-center justify-center font-black">07</span>
+                    Catatan (opsional)
+                </label>
+                <textarea
+                    placeholder="Contoh: Butuh 5 lawan, bawa jersey, bersedia tanggung biaya sewa..."
+                    value={data.notes}
+                    onChange={e => setData('notes', e.target.value)}
+                    rows={3}
+                    className="w-full border-2 rounded-2xl px-6 py-4 font-medium text-sm outline-none focus:ring-2 focus:ring-slate-400/40 transition-all resize-none"
+                    style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                />
+            </div>
+
+            {/* Submit */}
+            <button type="submit" disabled={processing}
+                className="w-full py-6 rounded-[2rem] bg-[#38BDF8] text-slate-900 font-black text-sm uppercase tracking-[0.4em] shadow-2xl shadow-[#38BDF8]/30 hover:scale-[1.02] hover:bg-white transition-all italic disabled:opacity-50">
+                {processing ? 'Menyimpan...' : submitLabel}
+            </button>
+        </form>
+    );
+}
+
+// ─── KARTU IKLAN (tampil di daftar) ──────────────────────────────────────────
+function MatchCard({ match, isOwn = false, index = 0 }) {
+    const [deleting, setDeleting] = useState(false);
+
+    const waLink = match.contact_type === 'whatsapp'
+        ? `https://wa.me/${match.contact_value.replace(/\D/g, '').replace(/^0/, '62')}`
+        : null;
+    const igLink = match.contact_type === 'instagram'
+        ? `https://instagram.com/${match.contact_value.replace('@', '')}`
+        : null;
+
+    const handleDelete = () => {
+        if (!confirm('Hapus iklan cari lawan ini?')) return;
+        setDeleting(true);
+        router.delete(route('matchmaking.destroy', match.id), {
+            onFinish: () => setDeleting(false),
         });
     };
 
     return (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.08 }}
+            className="rounded-[2rem] border-2 p-6 md:p-8 transition-all hover:shadow-xl relative overflow-hidden"
+            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+
+            {/* accent bar */}
+            <div className="absolute top-0 left-0 w-1.5 h-full rounded-l-[2rem]"
+                style={{ background: SKILL_COLORS[match.skill_level] || '#38BDF8' }} />
+
+            <div className="pl-4 flex flex-col sm:flex-row sm:items-start gap-5">
+                {/* Emoji & Info */}
+                <div className="text-5xl">{FACILITY_EMOJI[match.facility] || '🏅'}</div>
+
+                <div className="flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border"
+                            style={{ color: SKILL_COLORS[match.skill_level], borderColor: SKILL_COLORS[match.skill_level] + '40', background: SKILL_COLORS[match.skill_level] + '15' }}>
+                            {SKILL_LABELS[match.skill_level] || 'Menengah'}
+                        </span>
+                        {isOwn && <span className="text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30">Iklan Saya</span>}
+                    </div>
+
+                    <h3 className="text-2xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>
+                        {match.team_name}
+                    </h3>
+
+                    <div className="flex flex-wrap gap-4 text-[11px] font-bold" style={{ color: 'var(--text-secondary)' }}>
+                        <span className="flex items-center gap-1"><b>{match.facility}</b></span>
+                        <span className="flex items-center gap-1">{formatDate(match.date)}</span>
+                        <span className="flex items-center gap-1">{match.time}</span>
+                    </div>
+
+                    {match.notes && (
+                        <p className="text-xs italic opacity-60 border-l-2 border-slate-500/30 pl-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                            {match.notes}
+                        </p>
+                    )}
+
+                    {isOwn && match.user && (
+                        <p className="text-[10px] opacity-40 uppercase tracking-widest font-bold" style={{ color: 'var(--text-secondary)' }}>
+                            Dipasang oleh: {match.user?.name || 'Kamu'}
+                        </p>
+                    )}
+                </div>
+
+                {/* Tombol aksi */}
+                <div className="flex flex-row sm:flex-col gap-3 items-start sm:items-end shrink-0">
+                    {!isOwn && (
+                        <a href={waLink || igLink} target="_blank" rel="noreferrer"
+                            className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg
+                                bg-[#38BDF8] text-slate-900 hover:scale-105 hover:bg-white hover:shadow-[#38BDF8]/30 italic">
+                            {match.contact_type === 'whatsapp' ? '📱 Hubungi WA' : '📸 Buka IG'}
+                        </a>
+                    )}
+
+                    {isOwn && (
+                        <div className="flex gap-2">
+                            <Link href={route('matchmaking.edit', match.id)}
+                                className="px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 transition-all hover:scale-105 italic"
+                                style={{ borderColor: '#38BDF8', color: '#38BDF8' }}>
+                                ✏ Edit
+                            </Link>
+                            <button onClick={handleDelete} disabled={deleting}
+                                className="px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border-2 border-red-500/40 text-red-500 hover:bg-red-500 hover:text-white transition-all hover:scale-105 italic disabled:opacity-50">
+                                {deleting ? '...' : '🗑 Hapus'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
+// ─── HALAMAN UTAMA ─────────────────────────────────────────────────────────────
+export default function MatchesIndex({ my_matches = [], available_matches = [], editing_match = null }) {
+    const [showForm, setShowForm] = useState(!!editing_match);
+    const [activeTab, setActiveTab] = useState('board'); // 'board' | 'mine'
+
+    const isEditing = !!editing_match;
+
+    return (
         <AuthenticatedLayout>
-            <Head title="Matchmaking Radar | Mandala Arena" />
+            <Head title="Cari Lawan | Mandala Arena" />
 
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-12 mb-12"
-                style={{ borderColor: 'var(--border)' }}>
-                <div>
-                    <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Sistem Matchmaking Taktis</p>
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
-                        style={{ color: 'var(--text-primary)' }}>
-                        Radar <span className="text-[#38BDF8]">Matchmaking</span>
-                    </h1>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="w-3 h-3 bg-[#38BDF8] rounded-full animate-ping shadow-[0_0_15px_rgba(56,189,248,0.5)]" />
-                    <span className="text-[10px] font-black uppercase tracking-widest italic" style={{ color: 'var(--text-secondary)' }}>Sistem Aktif</span>
-                </div>
-            </div>
+            <div className="max-w-5xl mx-auto pb-20 space-y-10">
 
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 pb-20">
-
-                {/* ─── FORM PILOT ─── */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                    className="lg:col-span-12 space-y-12"
-                >
-                    <div className="rounded-[2.5rem] md:rounded-[3.5rem] border p-6 md:p-12 shadow-3xl relative overflow-hidden"
-                        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#38BDF8]/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-
-                        <form onSubmit={handleSubmit} className="space-y-16">
-                            {/* Step 1: Arena Selection */}
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-4">
-                                    <span className="w-10 h-10 rounded-full bg-[#38BDF8] text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">01</span>
-                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-[#38BDF8]">Pilih Unit Arena</h3>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {FACILITIES.map(f => (
-                                        <button
-                                            key={f}
-                                            type="button"
-                                            onClick={() => setData('facility', f)}
-                                            className={`p-6 rounded-3xl border-2 font-black uppercase tracking-widest text-[10px] transition-all relative overflow-hidden group ${data.facility === f ? 'scale-105 shadow-xl' : 'opacity-40 hover:opacity-100 hover:scale-102'}`}
-                                            style={{
-                                                borderColor: data.facility === f ? '#38BDF8' : 'var(--border)',
-                                                background: data.facility === f ? 'var(--bg-base)' : 'transparent',
-                                                color: data.facility === f ? '#38BDF8' : 'var(--text-primary)'
-                                            }}
-                                        >
-                                            {f}
-                                            {data.facility === f && (
-                                                <motion.div layoutId="active-fac-bg" className="absolute inset-0 bg-[#38BDF8]/5 -z-10" />
-                                            )}
-                                        </button>
-                                    ))}
-                                </div>
-                                {errors.facility && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-14">{errors.facility}</p>}
-                            </div>
-
-                            {/* Step 2: Date Grid */}
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-4">
-                                    <span className="w-10 h-10 rounded-full bg-[#FACC15] text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">02</span>
-                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-[#FACC15]">Pilih Tanggal</h3>
-                                </div>
-                                <div className="flex overflow-x-auto pb-6 gap-3 no-scrollbar mask-fade-right -mx-6 px-6 md:mx-0 md:px-0">
-                                    {dates.map((date, i) => {
-                                        const dateStr = format(date, 'yyyy-MM-dd');
-                                        const isSelected = data.date === dateStr;
-                                        return (
-                                            <button
-                                                key={dateStr}
-                                                type="button"
-                                                onClick={() => setData('date', dateStr)}
-                                                className={`flex-shrink-0 w-24 h-28 rounded-[2rem] border-2 flex flex-col items-center justify-center gap-2 transition-all ${isSelected ? 'scale-105 border-[#FACC15] bg-[#FACC15]/5 shadow-xl shadow-[#FACC15]/10' : 'opacity-40 hover:opacity-100 hover:scale-102'}`}
-                                                style={{ borderColor: isSelected ? '#FACC15' : 'var(--border)' }}
-                                            >
-                                                <span className={`text-[9px] font-black uppercase tracking-widest ${isSelected ? 'text-[#FACC15]' : 'text-slate-400'}`}>
-                                                    {format(date, 'eee', { locale: id })}
-                                                </span>
-                                                <span className="text-2xl font-black italic tracking-tighter" style={{ color: isSelected ? '#FACC15' : 'var(--text-primary)' }}>
-                                                    {format(date, 'dd')}
-                                                </span>
-                                                <span className={`text-[8px] font-bold uppercase ${isSelected ? 'text-[#FACC15]/60' : 'text-slate-500'}`}>
-                                                    {format(date, 'MMM', { locale: id })}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                {errors.date && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-14">{errors.date}</p>}
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                {/* Waktu Operasi */}
-                                <div className="space-y-8 md:col-span-2">
-                                    <div className="flex items-center gap-4">
-                                        <span className="w-10 h-10 rounded-full bg-emerald-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">03</span>
-                                        <h3 className="text-xl font-black italic uppercase tracking-widest text-emerald-500">Waktu Operasi</h3>
-                                    </div>
-                                    <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                                        {TIME_SLOTS.map(t => {
-                                            const isSelected = data.time === t;
-                                            return (
-                                                <button
-                                                    key={t}
-                                                    type="button"
-                                                    onClick={() => setData('time', t)}
-                                                    className={`p-4 rounded-xl border-2 font-mono text-sm font-black transition-all ${isSelected ? 'scale-105 border-emerald-500 bg-emerald-500 text-slate-900 shadow-xl shadow-emerald-500/20' : 'opacity-40 hover:opacity-100 hover:scale-102'}`}
-                                                    style={{
-                                                        borderColor: isSelected ? '#10B981' : 'var(--border)',
-                                                        color: isSelected ? '#000' : 'var(--text-primary)'
-                                                    }}
-                                                >
-                                                    {t}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    {errors.time && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-14">{errors.time}</p>}
-                                </div>
-                            </div>
-
-                            {/* ID Unit & Kontak */}
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-4">
-                                    <span className="w-10 h-10 rounded-full bg-orange-500 text-slate-900 flex items-center justify-center font-black text-xs italic border-2 border-white/20">04</span>
-                                    <h3 className="text-xl font-black italic uppercase tracking-widest text-orange-500">ID Unit & Kontak</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:ml-14">
-                                    <div className="space-y-2">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 italic">Nama Skuad (Tim)</p>
-                                        <input
-                                            type="text"
-                                            placeholder="NAMA.SKUAD.ANDA..."
-                                            value={data.team_name}
-                                            onChange={e => setData('team_name', e.target.value)}
-                                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-orange-500/30 transition-all placeholder:opacity-30"
-                                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-                                        />
-                                        {errors.team_name && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4">{errors.team_name}</p>}
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="flex gap-4 p-1 rounded-2xl border" style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                                            <button
-                                                type="button"
-                                                onClick={() => setData('contact_type', 'whatsapp')}
-                                                className={`flex-1 py-3 text-[10px] font-black uppercase rounded-xl transition-all ${data.contact_type === 'whatsapp' ? 'bg-[#38BDF8] text-slate-900 shadow-lg' : 'opacity-40'}`}
-                                            >
-                                                WhatsApp
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setData('contact_type', 'instagram')}
-                                                className={`flex-1 py-3 text-[10px] font-black uppercase rounded-xl transition-all ${data.contact_type === 'instagram' ? 'bg-[#38BDF8] text-slate-900 shadow-lg' : 'opacity-40'}`}
-                                            >
-                                                Instagram
-                                            </button>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            placeholder={data.contact_type === 'whatsapp' ? 'Nomor WA (contoh: 08...)' : '@ID.INSTAGRAM...'}
-                                            value={data.contact_value}
-                                            onChange={e => setData('contact_value', e.target.value)}
-                                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all placeholder:opacity-30"
-                                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-                                        />
-                                        {errors.contact_value && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4">{errors.contact_value}</p>}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="w-full py-8 rounded-[2.5rem] bg-[#38BDF8] text-slate-900 font-black text-lg uppercase tracking-[0.4em] shadow-2xl shadow-[#38BDF8]/40 hover:scale-[1.02] hover:bg-[#38BDF8]/90 transition-all italic relative overflow-hidden group"
-                            >
-                                <span className="relative z-10">{processing ? 'MENYINKRONKAN RADAR...' : 'Cari Lawan '}</span>
-                                <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                            </button>
-                        </form>
+                {/* ── Header ── */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-10"
+                    style={{ borderColor: 'var(--border)' }}>
+                    <div>
+                        <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-3">Mandala Arena</p>
+                        <h1 className="text-4xl sm:text-6xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>
+                            Cari <span className="text-[#38BDF8]">Lawan</span>
+                        </h1>
+                        <p className="text-xs font-bold uppercase tracking-widest mt-3 opacity-50 italic" style={{ color: 'var(--text-secondary)' }}>
+                            Pasang iklan, biarkan lawan menghubungi kamu langsung
+                        </p>
                     </div>
-                </motion.div>
+                    {!isEditing && (
+                        <button onClick={() => setShowForm(p => !p)}
+                            className={`px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-xl italic
+                                ${showForm ? 'bg-slate-700 text-white' : 'bg-[#38BDF8] text-slate-900 hover:bg-white hover:scale-105'}`}>
+                            {showForm ? '✕ Tutup Form' : '＋ Pasang Iklan'}
+                        </button>
+                    )}
+                </div>
 
-                {/* ─── RADAR MONITORING ─── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="lg:col-span-12 space-y-8"
-                >
-                    <div className="rounded-[2.5rem] md:rounded-[3.5rem] border overflow-hidden shadow-3xl overflow-hidden"
-                        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                {/* ── Form (collapsible atau edit mode) ── */}
+                <AnimatePresence>
+                    {(showForm || isEditing) && (
+                        <motion.div initial={{ opacity: 0, y: -20, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }} exit={{ opacity: 0, y: -20, height: 0 }}
+                            className="rounded-[2.5rem] border-2 p-6 md:p-10 overflow-hidden"
+                            style={{ background: 'var(--bg-card)', borderColor: isEditing ? '#FACC15' : '#38BDF8' }}>
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="w-1 h-8 rounded-full" style={{ background: isEditing ? '#FACC15' : '#38BDF8' }} />
+                                <h2 className="text-xl font-black italic uppercase tracking-tight" style={{ color: isEditing ? '#FACC15' : '#38BDF8' }}>
+                                    {isEditing ? 'Edit Iklan Cari Lawan' : 'Pasang Iklan Cari Lawan'}
+                                </h2>
+                            </div>
+                            <MatchForm
+                                initialData={editing_match || {}}
+                                matchId={editing_match?.id}
+                                submitLabel={isEditing ? 'Simpan Perubahan' : 'Pasang Iklan'}
+                                onSuccess={() => {
+                                    if (!isEditing) setShowForm(false);
+                                    router.visit(route('matchmaking.index'));
+                                }}
+                            />
+                            {isEditing && (
+                                <Link href={route('matchmaking.index')} className="block mt-6 text-center text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-80 transition italic">
+                                    ← Batal, kembali ke daftar
+                                </Link>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                        {/* Tab Switcher */}
-                        <div className="grid grid-cols-2 border-b" style={{ borderColor: 'var(--border)' }}>
-                            <button
-                                onClick={() => setActiveTab('global')}
-                                className={`py-8 font-black uppercase tracking-[0.3em] text-xs transition-all relative ${activeTab === 'global' ? 'text-[#38BDF8]' : 'text-slate-500 hover:text-slate-300 bg-slate-500/5'}`}
-                            >
-                                GLOBAL RADAR ({available_matches.length})
-                                {activeTab === 'global' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#38BDF8] shadow-[0_-5px_15px_rgba(56,189,248,0.5)]" />}
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('my')}
-                                className={`py-8 font-black uppercase tracking-[0.3em] text-xs transition-all relative ${activeTab === 'my' ? 'text-[#FACC15]' : 'text-slate-500 hover:text-slate-300 bg-slate-500/5'}`}
-                            >
-                                SINYAL SAYA ({my_matches.length})
-                                {activeTab === 'my' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#FACC15] shadow-[0_-5px_15px_rgba(250,204,21,0.5)]" />}
-                            </button>
-                        </div>
-
-                        <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
-                            <AnimatePresence mode="wait">
-                                {activeTab === 'global' ? (
-                                    <motion.div
-                                        key="global-radar"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="divide-y"
-                                        style={{ borderColor: 'var(--border)' }}
-                                    >
-                                        {available_matches.length === 0 ? (
-                                            <EmptyRadar message="TIDAK ADA SINYAL TERDETEKSI. JADI YANG PERTAMA MENYIARKAN." />
-                                        ) : (
-                                            available_matches.map((match, i) => (
-                                                <MatchSignalItem key={match.id} match={match} index={i} isGlobal />
-                                            ))
-                                        )}
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        key="my-signals"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: 20 }}
-                                        className="divide-y"
-                                        style={{ borderColor: 'var(--border)' }}
-                                    >
-                                        {my_matches.length === 0 ? (
-                                            <EmptyRadar message="ANDA TIDAK MEMILIKI SIARAN AKTIF." />
-                                        ) : (
-                                            my_matches.map((match, i) => (
-                                                <MatchSignalItem key={match.id} match={match} index={i} />
-                                            ))
-                                        )}
-                                    </motion.div>
+                {/* ── Tab Switcher ── */}
+                {!isEditing && (
+                    <div className="flex rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }}>
+                        {[
+                            { key: 'board', label: `Iklan (${available_matches.length})` },
+                            { key: 'mine', label: `Milik Saya (${my_matches.length})` },
+                        ].map(tab => (
+                            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                                className={`flex-1 py-5 font-black text-xs uppercase tracking-widest transition-all relative
+                                    ${activeTab === tab.key ? 'text-[#38BDF8]' : 'opacity-40 hover:opacity-70'}`}>
+                                {tab.label}
+                                {activeTab === tab.key && (
+                                    <motion.div layoutId="tab-bar" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#38BDF8]" />
                                 )}
-                            </AnimatePresence>
-                        </div>
+                            </button>
+                        ))}
                     </div>
-                </motion.div>
+                )}
+
+                {/* ── Daftar Iklan ── */}
+                {!isEditing && (
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'board' ? (
+                            <motion.div key="board" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                                {available_matches.length === 0 ? (
+                                    <EmptyState message="Belum ada iklan cari lawan tersedia. Jadilah yang pertama!" />
+                                ) : (
+                                    available_matches.map((m, i) => <MatchCard key={m.id} match={m} index={i} />)
+                                )}
+                            </motion.div>
+                        ) : (
+                            <motion.div key="mine" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                                {my_matches.length === 0 ? (
+                                    <EmptyState message="Kamu belum pasang iklan. Klik '+ Pasang Iklan' untuk mulai!" />
+                                ) : (
+                                    my_matches.map((m, i) => <MatchCard key={m.id} match={m} index={i} isOwn />)
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                )}
             </div>
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                .mask-fade-right {
-                    mask-image: linear-gradient(to right, black 85%, transparent 100%);
-                }
-            ` }} />
+            <style dangerouslySetInnerHTML={{ __html: `.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}` }} />
         </AuthenticatedLayout>
     );
 }
 
-function EmptyRadar({ message }) {
+function EmptyState({ message }) {
     return (
-        <div className="p-32 text-center space-y-6">
-            <div className="text-6xl opacity-10 italic font-black animate-pulse">📡</div>
-            <p className="font-black uppercase tracking-[0.4em] italic text-[10px] animate-pulse"
-                style={{ color: 'var(--text-secondary)' }}>{message}</p>
+        <div className="py-24 text-center space-y-4 rounded-[2rem] border-2 border-dashed opacity-50" style={{ borderColor: 'var(--border)' }}>
+            <div className="text-5xl">🔍</div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] italic" style={{ color: 'var(--text-secondary)' }}>{message}</p>
         </div>
-    );
-}
-
-function MatchSignalItem({ match, index, isGlobal = false }) {
-    const isMatched = match.status === 'matched';
-    const contactLabel = isGlobal
-        ? (match.contact_type === 'whatsapp' ? 'HUBUNGI LAWAN (WA)' : 'HUBUNGI LAWAN (IG)')
-        : (match.opponent_contact_type === 'whatsapp' ? 'ESTABLISH COMMS (WA)' : 'ESTABLISH COMMS (IG)');
-
-    const contactValue = isGlobal ? match.contact_value : match.opponent_contact_value;
-    const contactType = isGlobal ? match.contact_type : match.opponent_contact_type;
-    const teamName = isGlobal ? match.team_name : (isMatched ? match.opponent_team_name : 'SEARCHING...');
-
-    const waLink = contactType === 'whatsapp' ? `https://wa.me/${contactValue.replace(/\D/g, '').replace(/^0/, '62')}` : null;
-    const igLink = contactType === 'instagram' ? `https://instagram.com/${contactValue.replace('@', '')}` : null;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="p-8 md:p-12 hover:bg-slate-500/5 transition-all group relative border-l-4"
-            style={{ borderLeftColor: isMatched ? '#10B981' : isGlobal ? '#38BDF8' : '#FACC15' }}
-        >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
-                <div className="flex items-start gap-4 md:gap-8">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl border shadow-xl flex items-center justify-center text-3xl md:text-4xl shrink-0"
-                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                        {match.facility.includes('Soccer') ? '⚽' : match.facility.includes('Padel') ? '🎾' : match.facility.includes('Basket') ? '🏀' : '🧘'}
-                    </div>
-                    <div className="space-y-4">
-                        <div className="flex flex-wrap items-center gap-4">
-                            <span className={`px-5 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border italic ${isMatched ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' : isGlobal ? 'bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/30' : 'bg-[#FACC15]/10 text-[#FACC15] border-[#FACC15]/30'}`}>
-                                {isMatched ? 'TARGET TERKUNCI' : isGlobal ? 'SIARAN AKTIF' : 'MENUNGGU RESPON'}
-                            </span>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] font-mono italic">
-                                {format(new Date(match.date), 'dd MMM yyyy')} @ {match.time}
-                            </span>
-                        </div>
-                        <div className="flex flex-col">
-                            <h4 className="text-xl sm:text-4xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{match.facility}</h4>
-                            <p className="text-[#38BDF8] font-black italic uppercase tracking-widest text-[11px] mt-3">
-                                {isGlobal ? 'SKUAD:' : (isMatched ? 'LAWAN:' : 'UNIT SAYA:')} <span className="text-white ml-2">{isGlobal ? match.team_name : (isMatched ? match.opponent_team_name : match.team_name)}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-col items-start md:items-end gap-6 shrink-0">
-                    {(isMatched || isGlobal) ? (
-                        <div className="space-y-4 flex flex-col items-end w-full md:w-auto">
-                            <a
-                                href={waLink || igLink}
-                                target="_blank" rel="noreferrer"
-                                className={`w-full md:w-auto text-center px-10 py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-xl transition-all italic border-2 ${isGlobal ? 'bg-slate-900 text-[#38BDF8] border-[#38BDF8]/30 hover:bg-[#38BDF8] hover:text-slate-900 hover:shadow-[#38BDF8]/20' : 'bg-emerald-500 text-slate-900 border-emerald-400/50 hover:scale-105 shadow-emerald-500/20'}`}
-                            >
-                                {contactLabel}
-                            </a>
-                            {isGlobal && (
-                                <p className="text-[8px] font-black text-slate-500 uppercase italic tracking-widest">KEKUATAN SINYAL: 100% AMAN</p>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-4 px-8 py-5 rounded-2xl border bg-slate-500/5 italic w-full md:w-auto justify-center" style={{ borderColor: 'var(--border)' }}>
-                            <div className="w-2 h-2 bg-[#FACC15] rounded-full animate-ping" />
-                            <span className="text-[10px] font-black text-[#FACC15] uppercase tracking-[0.3em]">Memantau frekuensi...</span>
-                        </div>
-                    )}
-                    <Link
-                        href={route('facilities.public')}
-                        className="text-[10px] font-black text-slate-500 hover:text-[#38BDF8] uppercase tracking-[0.3em] transition-all italic border-b-2 border-transparent hover:border-[#38BDF8] pb-1"
-                    >
-                        RESERVASI ARENA
-                    </Link>
-                </div>
-            </div>
-        </motion.div >
     );
 }

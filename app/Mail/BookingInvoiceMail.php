@@ -43,8 +43,8 @@ class BookingInvoiceMail extends Mailable implements ShouldQueue
             markdown: 'emails.bookings.invoice',
             with: [
                 'booking' => $this->booking,
-                'customerName' => $this->booking->user->name ?? 'Pilot',
-                'customerPhone' => $this->booking->user->phone ?? '-',
+                'customerName' => $this->booking->guest_name ?? ($this->booking->user->name ?? 'Member'),
+                'customerPhone' => $this->booking->guest_phone ?? ($this->booking->user->phone ?? '-'),
                 'invoiceNumber' => 'MSN-' . str_pad($this->booking->id, 5, '0', STR_PAD_LEFT),
             ]
         );

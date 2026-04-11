@@ -32,7 +32,7 @@ class BookingStatusUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('bookings'),
+            new Channel('bookings.' . $this->booking->id),
         ];
     }
 }

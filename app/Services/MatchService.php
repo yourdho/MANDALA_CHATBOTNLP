@@ -44,7 +44,7 @@ class MatchService
     }
 
     /**
-     * Finalize the pairing between two tactical pilots.
+     * Finalize the pairing between two members.
      */
     public function executePairing(SportsMatch $m1, SportsMatch $m2)
     {

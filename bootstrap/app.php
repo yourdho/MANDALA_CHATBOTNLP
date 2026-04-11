@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
             '/payment/*',
         ]);
     })
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+        $schedule->command('bookings:expire')->everyMinute();
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

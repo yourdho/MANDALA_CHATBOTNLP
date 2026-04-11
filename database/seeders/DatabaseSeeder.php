@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Regular user account
         User::create([
-            'name' => 'Mission Pilot One',
+            'name' => 'Mission Member One',
             'email' => 'user@mandala.com',
             'password' => Hash::make('password'),
             'role' => 'user',
@@ -51,14 +51,6 @@ class DatabaseSeeder extends Seeder
                 'close_time' => '22:00',
             ],
             [
-                'name' => 'Badminton Center',
-                'category' => 'Badminton',
-                'description' => '4 BWF standard carpet courts. Anti-glare lighting for maximum focus.',
-                'price_per_hour' => 50000,
-                'open_time' => '08:00',
-                'close_time' => '22:00',
-            ],
-            [
                 'name' => 'Pilates Reformer Zone',
                 'category' => 'Pilates',
                 'description' => 'Private reformer studio. Urban recovery and focus training at its peak.',
@@ -76,6 +68,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ChatbotSeeder::class,
             UpdateFacilitiesSeeder::class,
+            PriceScheduleSeeder::class,
+            RewardSeeder::class,
+            BlogSeeder::class,
         ]);
     }
 }

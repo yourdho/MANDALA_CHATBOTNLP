@@ -46,7 +46,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'type' => fn() => $request->session()->get('flash')['type'] ?? ($request->session()->get('success') ? 'success' : ($request->session()->get('error') ? 'error' : null)),
                 'message' => fn() => $request->session()->get('flash')['message'] ?? $request->session()->get('success') ?? $request->session()->get('error'),
+                'wa_link' => fn() => $request->session()->get('wa_link'),
+                'snap_token' => fn() => $request->session()->get('snap_token'),
+                'booking_id' => fn() => $request->session()->get('booking_id'),
             ],
+            'system_settings' => \App\Models\SystemSetting::all()->pluck('value', 'key'),
             'ziggy' => fn() => [
                 ...(new \Tighten\Ziggy\Ziggy)->toArray(),
                 'location' => $request->url(),

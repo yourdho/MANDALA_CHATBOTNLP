@@ -72,4 +72,28 @@ class MidtransService
             return null;
         }
     }
+
+    /**
+     * Refund a transaction through Midtrans.
+     *
+     * @param string $order_id
+     * @param float $amount
+     * @param string $reason
+     * @return object|array|null
+     */
+    public function refund($order_id, $amount, $reason = 'Bentrok Jadwal')
+    {
+        $params = [
+            'refund_key' => 'refund-' . $order_id . '-' . time(),
+            'amount' => (int) $amount,
+            'reason' => $reason
+        ];
+
+        try {
+            return \Midtrans\Transaction::refund($order_id, $params);
+        } catch (\Exception $e) {
+            \Log::error('Midtrans Refund Error (' . $order_id . '): ' . $e->getMessage());
+            return null;
+        }
+    }
 }

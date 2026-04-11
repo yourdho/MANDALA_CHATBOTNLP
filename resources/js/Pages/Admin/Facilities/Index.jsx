@@ -18,7 +18,6 @@ export default function FacilityAdminIndex({ facilities }) {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-12 mb-12 px-4"
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
-                    <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Strategic Asset Inventory</p>
                     <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Manajemen <span className="text-[#38BDF8]">Fasilitas</span>
@@ -37,7 +36,7 @@ export default function FacilityAdminIndex({ facilities }) {
                         href={route('admin.facilities.create')}
                         className="px-8 py-4 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-xs uppercase tracking-widest shadow-xl shadow-[#38BDF8]/20 hover:scale-105 transition-all"
                     >
-                        + Register Asset
+                        Tambah Fasilitas
                     </Link>
                 </div>
             </div>
@@ -56,7 +55,11 @@ export default function FacilityAdminIndex({ facilities }) {
                             <div className="h-64 -mx-8 -mt-8 bg-slate-900 relative overflow-hidden mb-8 border-b"
                                 style={{ borderColor: 'var(--border)' }}>
                                 {f.images?.[0] ? (
-                                    <img src={f.images[0]} alt={f.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" />
+                                    f.images[0].endsWith('.mp4') || f.images[0].endsWith('.webm') ? (
+                                        <video src={f.images[0]} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" />
+                                    ) : (
+                                        <img src={f.images[0]} alt={f.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" />
+                                    )
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-[#38BDF8] font-black italic text-8xl opacity-10">M</div>
                                 )}
@@ -70,14 +73,14 @@ export default function FacilityAdminIndex({ facilities }) {
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
                                         <h4 className="text-2xl md:text-4xl font-black italic uppercase tracking-tighter mb-2" style={{ color: 'var(--text-primary)' }}>{f.name}</h4>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#38BDF8]">
-                                            {f.category}
+                                        <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${f.is_active ? 'text-[#38BDF8]' : 'text-rose-500'}`}>
+                                            {f.category} {f.is_active ? '• Active' : '• OOS'}
                                         </span>
                                     </div>
                                 </div>
 
                                 <p className="text-3xl font-black italic tracking-tighter mb-8" style={{ color: 'var(--text-primary)' }}>
-                                    Rp {parseInt(f.price_per_hour).toLocaleString()} <span className="text-[10px] opacity-40 uppercase tracking-widest ml-1 not-italic">/ Hour</span>
+                                    RP {parseInt(f.price_per_hour).toLocaleString('id-ID')} <span className="text-[10px] opacity-40 uppercase tracking-widest ml-1 not-italic">/ Hour</span>
                                 </p>
 
                                 <div className="mt-auto flex gap-4 pt-8 border-t" style={{ borderColor: 'var(--border)' }}>
@@ -86,7 +89,7 @@ export default function FacilityAdminIndex({ facilities }) {
                                         className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center transition-all border"
                                         style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
                                     >
-                                        Edit Configuration
+                                        Edit Fasilitas
                                     </Link>
                                     <button onClick={() => handleDelete(f.id)}
                                         className="px-8 py-4 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest">

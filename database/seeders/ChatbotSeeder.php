@@ -46,7 +46,7 @@ class ChatbotSeeder extends Seeder
         // 2. Chatbot Greeting Setting (Mandala Theme)
         ChatbotSetting::updateOrCreate(
             ['key' => 'greeting'],
-            ['value' => "Halo! Selamat datang di **Mandala Arena Command Bot** 🤖\n\nSiap untuk misi olahraga hari ini?\nKami menyediakan:\n- ⚽ **Mini Soccer**\n- 🎾 **Padel**\n- 🏸 **Badminton**\n- 🧘 **Pilates**\n\nKetik langsung untuk cek ketersediaan:\n_\"booking padel besok jam 10\"_ atau _\"ada fasilitas apa?\"_"]
+            ['value' => "Halo! Selamat datang di **Mandala Arena Command Bot** 🤖\n\nSiap untuk misi olahraga hari ini?\nKami menyediakan:\n- ⚽ **Mini Soccer**\n- 🎾 **Padel**\n- 🏀 **Basket**\n- 🧘 **Pilates**\n\nKetik langsung untuk cek ketersediaan:\n_\"booking padel besok jam 10\"_ atau _\"ada fasilitas apa?\"_"]
         );
 
         // 3. (Optional) Chatbot behavior can be extended here

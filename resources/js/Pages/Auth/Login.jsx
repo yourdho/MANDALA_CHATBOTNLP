@@ -28,36 +28,36 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             )}
 
-            <div className="mb-10 text-center md:text-center">
-                <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase leading-none">
+            <div className="mb-6 sm:mb-10 text-center">
+                <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter text-slate-900 uppercase leading-none">
                     Mandala <span className="text-[#38BDF8]"> Arena</span>
                 </h1>
-                <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-3">
+                <p className="text-slate-500 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mt-2 sm:mt-3">
                     Akses area olahraga Anda
                 </p>
             </div>
 
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit} className="space-y-4 sm:space-y-6">
                 <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 mb-2 block">Email Address</label>
+                    <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 mb-1 sm:mb-2 block">Email Address</label>
                     <input
                         type="email"
                         value={data.email}
                         autoComplete="username"
                         autoFocus
                         onChange={(e) => setData('email', e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-3 sm:py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300"
                         placeholder="ujang@gmail.com"
                         id="email-input"
                     />
-                    <InputError message={errors.email} className="mt-2 ml-2" />
+                    <InputError message={errors.email} className="mt-1 ml-2" />
                 </div>
 
                 <div>
-                    <div className="flex items-center justify-between px-2 mb-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Password</label>
+                    <div className="flex items-center justify-between px-2 mb-1 sm:mb-2">
+                        <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 block">Password</label>
                         {canResetPassword && (
-                            <Link href={route('password.request')} className="text-[10px] font-bold tracking-wider text-[#38BDF8] hover:text-slate-900 transition-colors">
+                            <Link href={route('password.request')} className="text-[9px] sm:text-[10px] font-bold tracking-wider text-[#38BDF8] hover:text-slate-900 transition-colors">
                                 Lupa Sandi?
                             </Link>
                         )}
@@ -68,7 +68,7 @@ export default function Login({ status, canResetPassword }) {
                             value={data.password}
                             autoComplete="current-password"
                             onChange={(e) => setData('password', e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300 pr-14"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-3 sm:py-4 focus:ring-2 focus:ring-[#38BDF8]/40 focus:border-[#38BDF8]/50 text-slate-900 text-sm font-bold transition-all placeholder:text-slate-300 pr-14"
                             placeholder="••••••••"
                             id="password-input"
                         />
@@ -89,7 +89,7 @@ export default function Login({ status, canResetPassword }) {
                             )}
                         </button>
                     </div>
-                    <InputError message={errors.password} className="mt-2 ml-2" />
+                    <InputError message={errors.password} className="mt-1 ml-2" />
                 </div>
 
                 <div className="flex items-center px-2">
@@ -98,25 +98,25 @@ export default function Login({ status, canResetPassword }) {
                             name="remember"
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
-                            className="w-5 h-5 rounded-lg bg-slate-50 border-slate-200 text-[#38BDF8] focus:ring-[#38BDF8]/20"
+                            className="w-4 h-4 sm:w-5 sm:h-5 rounded-lg bg-slate-50 border-slate-200 text-[#38BDF8] focus:ring-[#38BDF8]/20"
                         />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 group-hover:text-slate-900 transition-colors">Ingat Sesi Saya</span>
+                        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-500 group-hover:text-slate-900 transition-colors">Ingat Sesi Saya</span>
                     </label>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-2 sm:pt-4">
                     <motion.button
                         whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}
                         type="submit"
                         disabled={processing}
-                        className="w-full bg-[#38BDF8] text-white rounded-2xl py-5 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-[#38BDF8]/30 hover:bg-[#38BDF8]/90 transition-all disabled:opacity-50"
+                        className="w-full bg-[#38BDF8] text-white rounded-xl sm:rounded-2xl py-4 sm:py-5 text-sm font-black uppercase tracking-[0.2em] shadow-lg shadow-[#38BDF8]/30 hover:bg-[#38BDF8]/90 transition-all disabled:opacity-50"
                     >
                         {processing ? 'Authenticating...' : 'Login'}
                     </motion.button>
                 </div>
 
-                <div className="text-center pt-6 border-t border-slate-100 mt-6">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                <div className="text-center pt-4 sm:pt-6 border-t border-slate-100 mt-4 sm:mt-6">
+                    <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
                         Belum Punya Akun?{' '}
                         <Link href={route('register')} className="text-[#38BDF8] hover:text-slate-900 font-black italic ml-1">
                             Daftar Sekarang

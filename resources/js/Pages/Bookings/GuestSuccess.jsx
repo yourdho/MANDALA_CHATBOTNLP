@@ -11,7 +11,7 @@ function formatDate(dateStr) {
 }
 
 export default function GuestSuccess({ booking }) {
-    const { flash } = usePage().props;
+    const { flash, system_settings = {} } = usePage().props;
     const bookingCode = `MA-${String(booking.id).padStart(5, '0')}`;
     const venueName = booking.facility?.name ?? 'Mandala Facility';
     const startDate = new Date(booking.starts_at);
@@ -20,34 +20,13 @@ export default function GuestSuccess({ booking }) {
     const startStr = startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     const endStr = endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-    // Midtrans Logic
-    useEffect(() => {
-        const snapSrcUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
-        const myMidtransClientKey = "SB-Mid-client-XXXXX"; // Optional if only using popup
-
-        const script = document.createElement('script');
-        script.src = snapSrcUrl;
-        script.setAttribute('data-client-key', myMidtransClientKey);
-        script.async = true;
-        document.body.appendChild(script);
-
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
-
+    // Midtrans Logic is handled via global script in app.blade.php
     useEffect(() => {
         if (flash?.snap_token) {
             window.snap.pay(flash.snap_token, {
-                onSuccess: function (result) {
-                    window.location.reload();
-                },
-                onPending: function (result) {
-                    console.log('Pending:', result);
-                },
-                onError: function (result) {
-                    console.error('Error:', result);
-                }
+                onSuccess: (result) => window.location.reload(),
+                onPending: (result) => console.log('Pending:', result),
+                onError: (result) => console.error('Error:', result)
             });
         }
     }, [flash]);
@@ -130,6 +109,32 @@ export default function GuestSuccess({ booking }) {
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">Total Tagihan</span>
                                 <span className="text-4xl font-black text-[#38BDF8] tracking-tighter">Rp {Number(booking.total_price).toLocaleString('id-ID')}</span>
                             </div>
+
+                            {!isPaid && (
+                                <div className="space-y-4 p-6 rounded-3xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
+                                    <p className="text-[9px] font-black text-[#FACC15] uppercase tracking-widest text-center italic">Instruksi Manual / QRIS</p>
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">BANK BCA</span>
+                                            <span className="text-xs font-black italic text-slate-900 dark:text-white uppercase tracking-tighter">{system_settings.bank_bca_number || '8420-9912-22'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">BANK MANDIRI</span>
+                                            <span className="text-xs font-black italic text-slate-900 dark:text-white uppercase tracking-tighter">{system_settings.bank_mandiri_number || '121-00-123456-7'}</span>
+                                        </div>
+                                        <p className="text-[8px] font-medium text-slate-500 italic text-center mt-2 uppercase">A.N {system_settings.bank_bca_name || 'MANDALA ARENA MANAGEMENT'}</p>
+                                    </div>
+                                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
+                                        <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
+                                            <img src={system_settings.qris_image_url || "https://upload.wikimedia.org/wikipedia/commons/a/a2/QRIS_logo.svg"} alt="QRIS" className="w-full h-full object-contain" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-[9px] font-black text-slate-900 dark:text-white italic uppercase tracking-tighter">Scan QRIS</p>
+                                            <p className="text-[7px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Tersedia via Midtrans Snap</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* CTAs */}
                             <div className="space-y-4 pt-4">

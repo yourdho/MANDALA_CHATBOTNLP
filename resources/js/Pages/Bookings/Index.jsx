@@ -13,10 +13,12 @@ export default function BookingsIndex({ bookings }) {
     const { flash } = usePage().props;
 
     const statusColors = {
-        confirmed: { bg: 'bg-[#38BDF8]/20', text: 'text-[#0284c7] border-[#38BDF8]/40', label: 'Terkonfirmasi' },
-        pending: { bg: 'bg-[#FACC15]/20', text: 'text-[#d97706] border-[#FACC15]/40', label: 'Menunggu Pembayaran' },
+        confirmed: { bg: 'bg-[#38BDF8]/20', text: 'text-[#38BDF8] border-[#38BDF8]/40', label: 'Terkonfirmasi' },
+        pending: { bg: 'bg-[#FACC15]/20', text: 'text-[#FACC15] border-[#FACC15]/40', label: 'Menunggu Pembayaran' },
         completed: { bg: 'bg-slate-100', text: 'text-slate-500 border-slate-200', label: 'Selesai' },
-        cancelled: { bg: 'bg-red-100', text: 'text-red-600 border-red-200', label: 'Dibatalkan' },
+        cancelled: { bg: 'bg-red-500/20', text: 'text-red-400 border-red-500/40', label: 'Dibatalkan' },
+        refund_processing: { bg: 'bg-amber-500/20', text: 'text-amber-400 border-amber-500/40', label: 'Refund Diproses' },
+        refund_successful: { bg: 'bg-green-500/20', text: 'text-green-400 border-green-500/40', label: 'Refund Berhasil' },
     };
 
     const handleCancel = (id) => {
@@ -74,29 +76,6 @@ export default function BookingsIndex({ bookings }) {
                     </div>
                 </div>
 
-                {flash?.success && !flash?.snap_token && (
-                    <div className="p-6 bg-emerald-50 border-2 border-emerald-100 text-emerald-800 rounded-[2rem] font-bold mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <span className="text-3xl"></span>
-                            <span className="text-sm">{flash.success}</span>
-                        </div>
-                        {flash?.wa_link && (
-                            <a
-                                href={flash.wa_link}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="px-6 py-3 bg-[#25D366] text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:bg-[#128C7E] hover:scale-105 transition-all shadow-md shadow-[#25D366]/30 animate-bounce whitespace-nowrap"
-                            >
-                                Buka WhatsApp Admin
-                            </a>
-                        )}
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="p-4 bg-red-100 border border-red-200 text-red-800 rounded-2xl font-bold mb-6">
-                        {flash.error}
-                    </div>
-                )}
 
                 {/* Tactical Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -169,21 +148,26 @@ export default function BookingsIndex({ bookings }) {
                                                         {PAYMENT_LABEL[booking.payment_method]?.label || booking.payment_method.replace('_', ' ').toUpperCase()}
                                                     </span>
                                                 )}
-                                                <Link href={route('bookings.show', booking.id)} className="text-[#38BDF8] hover:underline">
-                                                    TACTICAL SCAN →
-                                                </Link>
                                             </div>
                                         </div>
 
                                         {/* Actions */}
-                                        <div className="flex flex-wrap items-center justify-center gap-4 w-full md:w-auto mt-4 md:mt-0">
+                                        <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 w-full md:w-auto mt-4 md:mt-0">
+                                            {/* Check Detail Button (Primary Action) */}
+                                            <Link
+                                                href={route('bookings.show', booking.id)}
+                                                className="px-5 py-3 border border-[#38BDF8]/40 text-[#38BDF8] font-black rounded-xl text-[9px] uppercase tracking-widest hover:bg-[#38BDF8] hover:text-slate-950 transition-all shadow-lg shadow-[#38BDF8]/10 italic"
+                                            >
+                                                CHECK DETAIL →
+                                            </Link>
+
                                             {/* Midtrans Pay Button */}
                                             {booking.status === 'pending' && booking.payment_token && (
                                                 <button
                                                     onClick={() => handlePay(booking.payment_token)}
-                                                    className="px-6 py-3 bg-[#38BDF8] text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:bg-[#38BDF8]/90 hover:scale-105 transition-all shadow-md shadow-[#38BDF8]/30"
+                                                    className="px-5 py-3 bg-[#38BDF8] text-slate-950 font-black rounded-xl text-[9px] uppercase tracking-widest hover:scale-105 transition-all shadow-md shadow-[#38BDF8]/30 italic"
                                                 >
-                                                    Bayar Sekarang
+                                                    BAYAR SKRG
                                                 </button>
                                             )}
 
@@ -215,71 +199,33 @@ export default function BookingsIndex({ bookings }) {
                 </motion.div>
             </div>
 
-            {/* ── E-Ticket (Nota) Modal ── */}
+            {/* ── E-Ticket / Nota Invoice Modal ── */}
             <AnimatePresence>
                 {nota && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[80] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-6 print:bg-white print:p-0"
+                        className="fixed inset-0 z-[80] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 print:hidden"
                         onClick={() => setNota(null)}
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }}
-                            className="rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden print:rounded-none print:shadow-none print:max-w-none print:border-none"
-                            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', border: '1px solid var(--border)' }}
+                            className="rounded-[2rem] w-full max-w-2xl bg-white shadow-2xl overflow-hidden"
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* Logo & Header */}
-                            <div className="p-8 md:p-12 border-b relative overflow-hidden"
-                                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                                <div className="absolute top-0 right-0 w-44 h-44 bg-[#38BDF8]/10 rounded-full blur-[80px] -mr-20 -mt-20" />
-                                <div className="flex items-center gap-6 relative z-10">
-                                    <div className="w-16 h-16 bg-[#38BDF8] rounded-2xl flex items-center justify-center font-black italic text-white text-3xl shadow-lg shadow-[#38BDF8]/30">M</div>
-                                    <div>
-                                        <p className="text-3xl font-black italic uppercase tracking-tighter leading-none"
-                                            style={{ color: 'var(--text-primary)' }}>Mandala Arena</p>
-                                        <p className="text-[10px] font-black text-[#38BDF8] tracking-[0.2em] uppercase mt-2">Sports Facility E-Ticket</p>
-                                    </div>
-                                    <button onClick={() => setNota(null)} className="ml-auto w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors print:hidden"></button>
-                                </div>
+                            <div className="max-h-[90vh] overflow-y-auto">
+                                <InvoiceContent nota={nota} paymentLabel={PAYMENT_LABEL} />
                             </div>
-
-                            <div className="bg-[#FACC15] px-8 md:px-12 py-3 flex items-center justify-between text-amber-950">
-                                <span className="text-[11px] font-black uppercase tracking-[0.2em]">Kode Booking</span>
-                                <span className="text-sm font-black font-mono uppercase tracking-widest">MA-{nota.id}</span>
-                            </div>
-
-                            <div className="p-8 md:p-12 space-y-8">
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="px-6 py-2 bg-green-100 border border-green-200 text-green-700 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-                                        Terkonfirmasi - Lunas
-                                    </div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Tunjukkan tiket ini kepada staff kami saat di lokasi.</p>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-2 bg-slate-50 rounded-[2rem] p-6 border border-slate-100">
-                                    <Row label="Fasilitas" value={nota.facility?.name} highlight />
-                                    <Row label="Tanggal" value={new Date(nota.starts_at).toLocaleDateString()} />
-                                    <Row label="Jam" value={`${new Date(nota.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${new Date(nota.ends_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`} />
-                                    <Row label="Metode Pembayaran" value={`${PAYMENT_LABEL[nota.payment_method]?.label ?? 'Online'}`} />
-                                </div>
-
-                                <div className="flex flex-col md:flex-row items-center justify-between bg-white p-6 rounded-[2rem] border-2 border-slate-100 gap-4">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Harga (Lunas)</span>
-                                    <span className="text-3xl font-black italic text-slate-900">Rp {Number(nota.total_price).toLocaleString('id-ID')}</span>
-                                </div>
-                            </div>
-
-                            <div className="p-8 md:p-12 pt-0 flex gap-4 print:hidden">
+                            <div className="flex gap-3 p-6 border-t border-gray-100 bg-white sticky bottom-0 z-10">
                                 <button
                                     onClick={handlePrint}
-                                    className="flex-1 px-6 py-4 bg-slate-100 border border-slate-200 text-slate-600 font-bold rounded-2xl text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
+                                    className="flex-1 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
                                 >
-                                    Print PDF
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                    Print / Save PDF
                                 </button>
                                 <button
                                     onClick={() => setNota(null)}
-                                    className="px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl text-[10px] uppercase tracking-widest shadow-md hover:bg-slate-800 transition-all"
+                                    className="px-8 py-3 border border-gray-200 text-gray-500 font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-gray-50 transition-all"
                                 >
                                     Tutup
                                 </button>
@@ -289,17 +235,21 @@ export default function BookingsIndex({ bookings }) {
                 )}
             </AnimatePresence>
 
+            {/* ── PRINT-ONLY INVOICE ── */}
+            {nota && (
+                <div className="hidden print:block print-invoice">
+                    <InvoiceContent nota={nota} paymentLabel={PAYMENT_LABEL} />
+                </div>
+            )}
+
             <style>{`
                 @media print {
-                    .print\\:hidden, nav, header, aside, .chatbot-container, .max-w-7xl, button { display: none !important; }
-                    .print\\:p-0 { padding: 0 !important; }
-                    .print\\:bg-white { background-color: white !important; display: block !important; position: static !important; width: 100% !important; z-index: auto !important; }
-                    .print\\:rounded-none { border-radius: 0 !important; }
-                    .print\\:shadow-none { box-shadow: none !important; }
-                    .print\\:max-w-none { max-width: none !important; }
-                    .print\\:border-none { border: none !important; }
-                    body { background: white !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    main { padding: 0 !important; margin: 0 !important; }
+                    body * { visibility: hidden; }
+                    .print-invoice, .print-invoice * { visibility: visible; }
+                    .print-invoice { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; }
+                    nav, header, aside { display: none !important; }
+                    body { background: white !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    @page { margin: 0; size: A4 portrait; }
                 }
             `}</style>
         </AuthenticatedLayout>
@@ -318,3 +268,119 @@ function Row({ label, value, highlight = false }) {
     );
 }
 
+function InvoiceContent({ nota, paymentLabel }) {
+    const startDate = new Date(nota.starts_at);
+    const endDate = new Date(nota.ends_at);
+    const formattedDate = startDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const startTime = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const endTime = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const duration = nota.duration_hours || Math.round((endDate - startDate) / 3600000);
+    const basePrice = Number(nota.total_price) - Number(nota.referee_price || 0) - Number(nota.addons_total_price || 0);
+    const invoiceNo = String(nota.id).padStart(6, '0');
+    const paymentMethodLabel = paymentLabel[nota.payment_method]?.label || nota.payment_method?.replace(/_/g, ' ').toUpperCase() || 'Online';
+
+    return (
+        <div style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", background: '#fff', color: '#111', minHeight: '100%' }}>
+            {/* Top Strip */}
+            <div style={{ padding: '40px 48px 0' }}>
+                {/* Header: Logo + Invoice Number */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+                    <div>
+                        <div style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.02em', lineHeight: 1 }}>MANDALA</div>
+                        <div style={{ fontWeight: 900, fontSize: '18px', letterSpacing: '-0.02em', color: '#38BDF8', lineHeight: 1 }}>ARENA</div>
+                    </div>
+                    <div style={{ textAlign: 'right', fontSize: '12px', fontWeight: 600, color: '#555' }}>
+                        <div style={{ marginBottom: '2px' }}>NO. {invoiceNo}</div>
+                    </div>
+                </div>
+
+                {/* INVOICE Title */}
+                <div style={{ fontSize: '64px', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, marginBottom: '28px', color: '#111' }}>
+                    INVOICE
+                </div>
+
+                {/* Date */}
+                <div style={{ marginBottom: '28px', fontSize: '13px' }}>
+                    <span style={{ fontWeight: 700 }}>Date:&nbsp;&nbsp;</span>{formattedDate}
+                </div>
+
+                {/* Billed To / From */}
+                <div style={{ display: 'flex', gap: '48px', marginBottom: '36px' }}>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '8px' }}>Kepada:</div>
+                        <div style={{ fontSize: '13px', lineHeight: 1.7, color: '#333' }}>
+                            <div>{nota.guest_name || nota.user?.name || 'Pelanggan'}</div>
+                            <div>{nota.guest_phone || nota.user?.phone || '-'}</div>
+                            <div>{nota.guest_email || nota.user?.email || ''}</div>
+                        </div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '8px' }}>Dari:</div>
+                        <div style={{ fontSize: '13px', lineHeight: 1.7, color: '#333' }}>
+                            <div>Mandala Arena</div>
+                            <div>Jl. Olahraga No. 1, Kota</div>
+                            <div>mandala-arena@mandala.com</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Items Table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0', fontSize: '13px' }}>
+                    <thead>
+                        <tr style={{ background: '#e8e8e8' }}>
+                            <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 700, letterSpacing: '0.04em', fontSize: '12px' }}>Item</th>
+                            <th style={{ textAlign: 'right', padding: '12px 16px', fontWeight: 700, letterSpacing: '0.04em', fontSize: '12px' }}>Qty</th>
+                            <th style={{ textAlign: 'right', padding: '12px 16px', fontWeight: 700, letterSpacing: '0.04em', fontSize: '12px' }}>Harga</th>
+                            <th style={{ textAlign: 'right', padding: '12px 16px', fontWeight: 700, letterSpacing: '0.04em', fontSize: '12px' }}>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {/* Facility row */}
+                        <tr style={{ borderBottom: '1px solid #e5e5e5' }}>
+                            <td style={{ padding: '14px 16px' }}>
+                                <div style={{ fontWeight: 600 }}>{nota.facility?.name}</div>
+                                <div style={{ fontSize: '11px', color: '#888', marginTop: '2px' }}>{formattedDate}, {startTime} – {endTime}</div>
+                            </td>
+                            <td style={{ textAlign: 'right', padding: '14px 16px' }}>{duration} jam</td>
+                            <td style={{ textAlign: 'right', padding: '14px 16px' }}>Rp {Math.round(basePrice / (duration || 1)).toLocaleString('id-ID')}</td>
+                            <td style={{ textAlign: 'right', padding: '14px 16px' }}>Rp {basePrice.toLocaleString('id-ID')}</td>
+                        </tr>
+                        {/* Referee add-on if present */}
+                        {Number(nota.referee_price) > 0 && (
+                            <tr style={{ borderBottom: '1px solid #e5e5e5' }}>
+                                <td style={{ padding: '14px 16px' }}>Wasit / Referee</td>
+                                <td style={{ textAlign: 'right', padding: '14px 16px' }}>1</td>
+                                <td style={{ textAlign: 'right', padding: '14px 16px' }}>Rp {Number(nota.referee_price).toLocaleString('id-ID')}</td>
+                                <td style={{ textAlign: 'right', padding: '14px 16px' }}>Rp {Number(nota.referee_price).toLocaleString('id-ID')}</td>
+                            </tr>
+                        )}
+                        {/* Total row */}
+                        <tr style={{ borderTop: '2px solid #ddd' }}>
+                            <td colSpan="3" style={{ textAlign: 'right', padding: '14px 16px', fontWeight: 700, fontSize: '13px' }}>Total</td>
+                            <td style={{ textAlign: 'right', padding: '14px 16px', fontWeight: 900, fontSize: '14px' }}>Rp {Number(nota.total_price).toLocaleString('id-ID')}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                {/* Divider */}
+                <div style={{ height: '1px', background: '#ddd', margin: '28px 0' }} />
+
+                {/* Payment Method + Note */}
+                <div style={{ marginBottom: '16px', fontSize: '13px' }}>
+                    <span style={{ fontWeight: 700 }}>Metode Pembayaran:</span>&nbsp; {paymentMethodLabel}
+                </div>
+                <div style={{ marginBottom: '40px', fontSize: '13px' }}>
+                    <span style={{ fontWeight: 700 }}>Catatan:</span>&nbsp; Terima kasih telah memilih Mandala Arena. Tunjukkan tiket ini kepada staff kami saat tiba di lokasi.
+                </div>
+            </div>
+
+            {/* Wave Footer */}
+            <div style={{ position: 'relative', height: '180px', overflow: 'hidden', marginTop: 'auto' }}>
+                <svg viewBox="0 0 728 180" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '100%' }}>
+                    <path d="M0,180 L0,100 Q200,160 400,120 Q550,90 728,140 L728,180 Z" fill="#c8c8c8" />
+                    <path d="M0,180 L0,130 Q180,100 350,150 Q520,190 728,160 L728,180 Z" fill="#444444" />
+                </svg>
+            </div>
+        </div>
+    );
+}

@@ -78,10 +78,10 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                                         <p className="text-2xl font-black italic text-emerald-500">
                                             {r.discount_type === 'percentage'
                                                 ? `${parseFloat(r.discount_value)}%`
-                                                : `Rp ${parseInt(r.discount_value).toLocaleString()}`}
+                                                : `RP ${parseInt(r.discount_value).toLocaleString('id-ID')}`}
                                         </p>
                                         {r.discount_type === 'percentage' && r.max_discount && (
-                                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Max. Rp {parseInt(r.max_discount).toLocaleString()}</p>
+                                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Max. RP {parseInt(r.max_discount).toLocaleString('id-ID')}</p>
                                         )}
                                     </div>
                                 </div>
@@ -139,7 +139,7 @@ export default function RewardMarket({ available_rewards, my_vouchers, user_poin
                                                 </div>
                                             </td>
                                             <td className="px-10 py-10 text-center font-black text-slate-600 text-[11px] uppercase tracking-widest">
-                                                {v.reward?.discount_type === 'percentage' ? `${parseFloat(v.reward?.discount_value)}%` : `Rp ${parseInt(v.reward?.discount_value).toLocaleString()}`}
+                                                {v.reward?.discount_type === 'percentage' ? `${parseFloat(v.reward?.discount_value)}%` : `RP ${parseInt(v.reward?.discount_value).toLocaleString('id-ID')}`}
                                             </td>
                                             <td className="px-10 py-10 text-center">
                                                 <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${v.status === 'unused' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :

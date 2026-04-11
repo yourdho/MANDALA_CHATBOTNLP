@@ -111,8 +111,8 @@ export default function RewardIndex({ rewards }) {
                                     <span style={{ color: 'var(--text-secondary)' }}>Tactical Value</span>
                                     <span style={{ color: 'var(--text-primary)' }}>
                                         {r.discount_type === 'percentage'
-                                            ? `${parseFloat(r.discount_value)}% DISKONS ${r.max_discount ? `(MAX. RP ${parseInt(r.max_discount).toLocaleString()})` : ''}`
-                                            : `RP ${parseInt(r.discount_value).toLocaleString()} OFF`}
+                                            ? `${parseFloat(r.discount_value)}% DISKONS ${r.max_discount ? `(MAX. RP ${parseInt(r.max_discount).toLocaleString('id-ID')})` : ''}`
+                                            : `RP ${parseInt(r.discount_value).toLocaleString('id-ID')} OFF`}
                                     </span>
                                 </div>
                                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">

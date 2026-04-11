@@ -69,7 +69,7 @@ class ChatbotController extends Controller
         return [
             ['label' => 'Mini Soccer', 'msg' => 'Mini Soccer'],
             ['label' => 'Padel', 'msg' => 'Padel'],
-            ['label' => 'Badminton', 'msg' => 'Badminton'],
+
             ['label' => 'Pilates', 'msg' => 'Pilates'],
         ];
     }
@@ -157,7 +157,7 @@ class ChatbotController extends Controller
                         );
                     }
                 }
-                return $this->respond("Pilih satu fasilitas ya: Mini Soccer, Padel, Badminton, atau Pilates 💪", $this->facilityChips());
+                return $this->respond("Pilih satu fasilitas ya: Mini Soccer, Padel, atau Pilates 💪", $this->facilityChips());
 
             default:
                 Session::put('chatbot_state', 'IDLE');

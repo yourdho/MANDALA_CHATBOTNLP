@@ -56,10 +56,10 @@ export default function Chatbot() {
     useEffect(() => {
         if (window.Echo) {
             const channel = window.Echo.channel('chatbot')
-                .listen('ChatbotMessageReceived', (e) => {
+                .listen('.App.Events.ChatbotMessageReceived', (e) => {
                     console.log('Real-time message received:', e.reply);
                 });
-            return () => channel.stopListening('ChatbotMessageReceived');
+            return () => channel.stopListening('.App.Events.ChatbotMessageReceived');
         }
     }, []);
 

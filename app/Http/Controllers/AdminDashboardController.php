@@ -24,18 +24,22 @@ class AdminDashboardController extends Controller
         $totalUsers = User::where('role', 'user')->count();
         $activeFacilities = Facility::where('is_active', true)->count();
 
-        // 2. Revenue Trend (Last 6 Months)
-        $revenueTrend = Booking::where('payment_status', 'paid')
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->get()
-            ->groupBy(fn($b) => $b->created_at->format('M'))
-            ->map(function ($group, $month) {
-                return [
-                    'label' => $month,
-                    'value' => (float) $group->sum('total_price')
-                ];
-            })
-            ->values();
+        // 2. Revenue Trend (Last 6 Months, sorted chronologically)
+        $revenueTrend = collect(range(5, 0))->map(function ($i) {
+            $date = now()->subMonths($i);
+            $monthName = $date->format('M');
+            $yearMonth = $date->format('Y-m');
+
+            $revenue = (float) Booking::where('payment_status', 'paid')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->sum('total_price');
+
+            return [
+                'label' => $monthName,
+                'value' => $revenue
+            ];
+        });
 
         // 3. Most Popular Sports (Categorized)
         $popularSports = Booking::select('facility_id', DB::raw('count(*) as count'))
@@ -53,10 +57,16 @@ class AdminDashboardController extends Controller
             });
 
         // 4. Peak Booking Hours (Busiest slots)
-        $peakHours = Booking::select(DB::raw("strftime('%H:00', starts_at) as hour"), DB::raw('count(*) as count'))
+        $driver = DB::connection()->getDriverName();
+        $hourField = ($driver === 'sqlite')
+            ? "strftime('%H:00', starts_at)"
+            : "DATE_FORMAT(starts_at, '%H:00')";
+
+        $peakHours = Booking::select(DB::raw($hourField . " as hour"), DB::raw('count(*) as count'))
+            ->whereNotNull('starts_at')
             ->groupBy('hour')
             ->orderByDesc('count')
-            ->limit(3)
+            ->limit(4)
             ->get();
 
         // 5. Recent Transaction Feed
@@ -67,9 +77,9 @@ class AdminDashboardController extends Controller
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                'revenue' => number_format($totalRevenue, 0, ',', '.'),
-                'today_bookings' => $bookingsToday,
-                'total_pilots' => $totalUsers,
+                'total_revenue' => $totalRevenue,
+                'bookings_today' => $bookingsToday,
+                'total_users' => $totalUsers,
                 'active_venues' => $activeFacilities
             ],
             'charts' => [

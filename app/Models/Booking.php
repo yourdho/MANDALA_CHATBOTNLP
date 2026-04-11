@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
+    const STATUS_PENDING = 'pending'; // Menunggu Pembayaran
+    const STATUS_CONFIRMED = 'confirmed'; // Dikonfirmasi
+    const STATUS_CANCELLED = 'cancelled'; // Dibatalkan
+    const STATUS_REFUND_PROCESSED = 'refund_processing'; // Refund Diproses
+    const STATUS_REFUND_SUCCESSFUL = 'refund_successful'; // Refund Berhasil
+
     protected $fillable = [
         'user_id',
         'facility_id',
@@ -28,15 +34,25 @@ class Booking extends Model
         'snap_token',
         'payment_url',
         'payment_method',
+        'selected_addons',
+        'addons_total_price',
+        'paid_at',
+        'refund_id',
+        'refund_status',
+        'conflict_note',
+        'booking_slot_key',
     ];
 
     protected $casts = [
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'paid_at' => 'datetime',
         'is_with_referee' => 'boolean',
         'total_price' => 'decimal:2',
         'referee_price' => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'selected_addons' => 'array',
+        'addons_total_price' => 'decimal:2',
     ];
 
     // ── Relationships ────────────────────────────────────────────
@@ -71,5 +87,19 @@ class Booking extends Model
     public function getBookingCodeAttribute(): string
     {
         return 'MA-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
+    }
+
+    protected static function booted()
+    {
+        static::saving(function ($booking) {
+            // Nullify the slot key if the booking is cancelled to allow others to book the slot
+            if ($booking->status === self::STATUS_CANCELLED) {
+                $booking->booking_slot_key = null;
+            } else {
+                // Generate a unique slot key: {facility_id}-{start_time}
+                // we use format YmdHi to match the minute
+                $booking->booking_slot_key = $booking->facility_id . '-' . $booking->starts_at->format('YmdHi');
+            }
+        });
     }
 }

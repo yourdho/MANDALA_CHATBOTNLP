@@ -47,68 +47,65 @@ export default function DeleteUserForm({ className = '' }) {
 
     return (
         <section className={`space-y-6 ${className}`}>
-            <header>
-                <h2 className="text-2xl font-black italic uppercase tracking-tighter"
-                    style={{ color: 'var(--text-primary)' }}>
-                    Terminasi <span className="text-red-500">Akun</span>
+            <header className="mb-10">
+                <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter text-red-500">
+                    Penghapusan <span className="text-red-400/50">Akun</span>
                 </h2>
-
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-xl"
+                <p className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] opacity-60"
                     style={{ color: 'var(--text-secondary)' }}>
-                    Setelah akun dihapus, seluruh data mission points dan riwayat booking akan dihilangkan secara permanen dari server Mandala Arena.
+                    Tindakan ini bersifat permanen. Seluruh data misi akan dihapus dari server.
                 </p>
             </header>
 
-            <DangerButton onClick={confirmUserDeletion}>
-                Delete Account
-            </DangerButton>
+            <button
+                onClick={confirmUserDeletion}
+                className="px-10 py-4 bg-red-500/10 border-2 border-red-500/20 text-red-500 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all italic"
+            >
+                TERMINASI AKUN
+            </button>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-10" style={{ background: 'var(--bg-card)' }}>
-                    <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-4 text-red-500">
-                        Konfirmasi Penghapusan
-                    </h2>
-
-                    <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-8"
-                        style={{ color: 'var(--text-secondary)' }}>
-                        Seluruh sumber daya dan data mission points akan dihilangkan secara permanen. Masukkan password otorisasi untuk melanjutkan proses terminasi.
-                    </p>
-
-                    <div className="mt-6">
-                        <InputLabel
-                            htmlFor="password"
-                            value="Password"
-                            className="sr-only"
-                        />
-
-                        <TextInput
-                            id="password"
-                            type="password"
-                            name="password"
-                            ref={passwordInput}
-                            value={data.password}
-                            onChange={(e) =>
-                                setData('password', e.target.value)
-                            }
-                            className="mt-1 block w-3/4"
-                            isFocused
-                            placeholder="Password"
-                        />
-
-                        <InputError
-                            message={errors.password}
-                            className="mt-2"
-                        />
+                <form onSubmit={deleteUser} className="p-10 space-y-8" style={{ shadow: 'none', background: 'var(--bg-card)' }}>
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-black italic uppercase tracking-tighter text-red-500">
+                            Konfirmasi <span className="text-white">Terminasi</span>
+                        </h2>
+                        <p className="text-[10px] font-bold uppercase tracking-widest leading-loose" style={{ color: 'var(--text-secondary)' }}>
+                            Apakah Anda yakin ingin menghapus akun? Masukkan kata sandi Anda untuk mengonfirmasi bahwa Anda ingin menghapus akun Anda secara permanen.
+                        </p>
                     </div>
 
-                    <div className="mt-6 flex justify-end">
-                        <SecondaryButton onClick={closeModal}>
-                            Cancel
-                        </SecondaryButton>
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-red-400 ml-2 italic">Sandi Konfirmasi</label>
+                        <input
+                            type="password"
+                            ref={passwordInput}
+                            value={data.password}
+                            onChange={(e) => setData('password', e.target.value)}
+                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-red-500/30 transition-all"
+                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                            placeholder="MASUKKAN SANDI ANDA"
+                        />
+                        {errors.password && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.password}</p>}
+                    </div>
 
-                        <DangerButton className="ms-3" disabled={processing}>
-                            Delete Account
-                        </DangerButton>
+                    <div className="flex justify-end gap-4 pt-6">
+                        <button
+                            type="button"
+                            onClick={closeModal}
+                            className="px-8 py-4 border-2 font-black rounded-2xl text-[10px] uppercase tracking-widest transition-all italic"
+                            style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+                        >
+                            BATALKAN
+                        </button>
+
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="px-10 py-4 bg-red-600 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-red-600/20 hover:bg-red-700 transition-all italic"
+                        >
+                            HAPUS PERMANEN
+                        </button>
                     </div>
                 </form>
             </Modal>

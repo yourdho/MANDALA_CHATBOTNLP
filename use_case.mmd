@@ -1,0 +1,70 @@
+flowchart LR
+    %% Pengaturan Gaya
+    classDef actor font-weight:bold,fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef usecase fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,rx:20px,ry:30px;
+    
+    %% Aktor
+    Guest(["👤 Guest\n(Pengunjung)"]):::actor
+    User(["👤 User\n(Member Terdaftar)"]):::actor
+    Admin(["🧑‍💼 Admin\n(Pengelola)"]):::actor
+
+    %% Subsistem Website Publik
+    subgraph Sistem Publik ["Sistem Publik (Front-end)"]
+        direction TB
+        UC1(["Melihat Daftar & Detail Fasilitas"]):::usecase
+        UC2(["Membaca Artikel/Blog"]):::usecase
+        UC3(["Tanya Chatbot"]):::usecase
+        UC4(["Registrasi & Autentikasi (Login)"]):::usecase
+    end
+
+    %% Subsistem Member
+    subgraph Sistem Member ["Sistem Member (User Area)"]
+        direction TB
+        UC5(["Melihat Dashboard Member & Promo"]):::usecase
+        UC6(["Booking Fasilitas & Pembayaran"]):::usecase
+        UC7(["Melihat Riwayat Booking & Status"]):::usecase
+        UC8(["Mencari Lawan (Matchmaking)"]):::usecase
+        UC9(["Tukar Poin / Redeem Reward"]):::usecase
+        UC10(["Kelola Profil Akun"]):::usecase
+    end
+
+    %% Subsistem Admin
+    subgraph Sistem Admin ["Sistem Admin (Back-office)"]
+        direction TB
+        UC11(["Lihat Dashboard (Tren & Statistik)"]):::usecase
+        UC12(["Kelola Laporan (Kapasitas & Keuangan)"]):::usecase
+        UC13(["Kelola Fasilitas & Galeri (CRUD)"]):::usecase
+        UC14(["Kelola Dynamic Pricing & Jadwal"]):::usecase
+        UC15(["Kelola Transaksi Booking (Manual/Konfirmasi)"]):::usecase
+        UC16(["Kelola Reward & Poin Pengguna"]):::usecase
+        UC17(["Kelola Konten & Kategori Blog"]):::usecase
+        UC18(["Kelola User & Aplikasi Mitra"]):::usecase
+    end
+
+    %% Relasi Aktor -> Use Case
+    Guest --> UC1
+    Guest --> UC2
+    Guest --> UC3
+    Guest --> UC4
+
+    User --> UC1
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+    User --> UC10
+
+    Admin --> UC4
+    Admin --> UC11
+    Admin --> UC12
+    Admin --> UC13
+    Admin --> UC14
+    Admin --> UC15
+    Admin --> UC16
+    Admin --> UC17
+    Admin --> UC18
+    
+    %% Garis Penghubung Generalisasi
+    User -. "extends" .-> Guest

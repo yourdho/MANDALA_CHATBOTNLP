@@ -56,12 +56,12 @@ export default function Edit({ mustVerifyEmail, status, pointsData }) {
                         <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Terminal</p>
                         <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                             style={{ color: 'var(--text-primary)' }}>
-                            Pilot <span className="text-[#38BDF8]">Profile</span>
+                            Member <span className="text-[#38BDF8]">Profile</span>
                         </h1>
+                        <p className="text-[10px] uppercase font-black tracking-widest opacity-40 italic mt-4" style={{ color: 'var(--text-secondary)' }}>
+                            Konfigurasi identitas member dan parameter keamanan sistem.
+                        </p>
                     </div>
-                    <p className="font-bold uppercase tracking-widest text-[10px] max-w-xs md:text-right" style={{ color: 'var(--text-secondary)' }}>
-                        Konfigurasi identitas pilot dan parameter keamanan sistem.
-                    </p>
                 </div>
 
                 {/* ══ MANDALA POINTS CARD ══ */}

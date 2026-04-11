@@ -61,7 +61,7 @@ return new class extends Migration {
         // 4. Update Users with Mandala Specifics (using Schema::table since users table already exists)
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'points_balance')) {
-                $table->integer('points_balance')->default(100); // Starter points for new pilots
+                $table->integer('points_balance')->default(100); // Starter points for new members
             }
         });
     }

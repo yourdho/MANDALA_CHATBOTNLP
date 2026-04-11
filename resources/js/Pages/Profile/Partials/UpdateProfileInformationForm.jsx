@@ -27,91 +27,86 @@ export default function UpdateProfileInformation({
 
     return (
         <section className={className}>
-            <header>
-                <h2 className="text-2xl font-black italic uppercase tracking-tighter"
+            <header className="mb-10">
+                <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter"
                     style={{ color: 'var(--text-primary)' }}>
-                    Informasi <span className="text-[#38BDF8]">Pilot</span>
+                    Data <span className="text-[#38BDF8]">Diri Member</span>
                 </h2>
-
-                <p className="mt-2 text-[10px] font-bold uppercase tracking-widest"
-                    style={{ color: 'var(--text-secondary)' }}>
-                    Update identitas akun dan alamat email terdaftar.
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-1 italic">
+                    Konfigurasi parameter identitas member untuk otentikasi radar.
                 </p>
             </header>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
+            <form onSubmit={submit} className="mt-6 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#38BDF8] ml-2 italic">Nama Operasional</label>
+                        <input
+                            type="text"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            required
+                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all"
+                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                        />
+                        {errors.name && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.name}</p>}
+                    </div>
 
-                    <TextInput
-                        id="name"
-                        className="mt-1 block w-full"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
-                        autoComplete="name"
-                    />
-
-                    <InputError className="mt-2" message={errors.name} />
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#38BDF8] ml-2 italic">Frekuensi Email</label>
+                        <input
+                            type="email"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            required
+                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all"
+                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                        />
+                        {errors.email && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.email}</p>}
+                    </div>
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        className="mt-1 block w-full"
-                        value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                        autoComplete="username"
-                    />
-
-                    <InputError className="mt-2" message={errors.email} />
-                </div>
-
-                <div>
-                    <InputLabel htmlFor="phone" value="Nomor WhatsApp" />
-
-                    <TextInput
-                        id="phone"
+                <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#38BDF8] ml-2 italic">Nomor Signal (WhatsApp)</label>
+                    <input
                         type="tel"
-                        className="mt-1 block w-full"
                         value={data.phone}
                         onChange={(e) => setData('phone', e.target.value)}
-                        placeholder="087892312759"
+                        placeholder="CONTOH: 08123456789"
+                        className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all placeholder:opacity-20"
+                        style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                     />
-
-                    <InputError className="mt-2" message={errors.phone} />
+                    {errors.phone && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.phone}</p>}
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-slate-300">
-                            Your email address is unverified.
+                    <div className="p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+                        <p className="text-xs font-bold text-amber-400 uppercase tracking-widest italic">
+                            Email Anda belum terverifikasi.
                             <Link
                                 href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="rounded-md text-sm text-slate-400 underline hover:text-[#F2D800] focus:outline-none focus:ring-2 focus:ring-[#F2D800]/40 focus:ring-offset-2 focus:ring-offset-[#1A1818]"
+                                method="post" as="button"
+                                className="ml-2 underline text-white hover:text-amber-300"
                             >
-                                Click here to re-send the verification email.
+                                Klik untuk kirim ulang instruksi verifikasi.
                             </Link>
                         </p>
-
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-[#F2D800]">
-                                A new verification link has been sent to your
-                                email address.
+                            <div className="mt-3 text-[10px] font-black uppercase text-emerald-400">
+                                Sinyal verifikasi baru telah dikirimkan.
                             </div>
                         )}
                     </div>
                 )}
 
-                <div className="flex items-center gap-6">
-                    <PrimaryButton disabled={processing} className="px-10 py-4">Save Configuration</PrimaryButton>
+                <div className="flex items-center gap-8 pt-6">
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="px-12 py-5 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-[0.4em] shadow-xl shadow-[#38BDF8]/20 hover:scale-[1.05] transition-all italic disabled:opacity-50"
+                    >
+                        PERBARUI PROFIL
+                    </button>
 
                     <Transition
                         show={recentlySuccessful}
@@ -121,7 +116,7 @@ export default function UpdateProfileInformation({
                         leaveTo="opacity-0"
                     >
                         <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 italic">
-                            Data Synchronized.
+                            DATA TER-SINKRONISASI
                         </p>
                     </Transition>
                 </div>

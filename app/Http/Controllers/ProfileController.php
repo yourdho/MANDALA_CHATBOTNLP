@@ -62,6 +62,45 @@ class ProfileController extends Controller
     }
 
     /**
+     * Admin: Manual User Creation
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|string|in:admin,user',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        $validated['email_verified_at'] = now();
+
+        \App\Models\User::create($validated);
+
+        return redirect()->back()->with('success', 'User manual berhasil dibuat!');
+    }
+
+    /**
+     * Admin: Get User Details with History
+     */
+    public function show($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $bookings = \App\Models\Booking::with('facility')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'user' => $user,
+            'bookings' => $bookings,
+        ]);
+    }
+
+    /**
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse

@@ -13,17 +13,32 @@ const Icons = {
     logout: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>,
     users: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
     shoppingBag: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>,
+    home: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
+    blog: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>,
+    location: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
 };
 
-export default function AuthenticatedLayout({ children, showSidebar = true, showChatbot = true }) {
-    const { auth } = usePage().props;
+export default function AuthenticatedLayout({ children, showSidebar = true, showChatbot = false }) {
+    const { auth, flash } = usePage().props;
     const user = auth?.user;
     const isAdmin = user?.role === 'admin';
 
-    // Auto-suppress sidebar if Guest pilot is detected
+    // Auto-suppress sidebar if Guest member is detected
     const sidebarVisible = showSidebar && !!user;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showFlash, setShowFlash] = useState(false);
+
+    // Auto-dismiss Flash Message
+    useEffect(() => {
+        if (flash?.message) {
+            setShowFlash(true);
+            const timer = setTimeout(() => {
+                setShowFlash(false);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.message]);
 
     useEffect(() => {
         if (sidebarOpen) {
@@ -48,11 +63,10 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
         const handleTouchEnd = (e) => {
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
 
             // Detect horizontal swipe from left side (swipe right)
-            // dx > 60: distance
-            // |dx| > |dy| * 1.2: mostly horizontal
-            // touchStartX < 100: start from left edge area
             if (dx > 60 && Math.abs(dx) > Math.abs(dy) * 1.2 && touchStartX < 100) {
                 window.history.back();
             }
@@ -73,14 +87,13 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
             {/* Logo */}
             <div className="px-6 py-8 border-b flex-shrink-0 flex items-center justify-between"
                 style={{ borderColor: 'var(--border)' }}>
-                <Link href="/" className="flex items-center gap-3 group" onClick={closeSidebar}>
-                    <div className="w-10 h-10 bg-[#38BDF8] rounded-xl flex items-center justify-center shadow-md shadow-[#38BDF8]/30">
-                        <span className="text-white font-black italic text-xl">M</span>
-                    </div>
+                <Link href="/" className="flex items-center gap-1.5 group" onClick={closeSidebar}>
+                    <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
                     <div className="flex flex-col">
-                        <span className="text-lg font-black tracking-tight uppercase italic dark:text-white leading-none"
-                            style={{ color: 'var(--text-primary)' }}>Mandala</span>
-                        <span className="text-[#38BDF8] text-[10px] font-black tracking-[0.4em] uppercase leading-none mt-1 italic">Arena</span>
+                        <span className="text-lg font-light tracking-tight italic dark:text-white leading-none"
+                            style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
+                        <span className="text-[#38BDF8] text-[10px] font-light tracking-[0.4em] italic leading-none mt-1"
+                            style={{ fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Arena</span>
                     </div>
                 </Link>
                 <div className="lg:hidden">
@@ -93,25 +106,25 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
 
                 <SideNavItem href={route('dashboard')} active={route().current('dashboard')} icon={Icons.dashboard}>
                     <div className="flex flex-col gap-1">
-                        <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Dashboard</span>
+                        <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Menu</span>
                         <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Status Akun</span>
                     </div>
                 </SideNavItem>
-
-                {!isAdmin && (
-                    <SideNavItem href={route('bookings.index')} active={route().current('bookings.*')} icon={Icons.calendar}>
-                        <div className="flex flex-col gap-1">
-                            <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Riwayat Booking</span>
-                            <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Daftar pesanan Anda</span>
-                        </div>
-                    </SideNavItem>
-                )}
 
                 {!isAdmin && (
                     <SideNavItem href={route('facilities.public')} active={route().current('facilities.public') || route().current('facility.show')} icon={Icons.calendar}>
                         <div className="flex flex-col gap-1">
                             <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Fasilitas Arena</span>
                             <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Booking lapangan</span>
+                        </div>
+                    </SideNavItem>
+                )}
+
+                {!isAdmin && (
+                    <SideNavItem href={route('bookings.index')} active={route().current('bookings.*')} icon={Icons.calendar}>
+                        <div className="flex flex-col gap-1">
+                            <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Riwayat Booking</span>
+                            <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Daftar pesanan Anda</span>
                         </div>
                     </SideNavItem>
                 )}
@@ -125,11 +138,27 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                     </SideNavItem>
                 )}
 
+                <SideNavItem isExternal={true} href="https://mandalaarenavt.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio" active={false} icon={Icons.location}>
+                    <div className="flex flex-col gap-1">
+                        <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>VR Tour Lokasi</span>
+                        <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Lihat kondisi arena 360°</span>
+                    </div>
+                </SideNavItem>
+
                 {!isAdmin && (
                     <SideNavItem href={route('user.rewards.index')} active={route().current('user.rewards.*')} icon={Icons.shoppingBag}>
                         <div className="flex flex-col gap-1">
                             <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Promo diskon</span>
                             <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Tukar poin loyalty</span>
+                        </div>
+                    </SideNavItem>
+                )}
+
+                {!isAdmin && (
+                    <SideNavItem href={route('blog.index')} active={route().current('blog.*')} icon={Icons.dashboard}>
+                        <div className="flex flex-col gap-1">
+                            <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Mandala Blog</span>
+                            <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Berita & Artikel Arena</span>
                         </div>
                     </SideNavItem>
                 )}
@@ -146,13 +175,20 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Log seluruh arena</span>
                             </div>
                         </SideNavItem>
-
                         <SideNavItem href={route('admin.facilities.index')} active={route().current('admin.facilities.*')} icon={Icons.manage}>
                             <div className="flex flex-col gap-1">
                                 <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Edit Fasilitas</span>
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Edit lapangan & jam</span>
                             </div>
                         </SideNavItem>
+
+                        <SideNavItem href={route('admin.pricing.index')} active={route().current('admin.pricing.*')} icon={Icons.manage}>
+                            <div className="flex flex-col gap-1">
+                                <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Setelan Pembayaran</span>
+                                <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Edit No Rekening & QRIS</span>
+                            </div>
+                        </SideNavItem>
+
                         <SideNavItem href={route('admin.reports.index')} active={route().current('admin.reports.*')} icon={Icons.dashboard}>
                             <div className="flex flex-col gap-1">
                                 <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Laporan</span>
@@ -171,62 +207,69 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Voucher & Poin</span>
                             </div>
                         </SideNavItem>
-                        <SideNavItem href={route('admin.chatbot.index')} active={route().current('admin.chatbot.*')} icon={Icons.manage}>
+                        <SideNavItem href={route('admin.blog.index')} active={route().current('admin.blog.index') || route().current('admin.blog.create') || route().current('admin.blog.edit') || route().current('admin.blog_categories.*')} icon={Icons.dashboard}>
+                            <div className="flex flex-col gap-1">
+                                <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Blog Artikel</span>
+                                <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Mading informasi User</span>
+                            </div>
+                        </SideNavItem>
+                        {/* <SideNavItem href={route('admin.chatbot.index')} active={route().current('admin.chatbot.*')} icon={Icons.manage}>
                             <div className="flex flex-col gap-1">
                                 <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Chatbot NLP</span>
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Kamus slank & greeting</span>
                             </div>
-                        </SideNavItem>
+                        </SideNavItem> */}
                     </>
-                )}
-            </nav>
+                )
+                }
+            </nav >
 
             {/* Bottom: User Info */}
-            {user ? (
-                <div className="flex-shrink-0 border-t p-4 transition-colors"
-                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <Link href={route('profile.edit')} className="flex items-center gap-3 mb-4 p-2 rounded-xl hover:bg-[#38BDF8]/5 transition-all group">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center text-[#38BDF8] font-black text-xl uppercase shadow-sm group-hover:scale-105 transition-transform"
-                            style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
-                            {user?.name?.charAt(0)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-black uppercase tracking-wider truncate leading-none mb-1 group-hover:text-[#38BDF8] transition-colors"
-                                style={{ color: 'var(--text-primary)' }}>{user?.name}</p>
-                            <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-bold truncate uppercase tracking-widest leading-none"
-                                    style={{ color: 'var(--text-secondary)' }}>{user?.role}</span>
-                                {user?.role === 'user' && (
-                                    <>
-                                        <span className="w-1 h-1 rounded-full opacity-30" style={{ background: 'var(--text-secondary)' }} />
-                                        <span className="text-[9px] font-black text-[#FACC15] uppercase tracking-widest leading-none"> {user?.points_balance || 0} Poin</span>
-                                    </>
-                                )}
+            {
+                user ? (
+                    <div className="flex-shrink-0 border-t p-4 pb-28 lg:pb-4 transition-colors"
+                        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                        <Link href={route('profile.edit')} className="flex items-center gap-3 mb-4 p-2 rounded-xl hover:bg-[#38BDF8]/5 transition-all group">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center text-[#38BDF8] font-black text-xl uppercase shadow-sm group-hover:scale-105 transition-transform"
+                                style={{ background: 'var(--bg-base)', borderColor: 'var(--border)' }}>
+                                {user?.name?.charAt(0)}
                             </div>
-                        </div>
-                    </Link>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-black uppercase tracking-wider truncate leading-none mb-1 group-hover:text-[#38BDF8] transition-colors"
+                                    style={{ color: 'var(--text-primary)' }}>{user?.name}</p>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-bold truncate uppercase tracking-widest leading-none"
+                                        style={{ color: 'var(--text-secondary)' }}>{user?.role}</span>
+                                    {user?.role === 'user' && (
+                                        <>
+                                            <span className="w-1 h-1 rounded-full opacity-30" style={{ background: 'var(--text-secondary)' }} />
+                                            <span className="text-[9px] font-black text-[#FACC15] uppercase tracking-widest leading-none"> {user?.points_balance || 0} Poin</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </Link>
 
-                    <Link href={route('logout')} method="post" as="button"
-                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-slate-900 text-white hover:bg-[#FACC15] hover:text-slate-900 transition-all shadow-lg shadow-black/5 group">
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] italic">Log Out</span>
-                        <span className="group-hover:translate-x-1 transition-transform">{Icons.logout}</span>
-                    </Link>
-                </div>
-            ) : (
-                <div className="flex-shrink-0 border-t p-6 transition-colors"
-                    style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <Link href={route('login')}
-                        className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-[#38BDF8] text-slate-900 hover:bg-slate-900 hover:text-white transition-all shadow-lg shadow-[#38BDF8]/20 group">
-                        <span className="text-[11px] font-black uppercase tracking-[0.2em] italic">Akses Terminal</span>
-                        <span className="group-hover:translate-x-1 transition-transform">{Icons.profile}</span>
-                    </Link>
-                </div>
-            )}
-        </div>
+                        <Link href={route('logout')} method="post" as="button"
+                            className="w-full flex items-center justify-between px-6 py-4 rounded-2xl bg-slate-900 text-white hover:bg-[#FACC15] hover:text-slate-900 transition-all shadow-lg shadow-black/5 group">
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] italic">Log Out</span>
+                            <span className="group-hover:translate-x-1 transition-transform">{Icons.logout}</span>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="flex-shrink-0 border-t p-6 pb-28 lg:pb-6 transition-colors"
+                        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+                        <Link href={route('login')}
+                            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-[#38BDF8] text-slate-900 hover:bg-slate-900 hover:text-white transition-all shadow-lg shadow-[#38BDF8]/20 group">
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] italic">Login</span>
+                            <span className="group-hover:translate-x-1 transition-transform">{Icons.profile}</span>
+                        </Link>
+                    </div>
+                )
+            }
+        </div >
     );
 
-    // Layout Container
-    const { flash } = usePage().props;
 
     return (
         <div className="min-h-screen transition-colors duration-300"
@@ -234,21 +277,33 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
 
             {/* Flash Overlay */}
             <AnimatePresence>
-                {flash?.message && (
+                {showFlash && flash?.message && (
                     <motion.div
                         initial={{ opacity: 0, y: -40 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] w-full max-w-sm px-4"
                     >
-                        <div className={`p-6 rounded-[2rem] border-2 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-6 ${flash?.type === 'error' ? 'bg-rose-500/10 border-rose-500 text-rose-500 shadow-rose-500/20' : 'bg-[#38BDF8]/10 border-[#38BDF8] text-[#38BDF8] shadow-[#38BDF8]/20'}`}>
+                        <div className={`p-6 rounded-[2rem] border-2 shadow-2xl backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6 ${flash?.type === 'error' ? 'bg-rose-500/10 border-rose-500 text-rose-500 shadow-rose-500/20' : 'bg-[#38BDF8]/10 border-[#38BDF8] text-[#38BDF8] shadow-[#38BDF8]/20'}`}>
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-1 italic">Tactical Update</span>
                                 <p className="text-sm font-black italic uppercase tracking-tight">{flash.message}</p>
                             </div>
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <div className="flex items-center gap-4">
+                                {flash?.wa_link && (
+                                    <a
+                                        href={flash.wa_link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="px-6 py-2 bg-[#25D366] text-white font-black rounded-xl text-[9px] uppercase tracking-widest hover:bg-[#128C7E] hover:scale-105 transition-all shadow-md shadow-[#25D366]/30 animate-pulse whitespace-nowrap"
+                                    >
+                                        Buka WA Admin
+                                    </a>
+                                )}
+                                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
                         </div>
                     </motion.div>
                 )}
@@ -258,17 +313,17 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
             {sidebarVisible && (
                 <header className="lg:hidden fixed inset-x-0 top-0 z-50 h-16 flex items-center justify-between px-6 border-b transition-all backdrop-blur-md"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <Link href="/" className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-[#38BDF8] rounded-xl flex items-center justify-center shadow-lg shadow-[#38BDF8]/30">
-                            <span className="text-white font-black italic text-lg leading-none">M</span>
+                    <Link href="/" className="flex items-center gap-1.5">
+                        <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-8 w-auto object-contain drop-shadow-md" />
+                        <div className="flex flex-col">
+                            <span className="text-sm font-light tracking-tight italic dark:text-white leading-none"
+                                style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
+                            <span className="text-[#38BDF8] text-[8px] font-light tracking-[0.4em] italic leading-none mt-0.5"
+                                style={{ fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Arena</span>
                         </div>
-                        <span className="text-xs font-black uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Mandala</span>
                     </Link>
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
-                        <button onClick={() => setSidebarOpen(true)} className="p-2 -mr-2" style={{ color: 'var(--text-primary)' }}>
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
-                        </button>
                     </div>
                 </header>
             )}
@@ -288,10 +343,10 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                     {sidebarOpen && (
                         <>
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                onClick={closeSidebar} className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm lg:hidden" />
+                                onClick={closeSidebar} className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm lg:hidden" />
                             <motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
                                 transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                                className="fixed inset-y-0 left-0 z-[70] w-[280px] lg:hidden origin-left"
+                                className="fixed inset-y-0 left-0 z-[130] w-[280px] lg:hidden origin-left"
                                 style={{ background: 'var(--bg-card)', borderRight: '1px solid var(--border)' }}>
                                 <SidebarContent />
                             </motion.aside>
@@ -301,33 +356,65 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
 
                 {/* MAIN CONTENT AREA */}
                 <main className={`flex-1 w-full ${sidebarVisible ? 'pt-16 lg:pt-0' : 'pt-0'}`}>
-                    <div className={`${sidebarVisible ? 'p-4 lg:p-12 max-w-[1600px] mx-auto' : ''}`}>
+                    <div className={`${sidebarVisible ? 'p-4 lg:p-12 pb-32 lg:pb-12 max-w-[1600px] mx-auto' : 'pb-32 lg:pb-0'}`}>
                         {children}
                     </div>
                 </main>
             </div>
 
+            {/* ── TACTICAL MOBILE BOTTOM DOCK ── */}
+            <div className="lg:hidden fixed bottom-0 inset-x-0 z-[110] p-4 pointer-events-none">
+                <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl backdrop-blur-xl flex items-center justify-around p-2 pointer-events-auto max-w-sm mx-auto">
+                    <Link href={route('facilities.public')} className={`p-3 rounded-2xl flex flex-col items-center gap-1 transition-all ${route().current('facilities.public') || route().current('facility.show') ? 'bg-[#38BDF8] text-slate-900' : 'text-slate-400'}`}>
+                        <div className="flex-shrink-0">{Icons.calendar}</div>
+                        <span className="text-[7px] font-black uppercase tracking-tighter italic">Arena</span>
+                    </Link>
+                    <Link href={user ? route('bookings.index') : route('matchmaking.index')} className={`p-3 rounded-2xl flex flex-col items-center gap-1 transition-all ${(user ? route().current('bookings.*') : route().current('matchmaking.index')) ? 'bg-[#38BDF8] text-slate-900' : 'text-slate-400'}`}>
+                        <div className="flex-shrink-0">{user ? Icons.calendar : Icons.users}</div>
+                        <span className="text-[7px] font-black uppercase tracking-tighter italic">{user ? 'Riwayat' : 'Sparing'}</span>
+                    </Link>
+                    <Link href={user ? route('dashboard') : '/'} className={`p-3 rounded-2xl flex flex-col items-center gap-1 transition-all ${(user ? route().current('dashboard') : route().current('welcome')) ? 'bg-[#38BDF8] text-slate-900' : 'text-slate-400'}`}>
+                        <div className="flex-shrink-0">{Icons.home}</div>
+                        <span className="text-[7px] font-black uppercase tracking-tighter italic">Base</span>
+                    </Link>
+                    <Link href={route('blog.index')} className={`p-3 rounded-2xl flex flex-col items-center gap-1 transition-all ${route().current('blog.index') ? 'bg-[#38BDF8] text-slate-900' : 'text-slate-400'}`}>
+                        <div className="flex-shrink-0">{Icons.blog}</div>
+                        <span className="text-[7px] font-black uppercase tracking-tighter italic">Blog</span>
+                    </Link>
+                    <button onClick={() => setSidebarOpen(true)} className={`p-3 rounded-2xl flex flex-col items-center gap-1 transition-all text-slate-400`}>
+                        <div className="flex-shrink-0">{Icons.manage}</div>
+                        <span className="text-[7px] font-black uppercase tracking-tighter italic">Menu</span>
+                    </button>
+                </div>
+            </div>
+
             {/* Always Shown Floating Controls */}
-            <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-4">
+            <div className={`fixed bottom-24 right-6 sm:bottom-8 sm:right-8 z-[100] flex flex-col gap-4 overflow-visible`}>
                 {showChatbot && <Chatbot />}
             </div>
         </div>
     );
 }
 
-function SideNavItem({ href, active, icon, children }) {
+function SideNavItem({ href, active, icon, children, isExternal = false }) {
+    if (isExternal) {
+        return (
+            <a href={href} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all relative group overflow-hidden ${active ? 'bg-[#38BDF8] text-slate-950 shadow-[0_10px_30px_rgba(56,189,248,0.3)] z-10' : 'bg-transparent text-slate-500 hover:bg-[#38BDF8]/5 hover:text-[#38BDF8]'}`}>
+                <div className={`flex-shrink-0 transition-transform group-hover:scale-110 ${active ? 'text-slate-950' : 'text-slate-400 group-hover:text-[#38BDF8]'}`}>
+                    {icon}
+                </div>
+                <div className="flex-1 truncate">{children}</div>
+                {active && <motion.div layoutId="nav-pill" className="absolute right-0 w-1.5 h-8 bg-slate-950 rounded-l-full" />}
+            </a>
+        );
+    }
     return (
-        <Link href={href}
-            className={`group flex items-center gap-4 px-6 py-4 transition-all relative ${active ? 'bg-[#38BDF8]/5' : ''}`}>
-            {active && (
-                <motion.div layoutId="nav-active" className="absolute left-0 w-1.5 h-8 bg-[#38BDF8] rounded-r-full shadow-glow-blue" />
-            )}
-            <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${active ? 'bg-[#38BDF8] text-white shadow-lg shadow-[#38BDF8]/30 scale-105' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100 group-hover:text-slate-600 dark:bg-slate-800'}`}>
+        <Link href={href} className={`flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all relative group overflow-hidden ${active ? 'bg-[#38BDF8] text-slate-950 shadow-[0_10px_30px_rgba(56,189,248,0.3)] z-10' : 'bg-transparent text-slate-500 hover:bg-[#38BDF8]/5 hover:text-[#38BDF8]'}`}>
+            <div className={`flex-shrink-0 transition-transform group-hover:scale-110 ${active ? 'text-slate-950' : 'text-slate-400 group-hover:text-[#38BDF8]'}`}>
                 {icon}
             </div>
-            <div className="flex-1 min-w-0">
-                {children}
-            </div>
+            <div className="flex-1 truncate">{children}</div>
+            {active && <motion.div layoutId="nav-pill" className="absolute right-0 w-1.5 h-8 bg-slate-950 rounded-l-full" />}
         </Link>
     );
 }
