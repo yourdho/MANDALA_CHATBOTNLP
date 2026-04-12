@@ -13,6 +13,8 @@ class Reward extends Model
     protected $fillable = [
         'title',
         'description',
+        'image_url',
+        'applicable_category',
         'points_required',
         'discount_type',
         'discount_value',

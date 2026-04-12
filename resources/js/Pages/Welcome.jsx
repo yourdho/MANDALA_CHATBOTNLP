@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import { TicketIcon, GiftIcon, SparklesIcon, FireIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import Chatbot from '@/Components/Chatbot';
 import ThemeToggle from '@/Components/UI/ThemeToggle';
 import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
@@ -165,7 +166,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                         className="hidden md:block flex-1 h-[1px] mx-12 bg-gradient-to-r from-[#38BDF8]/20 to-transparent"
                                     />
                                     <Link href={route('register')} className="text-xs font-black uppercase tracking-widest text-[#FACC15] hover:text-white transition-colors flex items-center gap-2 group">
-                                        Dapatkan Semua <span className="group-hover:translate-x-1 transition-transform">?</span>
+                                        Dapatkan Semua <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </div>
 
@@ -186,8 +187,15 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
 
                                             <div className="relative z-10 flex flex-col h-full gap-8">
                                                 <div className="flex justify-between items-start">
-                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#38BDF8]/20 to-[#38BDF8]/5 flex items-center justify-center text-3xl shadow-inner border border-[#38BDF8]/10">
-                                                        ?
+                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#38BDF8]/20 to-[#38BDF8]/5 flex items-center justify-center text-3xl shadow-inner border border-[#38BDF8]/10 overflow-hidden">
+                                                        {promo.image_url ? (
+                                                            <img src={promo.image_url} alt={promo.title} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            promo.title.toLowerCase().includes('ramadan') ? <SparklesIcon className="w-8 h-8 text-[#FACC15]" /> :
+                                                            promo.title.toLowerCase().includes('weekend') ? <FireIcon className="w-8 h-8 text-[#FACC15]" /> :
+                                                            promo.title.toLowerCase().includes('early') ? <TicketIcon className="w-8 h-8 text-[#FACC15]" /> :
+                                                            <GiftIcon className="w-8 h-8 text-[#FACC15]" />
+                                                        )}
                                                     </div>
                                                     {promo.discount_type === 'percentage' && (
                                                         <div className="px-4 py-2 rounded-full bg-[#FACC15] text-slate-900 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#FACC15]/20">
@@ -200,9 +208,15 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                                     <h3 className="text-2xl font-black italic uppercase tracking-tighter leading-tight" style={{ color: 'var(--text-primary)' }}>
                                                         {promo.title}
                                                     </h3>
-                                                    <p className="text-xs font-medium leading-relaxed opacity-70" style={{ color: 'var(--text-secondary)' }}>
+                                                    <p className="text-xs font-medium leading-relaxed opacity-70 mb-2" style={{ color: 'var(--text-secondary)' }}>
                                                         {promo.description}
                                                     </p>
+                                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#38BDF8]/10 border border-[#38BDF8]/20 rounded-lg">
+                                                        <SparklesIcon className="w-3 h-3 text-[#38BDF8]" />
+                                                        <span className="text-[8px] font-black uppercase tracking-widest text-[#38BDF8]">
+                                                            Berlaku: {promo.applicable_category === 'all' ? 'SEMUA FASILITAS' : promo.applicable_category.toUpperCase()}
+                                                        </span>
+                                                    </div>
                                                 </div>
 
                                                 <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
@@ -238,8 +252,8 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                             Fasilitas <span className="text-[#38BDF8]">Unggulan</span>
                                         </motion.h2>
                                     </div>
-                                    <Link href={route('facilities.public')} className="text-xs font-black uppercase tracking-widest text-[#38BDF8] hover:text-white transition-colors group italic">
-                                        Eksplor Semua <span className="group-hover:translate-x-1 transition-transform inline-block">?</span>
+                                    <Link href={route('facilities.public')} className="text-xs font-black uppercase tracking-widest text-[#38BDF8] hover:text-white transition-colors group italic flex items-center gap-2">
+                                        Eksplor Semua <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </div>
 
@@ -298,8 +312,8 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                                             Berita <span className="text-[#A855F7]">Terupdate</span>
                                         </motion.h2>
                                     </div>
-                                    <Link href={route('blog.index')} className="text-xs font-black uppercase tracking-widest text-[#A855F7] hover:text-white transition-colors group italic">
-                                        Selengkapnya <span className="group-hover:translate-x-1 transition-transform inline-block">?</span>
+                                    <Link href={route('blog.index')} className="text-xs font-black uppercase tracking-widest text-[#A855F7] hover:text-white transition-colors group italic flex items-center gap-2">
+                                        Selengkapnya <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </div>
 
@@ -383,7 +397,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                     <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/5 text-center">
                         <p className="text-[10px] font-bold uppercase tracking-[0.2em]"
                             style={{ color: 'var(--text-secondary)' }}>
-                            © {new Date().getFullYear()} KPM CORP. Hak Cipta Dilindungi Undang-Undang.
+                            Â© {new Date().getFullYear()} KPM CORP. Hak Cipta Dilindungi Undang-Undang.
                         </p>
                     </div>
                 </footer>

@@ -4,6 +4,7 @@ namespace App\Contracts\Services;
 
 use App\Models\Booking;
 use App\Models\Facility;
+use Carbon\Carbon;
 
 interface BookingServiceInterface
 {
@@ -31,12 +32,12 @@ interface BookingServiceInterface
      * Calculate the dynamic price for a given sport type and time range.
      *
      * @param string $sportType
-     * @param \Carbon\Carbon $startsAt
-     * @param \Carbon\Carbon $endsAt
+     * @param Carbon $startsAt
+     * @param Carbon $endsAt
      * @param string|null $sessionName For Pilates sessions
      * @return float
      */
-    public function calculatePrice(string $sportType, \Carbon\Carbon $startsAt, \Carbon\Carbon $endsAt, ?string $sessionName = null): float;
+    public function calculatePrice(string $sportType, Carbon $startsAt, Carbon $endsAt, ?string $sessionName = null): float;
 
     /**
      * Calculate addon costs for a booking.
@@ -52,9 +53,15 @@ interface BookingServiceInterface
      * Check if a slot is already taken for a given facility and time range.
      *
      * @param int $facilityId
-     * @param \Carbon\Carbon $startsAt
-     * @param \Carbon\Carbon $endsAt
+     * @param Carbon $startsAt
+     * @param Carbon $endsAt
      * @return bool
      */
-    public function isSlotTaken(int $facilityId, \Carbon\Carbon $startsAt, \Carbon\Carbon $endsAt): bool;
+    public function isSlotTaken(
+        int    $facilityId,
+        Carbon $startsAt,
+        Carbon $endsAt,
+        array  $statuses = [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED],
+        array  $paymentStatuses = ['paid', 'settlement', 'capture']
+    ): bool;
 }

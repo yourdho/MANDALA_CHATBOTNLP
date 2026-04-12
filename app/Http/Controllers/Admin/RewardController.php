@@ -15,7 +15,8 @@ class RewardController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Rewards/Index', [
-            'rewards' => Reward::orderBy('created_at', 'desc')->get()
+            'rewards' => Reward::orderBy('created_at', 'desc')->get(),
+            'categories' => \App\Models\Facility::select('category')->distinct()->pluck('category')->toArray()
         ]);
     }
 
@@ -27,13 +28,25 @@ class RewardController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'applicable_category' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'points_required' => 'required|integer|min:0',
             'discount_type' => 'required|in:percentage,fixed',
             'discount_value' => 'required|numeric|min:0',
             'max_discount' => 'nullable|numeric|min:0',
-            'valid_until' => 'required|date|after:today',
+            'valid_until' => 'required|date',
             'quota' => 'required|integer|min:1',
         ]);
+
+        if ($request->hasFile('image')) {
+            $imagePath = public_path('aset_foto/rewards');
+            if (!file_exists($imagePath)) {
+                mkdir($imagePath, 0777, true);
+            }
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move($imagePath, $filename);
+            $validated['image_url'] = asset('aset_foto/rewards/' . $filename);
+        }
 
         Reward::create($validated);
 
@@ -49,6 +62,8 @@ class RewardController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'applicable_category' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'points_required' => 'required|integer|min:0',
             'discount_type' => 'required|in:percentage,fixed',
             'discount_value' => 'required|numeric|min:0',
@@ -57,6 +72,16 @@ class RewardController extends Controller
             'quota' => 'required|integer|min:0',
             'is_active' => 'boolean',
         ]);
+
+        if ($request->hasFile('image')) {
+            $imagePath = public_path('aset_foto/rewards');
+            if (!file_exists($imagePath)) {
+                mkdir($imagePath, 0777, true);
+            }
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move($imagePath, $filename);
+            $validated['image_url'] = asset('aset_foto/rewards/' . $filename);
+        }
 
         $reward->update($validated);
 

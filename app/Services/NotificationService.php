@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Mail\BookingInvoiceMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Services\WhatsAppService;
 
 class NotificationService implements NotificationServiceInterface
 {

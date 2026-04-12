@@ -55,7 +55,7 @@ class BookingService implements BookingServiceInterface
                     ->first();
 
                 if ($voucher && $voucher->status === 'unused') {
-                    $discountAmount = $this->rewardService->calculateDiscount($totalPrice, $voucher);
+                    $discountAmount = $this->rewardService->calculateDiscount($totalPrice, $voucher, $facility->category);
                     $totalPrice    -= $discountAmount;
                     $voucher->update(['status' => 'used', 'used_at' => now()]);
                 }
@@ -100,30 +100,32 @@ class BookingService implements BookingServiceInterface
 
     public function createManualBooking(array $data): Booking
     {
-        $facility = Facility::find($data['facility_id']);
-        $startsAt = Carbon::parse($data['booking_date'] . ' ' . $data['start_time']);
-        $endsAt   = Carbon::parse($data['booking_date'] . ' ' . $data['end_time']);
-        $duration = max(1, $startsAt->diffInHours($endsAt));
+        return DB::transaction(function () use ($data) {
+            $facility = Facility::find($data['facility_id']);
+            $startsAt = Carbon::parse($data['booking_date'] . ' ' . $data['start_time']);
+            $endsAt   = Carbon::parse($data['booking_date'] . ' ' . $data['end_time']);
+            $duration = max(1, $startsAt->diffInHours($endsAt));
 
-        if ($this->isSlotTaken($facility->id, $startsAt, $endsAt, ['confirmed', 'pending'], ['paid', 'settlement', 'pending'])) {
-            throw new \Exception('Timeline target sudah terisi misi lain.');
-        }
+            if ($this->isSlotTaken($facility->id, $startsAt, $endsAt, ['confirmed', 'pending'], ['paid', 'settlement', 'pending'])) {
+                throw new \Exception('Timeline target sudah terisi misi lain.');
+            }
 
-        $basePrice  = $this->calculatePrice($facility->category, $startsAt, $endsAt);
-        if ($basePrice <= 0) $basePrice = $facility->price_per_hour * $duration;
+            $basePrice  = $this->calculatePrice($facility->category, $startsAt, $endsAt);
+            if ($basePrice <= 0) $basePrice = $facility->price_per_hour * $duration;
 
-        return Booking::create([
-            'facility_id'    => $facility->id,
-            'guest_name'     => $data['guest_name'],
-            'guest_phone'    => $data['guest_phone'] ?? 'Offline/Manual',
-            'starts_at'      => $startsAt,
-            'ends_at'        => $endsAt,
-            'duration_hours' => $duration,
-            'total_price'    => $basePrice,
-            'payment_method' => 'bayar_ditempat',
-            'payment_status' => 'paid',
-            'status'         => 'confirmed',
-        ]);
+            return Booking::create([
+                'facility_id'    => $facility->id,
+                'guest_name'     => $data['guest_name'],
+                'guest_phone'    => $data['guest_phone'] ?? 'Offline/Manual',
+                'starts_at'      => $startsAt,
+                'ends_at'        => $endsAt,
+                'duration_hours' => $duration,
+                'total_price'    => $basePrice,
+                'payment_method' => 'bayar_ditempat',
+                'payment_status' => 'paid',
+                'status'         => 'confirmed',
+            ]);
+        });
     }
 
     // ─────────────────────────────────────────────────────────────

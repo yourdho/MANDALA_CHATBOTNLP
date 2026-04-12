@@ -25,7 +25,7 @@ export default function Dashboard({ stats, facilities = [], promos = [] }) {
                 style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Member Terminal</p>
-                    <h1 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                    <h1 className="text-2xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
                         style={{ color: 'var(--text-primary)' }}>
                         Dashboard <span className="text-[#38BDF8]">Arena</span>
                     </h1>
@@ -45,7 +45,7 @@ export default function Dashboard({ stats, facilities = [], promos = [] }) {
                 {/* 1. Welcome Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-                    className="relative rounded-[3.5rem] p-8 md:p-12 overflow-hidden border shadow-3xl group transition-all"
+                    className="relative rounded-[3.5rem] p-6 md:p-12 overflow-hidden border shadow-3xl group transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
                 >
                     <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-[#38BDF8]/5 rounded-full blur-[120px] -mr-96 -mt-96 group-hover:scale-110 transition-transform duration-[4s]" />
@@ -54,7 +54,7 @@ export default function Dashboard({ stats, facilities = [], promos = [] }) {
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-12 items-center text-center md:text-left">
                         <div className="md:col-span-8">
                             <p className="font-black text-[#38BDF8] uppercase text-[10px] tracking-[0.4em] mb-6">Identification Protocol</p>
-                            <h1 className="text-3xl md:text-6xl font-black italic uppercase tracking-tighter leading-none mb-6"
+                            <h1 className="text-2xl md:text-6xl font-black italic uppercase tracking-tighter leading-none mb-6"
                                 style={{ color: 'var(--text-primary)' }}>
                                 Selamat datang, <br className="sm:hidden" /> <span className="text-[#38BDF8] underline decoration-2 md:decoration-4 decoration-[#38BDF8]/20">{user?.name}</span>
                             </h1>
@@ -166,7 +166,7 @@ export default function Dashboard({ stats, facilities = [], promos = [] }) {
                                             <span className="text-2xl font-black italic text-white uppercase tracking-tighter drop-shadow-md">{f.name}</span>
                                         </div>
                                     </div>
-                                    <div className="p-8">
+                                    <div className="p-6 md:p-8">
                                         <div className="flex justify-between items-end gap-4">
                                             <div className="flex-1">
                                                 <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'var(--text-secondary)' }}>Tactical Access</p>
@@ -209,7 +209,7 @@ export default function Dashboard({ stats, facilities = [], promos = [] }) {
                                         <motion.div
                                             key={m.id}
                                             initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
-                                            className="flex flex-col sm:flex-row sm:items-center justify-between p-8 hover:bg-slate-400/5 transition-all group"
+                                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-8 hover:bg-slate-400/5 transition-all group"
                                         >
                                             <div className="flex items-center gap-6 mb-4 sm:mb-0">
                                                 <div className="w-16 h-16 rounded-2xl border flex items-center justify-center font-black italic text-2xl text-[#38BDF8] transition-transform group-hover:scale-110"
@@ -270,7 +270,7 @@ function StatCard({ title, value, unit, color, icon }) {
     return (
         <motion.div
             whileHover={{ y: -5 }}
-            className={`p-8 rounded-[2.5rem] border shadow-2xl relative overflow-hidden group transition-all`}
+            className={`p-6 md:p-8 rounded-[2.5rem] border shadow-2xl relative overflow-hidden group transition-all`}
             style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
         >
             <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] group-hover:scale-150 transition-transform duration-1000 opacity-5`} style={{ backgroundColor: color }} />

@@ -1,4 +1,4 @@
-﻿import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import { Head, router, usePage, Link } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -69,7 +69,7 @@ export default function BookingsIndex({ bookings }) {
                     style={{ borderColor: 'var(--border)' }}>
                     <div>
                         <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Log</p>
-                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                        <h1 className="text-2xl md:text-5xl font-black italic uppercase tracking-tighter leading-none"
                             style={{ color: 'var(--text-primary)' }}>
                             Daftar <span className="text-[#38BDF8]">Booking</span>
                         </h1>
@@ -87,7 +87,7 @@ export default function BookingsIndex({ bookings }) {
                         <motion.div key={s.title}
                             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 border relative overflow-hidden shadow-sm group"
+                            className="rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-6 border relative overflow-hidden shadow-sm group"
                             style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                             <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-20 pointer-events-none ${s.color === 'primary' ? 'bg-[#38BDF8]' : s.color === 'accent' ? 'bg-[#FACC15]' : 'bg-slate-300'}`} />
                             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4"
@@ -204,12 +204,12 @@ export default function BookingsIndex({ bookings }) {
                 {nota && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[80] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 print:hidden"
+                        className="fixed inset-0 z-[150] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 print:hidden"
                         onClick={() => setNota(null)}
                     >
                         <motion.div
                             initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }}
-                            className="rounded-[2rem] w-full max-w-2xl bg-white shadow-2xl overflow-hidden"
+                            className="rounded-[2rem] w-[95%] sm:w-full max-w-2xl bg-white shadow-2xl overflow-hidden"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="max-h-[90vh] overflow-y-auto">
@@ -250,6 +250,12 @@ export default function BookingsIndex({ bookings }) {
                     nav, header, aside { display: none !important; }
                     body { background: white !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                     @page { margin: 0; size: A4 portrait; }
+                    .print-invoice { 
+                        width: 210mm;
+                        height: 297mm;
+                        overflow: hidden;
+                        background: white;
+                    }
                 }
             `}</style>
         </AuthenticatedLayout>
@@ -280,7 +286,14 @@ function InvoiceContent({ nota, paymentLabel }) {
     const paymentMethodLabel = paymentLabel[nota.payment_method]?.label || nota.payment_method?.replace(/_/g, ' ').toUpperCase() || 'Online';
 
     return (
-        <div style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", background: '#fff', color: '#111', minHeight: '100%' }}>
+        <div style={{ 
+            fontFamily: "'Helvetica Neue', Arial, sans-serif", 
+            background: '#fff', 
+            color: '#111', 
+            minHeight: '297mm',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
             {/* Top Strip */}
             <div style={{ padding: '40px 48px 0' }}>
                 {/* Header: Logo + Invoice Number */}

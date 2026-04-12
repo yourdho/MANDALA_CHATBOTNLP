@@ -79,7 +79,7 @@ export default function Show({ booking, wa_link }) {
                         <Link href={route('bookings.index')} className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4 flex items-center gap-2 hover:translate-x-1 transition-transform">
                             ← Kembali ke Riwayat
                         </Link>
-                        <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                        <h1 className="text-2xl md:text-5xl font-black italic uppercase tracking-tighter leading-none"
                             style={{ color: 'var(--text-primary)' }}>
                             Misi <span className="text-[#38BDF8]">{bookingCode}</span>
                         </h1>
@@ -94,7 +94,7 @@ export default function Show({ booking, wa_link }) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-2 space-y-12">
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                            className="rounded-[2.5rem] p-10 border shadow-2xl"
+                            className="rounded-[2.5rem] p-6 md:p-10 border shadow-2xl"
                             style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                             <div className="flex items-start justify-between mb-8">
                                 <div>
@@ -138,7 +138,7 @@ export default function Show({ booking, wa_link }) {
                         {/* 2. AREA OTORISASI PEMBAYARAN (Ganti dari Support HQ) */}
                         {currentBooking.status === 'pending' && (
                             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-                                className="rounded-[2.5rem] p-10 border border-[#38BDF8]/20 bg-gradient-to-br from-[#38BDF8]/10 via-[#38BDF8]/5 to-transparent relative overflow-hidden group">
+                                className="rounded-[2.5rem] p-6 md:p-10 border border-[#38BDF8]/20 bg-gradient-to-br from-[#38BDF8]/10 via-[#38BDF8]/5 to-transparent relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#38BDF8] blur-[150px] opacity-10 pointer-events-none" />
 
                                 <div className="relative z-10">
@@ -154,18 +154,12 @@ export default function Show({ booking, wa_link }) {
                                     {currentBooking.payment_method === 'transfer' && (
                                         <div className="space-y-6">
                                             {(() => {
-                                                const catKey = currentBooking.facility.category.toLowerCase().replace(' ', '_');
-                                                const catBankNumber = system_settings[`cat_${catKey}_bank_number`];
-                                                const catBankName = system_settings[`cat_${catKey}_bank_name`];
-                                                const catBankOwner = system_settings[`cat_${catKey}_bank_owner`];
+                                                const catKey = currentBooking.facility.category?.toLowerCase().replace(' ', '_');
+                                                const catBankNumber = system_settings[`cat_${catKey}_bank_number`] || system_settings['bank_bca_number'];
+                                                const catBankName = system_settings[`cat_${catKey}_bank_name`] || system_settings['bank_bca_name'];
+                                                const catBankOwner = system_settings[`cat_${catKey}_bank_owner`] || 'MANDALA ARENA MGMT';
 
                                                 if (catBankNumber) {
-                                                    const banks = [
-                                                        { name: catBankName || 'BCA', code: '014', logo: '🏦' },
-                                                        { name: 'MANDIRI', code: '008', logo: '🏛️', secondary: true },
-                                                        { name: 'BNI', code: '009', logo: '🛡️', secondary: true }
-                                                    ];
-
                                                     return (
                                                         <div className="grid grid-cols-1 gap-4">
                                                             <div className="p-8 rounded-[2.5rem] bg-slate-950/80 border border-[#38BDF8]/40 hover:border-[#38BDF8] transition-all shadow-2xl relative overflow-hidden group/bank">
@@ -187,7 +181,7 @@ export default function Show({ booking, wa_link }) {
                                                                     </button>
                                                                 </div>
                                                                 <p className="text-4xl font-black italic text-white tracking-[0.1em] mb-2 drop-shadow-lg">{catBankNumber}</p>
-                                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">A.N {catBankOwner || 'MANDALA ARENA'}</p>
+                                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">A.N {catBankOwner}</p>
 
                                                                 <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-3 gap-4">
                                                                     <div className="text-center">
@@ -239,8 +233,8 @@ export default function Show({ booking, wa_link }) {
                                     {currentBooking.payment_method === 'qris' && (
                                         <div className="flex flex-col md:flex-row items-center gap-12 py-4 w-full">
                                             {(() => {
-                                                const catKey = currentBooking.facility.category.toLowerCase().replace(' ', '_');
-                                                const catQris = system_settings[`cat_${catKey}_qris`];
+                                                const catKey = currentBooking.facility.category?.toLowerCase().replace(' ', '_');
+                                                const catQris = system_settings[`cat_${catKey}_qris`] || system_settings['qris_image_url'];
 
                                                 if (!catQris) {
                                                     return (

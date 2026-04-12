@@ -34,16 +34,28 @@ class RewardService  implements RewardServiceInterface
         }
 
         return DB::transaction(function () use ($user, $reward) {
+            // Re-fetch with lock
+            $freshUser = User::where('id', $user->id)->lockForUpdate()->first();
+            $freshReward = Reward::where('id', $reward->id)->lockForUpdate()->first();
+
+            // Re-validate inside lock
+            if ($freshUser->points_balance < $freshReward->points_required) {
+                throw new Exception("Poin tidak mencukupi.");
+            }
+            if ($freshReward->quota <= 0) {
+                throw new Exception("Kuota reward ini telah habis.");
+            }
+
             // Kurangi Poin User
-            $user->decrement('points_balance', $reward->points_required);
+            $freshUser->decrement('points_balance', $freshReward->points_required);
 
             // Kurangi Kuota Reward
-            $reward->decrement('quota', 1);
+            $freshReward->decrement('quota', 1);
 
             // Buat data Voucher User
             return UserReward::create([
-                'user_id' => $user->id,
-                'reward_id' => $reward->id,
+                'user_id' => $freshUser->id,
+                'reward_id' => $freshReward->id,
                 'status' => 'unused',
             ]);
         });
@@ -52,7 +64,7 @@ class RewardService  implements RewardServiceInterface
     /**
      * Menghitung nilai diskon untuk suatu booking.
      */
-    public function calculateDiscount(float $totalPrice, UserReward $voucher): float
+    public function calculateDiscount(float $totalPrice, UserReward $voucher, ?string $facilityCategory = null): float
     {
         $reward = $voucher->reward;
 
@@ -61,7 +73,12 @@ class RewardService  implements RewardServiceInterface
             throw new Exception("Voucher ini sudah digunakan atau expired.");
         }
 
-        // 2. Validasi Expired Date
+        // 2. Validasi Scope Fasilitas
+        if ($facilityCategory && $reward->applicable_category !== 'all' && $reward->applicable_category !== $facilityCategory) {
+            throw new Exception("Voucher ini tidak berlaku untuk fasilitas kategori {$facilityCategory}.");
+        }
+
+        // 3. Validasi Expired Date
         if (Carbon::parse($reward->valid_until)->isPast()) {
             $voucher->update(['status' => 'expired']);
             throw new Exception("Voucher ini telah kedaluwarsa.");

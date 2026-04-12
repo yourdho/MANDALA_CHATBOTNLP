@@ -118,7 +118,7 @@ class BookingController extends Controller
         $payload = ['booking' => $booking->load('facility')];
 
         return auth()->check()
-            ? Inertia::render('Bookings/Success',      $payload)
+            ? Inertia::render('Bookings/Show',      $payload)
             : Inertia::render('Bookings/GuestSuccess', $payload);
     }
 
@@ -171,23 +171,37 @@ class BookingController extends Controller
 
     public function adminConfirm(Booking $booking)
     {
+        // Only grant points if not already paid
+        $alreadyPaid = $booking->payment_status === 'paid';
+        
         $booking->update(['payment_status' => 'paid', 'status' => 'confirmed']);
 
-        if ($booking->user) {
+        if ($booking->user && !$alreadyPaid) {
             $booking->user->addPoints(10);
         }
 
         broadcast(new BookingUpdated($booking));
 
-        return back()->with('success', 'Pesanan berhasil dikonfirmasi secara manual. 10 Poin telah ditambahkan ke saldo User!');
+        return back()->with('success', $alreadyPaid 
+            ? 'Status diperbarui (Sudah pernah dibayar sebelumnya).'
+            : 'Pesanan berhasil dikonfirmasi secara manual. 10 Poin telah ditambahkan ke saldo User!');
     }
 
     public function adminReject(Booking $booking)
     {
         $booking->update(['payment_status' => 'failed', 'status' => 'cancelled']);
+        
+        // Refund voucher if any
+        if ($booking->user_reward_id) {
+            \App\Models\UserReward::where('id', $booking->user_reward_id)->update([
+                'status' => 'unused',
+                'used_at' => null
+            ]);
+        }
+
         broadcast(new BookingUpdated($booking));
 
-        return back()->with('success', 'Pesanan telah dibatalkan sesuai perintah.');
+        return back()->with('success', 'Pesanan telah dibatalkan. Voucher (jika ada) telah dikembalikan ke User.');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -243,9 +257,19 @@ class BookingController extends Controller
                         'paid_at'        => now(),
                     ]);
 
-                    $this->notifier->notifyBookingConflict($booking);
+                    if ($this->notifier) $this->notifier->notifyBookingConflict($booking);
                     \Log::warning("Double Booking Detected for MA-{$booking->id}. Refund triggered.");
+
+                    // Refund voucher if any
+                    if ($booking->user_reward_id) {
+                        \App\Models\UserReward::where('id', $booking->user_reward_id)->update([
+                            'status' => 'unused',
+                            'used_at' => null
+                        ]);
+                    }
                 } else {
+                    $alreadyPaid = $booking->payment_status === 'paid';
+
                     $booking->update([
                         'payment_status' => 'paid',
                         'status'         => Booking::STATUS_CONFIRMED,
@@ -253,7 +277,7 @@ class BookingController extends Controller
                         'paid_at'        => now(),
                     ]);
 
-                    if ($booking->user) {
+                    if ($booking->user && !$alreadyPaid) {
                         $booking->user->addPoints(10);
                     }
 
@@ -265,6 +289,15 @@ class BookingController extends Controller
 
             } elseif (in_array($status, ['expire', 'cancel', 'deny'])) {
                 $booking->update(['payment_status' => 'failed', 'status' => Booking::STATUS_CANCELLED]);
+
+                // Refund voucher if any
+                if ($booking->user_reward_id) {
+                    \App\Models\UserReward::where('id', $booking->user_reward_id)->update([
+                        'status' => 'unused',
+                        'used_at' => null
+                    ]);
+                }
+
                 broadcast(new BookingUpdated($booking));
             }
         });

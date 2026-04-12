@@ -146,7 +146,7 @@ export default function ReportIndex({
                             <div className="w-3 h-3 bg-[#10B981] rounded-full animate-pulse shadow-[0_0_10px_#10B981]" />
                             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#10B981]">Pusat Laporan Keuangan · Live</span>
                         </div>
-                        <h1 className="text-5xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
+                        <h1 className="text-2xl md:text-5xl font-black italic uppercase tracking-tighter" style={{ color: 'var(--text-primary)' }}>
                             Financial <span className="text-[#38BDF8]">Intelligence</span>
                         </h1>
                         <p className="max-w-xl text-xs font-bold uppercase tracking-widest opacity-60 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
@@ -908,13 +908,13 @@ export default function ReportIndex({
 
 function SummaryCard({ label, value, subLabel, trend, isPositive, color, description }) {
     return (
-        <div className="rounded-[2.5rem] p-8 border shadow-xl relative overflow-hidden group transition-all" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
+        <div className="rounded-[2.5rem] p-6 md:p-8 border shadow-xl relative overflow-hidden group transition-all" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
             <div className="absolute top-0 right-0 w-24 h-24 blur-[60px] opacity-10" style={{ backgroundColor: color }} />
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-40" style={{ color: 'var(--text-secondary)' }}>{label}</h4>
             <div className="relative z-10 space-y-1">
                 <p className="text-3xl font-black italic tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>{value}</p>
                 {trend ? (
-                    <div className="flex items-center gap-2 mt-4"><div className={`px - 2 py - 0.5 rounded - md text - [8px] font - black uppercase tracking - widest ${isPositive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'} `}>{isPositive ? '↑' : '↓'} {trend}</div><span className="text-[9px] font-bold opacity-30 uppercase tracking-widest italic">vs Periode Lalu</span></div>
+                    <div className="flex items-center gap-2 mt-4"><div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${isPositive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>{isPositive ? '↑' : '↓'} {trend}</div><span className="text-[9px] font-bold opacity-30 uppercase tracking-widest italic">vs Periode Lalu</span></div>
                 ) : <p className="text-[9px] font-bold opacity-30 uppercase tracking-widest italic mt-4" style={{ color: 'var(--text-secondary)' }}>{subLabel}</p>}
 
                 {description && (

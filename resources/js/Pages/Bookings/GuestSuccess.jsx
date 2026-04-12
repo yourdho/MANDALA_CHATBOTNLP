@@ -1,4 +1,4 @@
-﻿import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 
@@ -20,7 +20,13 @@ export default function GuestSuccess({ booking }) {
     const startStr = startDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     const endStr = endDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-    // Midtrans Logic is handled via global script in app.blade.php
+    // Category-specific fallbacks
+    const categoryKey = booking.facility?.category?.toLowerCase().replace(' ', '_');
+    const bankName = system_settings[`cat_${categoryKey}_bank_name`] || system_settings['bank_bca_name'] || 'BCA';
+    const bankNumber = system_settings[`cat_${categoryKey}_bank_number`] || system_settings['bank_bca_number'] || '8420-9912-22';
+    const bankOwner = system_settings[`cat_${categoryKey}_bank_owner`] || system_settings['bank_bca_name'] || 'MANDALA ARENA MGMT';
+    const qrisImage = system_settings[`cat_${categoryKey}_qris`] || system_settings['qris_image_url'] || 'https://upload.wikimedia.org/wikipedia/commons/a/a2/QRIS_logo.svg';
+
     useEffect(() => {
         if (flash?.snap_token) {
             window.snap.pay(flash.snap_token, {
@@ -115,18 +121,14 @@ export default function GuestSuccess({ booking }) {
                                     <p className="text-[9px] font-black text-[#FACC15] uppercase tracking-widest text-center italic">Instruksi Manual / QRIS</p>
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">BANK BCA</span>
-                                            <span className="text-xs font-black italic text-slate-900 dark:text-white uppercase tracking-tighter">{system_settings.bank_bca_number || '8420-9912-22'}</span>
+                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{bankName.toUpperCase()}</span>
+                                            <span className="text-xs font-black italic text-slate-900 dark:text-white uppercase tracking-tighter">{bankNumber}</span>
                                         </div>
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">BANK MANDIRI</span>
-                                            <span className="text-xs font-black italic text-slate-900 dark:text-white uppercase tracking-tighter">{system_settings.bank_mandiri_number || '121-00-123456-7'}</span>
-                                        </div>
-                                        <p className="text-[8px] font-medium text-slate-500 italic text-center mt-2 uppercase">A.N {system_settings.bank_bca_name || 'MANDALA ARENA MANAGEMENT'}</p>
+                                        <p className="text-[8px] font-medium text-slate-500 italic text-center mt-2 uppercase">A.N {bankOwner}</p>
                                     </div>
                                     <div className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 shadow-sm">
                                         <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
-                                            <img src={system_settings.qris_image_url || "https://upload.wikimedia.org/wikipedia/commons/a/a2/QRIS_logo.svg"} alt="QRIS" className="w-full h-full object-contain" />
+                                            <img src={qrisImage} alt="QRIS" className="w-full h-full object-contain" />
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-[9px] font-black text-slate-900 dark:text-white italic uppercase tracking-tighter">Scan QRIS</p>
@@ -170,4 +172,3 @@ export default function GuestSuccess({ booking }) {
         </>
     );
 }
-

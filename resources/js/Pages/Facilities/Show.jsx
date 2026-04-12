@@ -123,6 +123,13 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
     const rawTotal = basePrice + addonsPrice;
 
     // Voucher selection
+    const applicableVouchers = useMemo(() => {
+        return user_vouchers.filter(v => 
+            v.reward.applicable_category === 'all' || 
+            v.reward.applicable_category === facility.category
+        );
+    }, [user_vouchers, facility.category]);
+
     const [selectedVoucher, setSelectedVoucher] = useState(null);
     const discountAmount = useMemo(() => {
         if (!selectedVoucher) return 0;
@@ -197,7 +204,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
     const images = facility.images ?? [];
 
     const content = (
-        <div className="min-h-screen selection:bg-[#38BDF8] selection:text-white transition-colors duration-300 pb-20 md:pb-24"
+        <div className="min-h-screen selection:bg-[#38BDF8] selection:text-white transition-colors duration-300 pb-32 md:pb-24"
             style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
 
             {!auth?.user && (
@@ -402,7 +409,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                 className={`p-6 rounded-[2rem] border-2 flex items-center gap-4 transition-all cursor-pointer select-none ${selectedAddons.includes(addon.name) ? 'bg-[#FACC15]/10 border-[#FACC15]' : 'bg-slate-400/5'}`}
                                 style={{ borderColor: selectedAddons.includes(addon.name) ? '#FACC15' : 'var(--border)' }}>
                                 <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${selectedAddons.includes(addon.name) ? 'bg-[#FACC15] border-[#FACC15]' : 'border-slate-300 dark:border-slate-700'}`}>
-                                    {selectedAddons.includes(addon.name) && <span className="text-slate-900 font-black text-[10px]">?</span>}
+                                    {selectedAddons.includes(addon.name) && <span className="text-slate-900 font-black text-[10px]">✓</span>}
                                 </div>
                                 <div className="flex-1">
                                     <span className="text-xs font-black italic uppercase tracking-widest block" style={{ color: 'var(--text-primary)' }}>{addon.name}</span>
@@ -428,7 +435,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                 <AnimatePresence>
                     {(selectedSlots.length > 0 || selectedPackage) && (
                         <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
-                            className="mt-12 w-full relative z-[60] bg-slate-950 rounded-[3rem] border-2 border-[#38BDF8]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                            className="mt-12 w-full relative z-[60] bg-slate-950 rounded-[3rem] border-2 border-[#38BDF8]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden mb-safe">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#38BDF8] via-[#FACC15] to-[#38BDF8]" />
                             <div className="max-w-7xl mx-auto px-6 py-4 md:py-8 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full md:w-auto">
@@ -459,7 +466,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                         <span className="text-2xl md:text-5xl font-black italic text-[#FACC15]">RP {totalHarga.toLocaleString('id-ID')}</span>
                                     </div>
                                     <button onClick={openPaymentModal} className="w-full sm:w-auto px-12 py-5 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] md:text-xs uppercase tracking-[0.4em] shadow-xl hover:scale-105 active:scale-95 transition-all italic hover:bg-white group">
-                                        GASS BOOKING <span className="inline-block transition-transform group-hover:translate-x-2">?</span>
+                                        GASS BOOKING <span className="inline-block transition-transform group-hover:translate-x-2">→</span>
                                     </button>
                                 </div>
                             </div>
@@ -474,11 +481,15 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                         className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-6"
                         onClick={() => !processing && setShowPaymentModal(false)}>
                         <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 50 }}
-                            className="bg-slate-900 border-x-2 border-b-2 border-[#38BDF8]/20 rounded-[3rem] w-full max-w-2xl shadow-[0_50px_200px_-50px_rgba(0,0,0,0.8)] overflow-hidden relative"
+                            className="bg-slate-900 border-x-2 border-b-2 border-[#38BDF8]/20 rounded-[3rem] w-[95%] sm:w-full max-w-2xl shadow-[0_50px_200px_-50px_rgba(0,0,0,0.8)] overflow-hidden relative"
                             onClick={e => e.stopPropagation()}>
                             <div className="bg-slate-950 p-8 md:p-10 flex items-center justify-between text-white border-b border-white/5">
                                 <div className="flex items-center gap-3"><div className="w-2 h-8 bg-[#38BDF8] rounded-full" /><div><h3 className="text-2xl font-black italic uppercase tracking-tighter">Otorisasi <span className="text-[#38BDF8]">Main</span></h3><p className="text-[8px] font-black uppercase tracking-[0.3em] opacity-40">Mandala Final Authorization</p></div></div>
-                                <button onClick={() => !processing && setShowPaymentModal(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white text-white hover:text-slate-900 transition-all font-bold">?</button>
+                                <button onClick={() => !processing && setShowPaymentModal(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white/5 hover:bg-white text-white hover:text-slate-900 transition-all font-bold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
                             <div className="p-8 md:p-12 space-y-10 overflow-y-auto max-h-[75vh] no-scrollbar">
                                 {guestErrors.error && (
@@ -520,12 +531,51 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                 })}
                                             </div>
                                         )}
+
+                                        {selectedVoucher && (
+                                            <div className="flex justify-between items-center text-xs text-white py-4 border-b border-white/5 border-dashed">
+                                                <span className="opacity-40 uppercase italic">Potongan Kode Voucher</span>
+                                                <span className="font-black text-red-500 italic uppercase text-right">- RP {discountAmount.toLocaleString('id-ID')}</span>
+                                            </div>
+                                        )}
+
                                         <div className="pt-4 flex justify-between items-end">
                                             <span className="text-[10px] font-black uppercase opacity-30 italic">Total Tagihan</span>
                                             <span className="text-3xl font-black italic text-[#FACC15] drop-shadow-[0_0_15px_rgba(250,204,21,0.3)]">RP {totalHarga.toLocaleString('id-ID')}</span>
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* VOUCHER SELECTOR */}
+                                {applicableVouchers.length > 0 && (
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] italic ml-2 opacity-30 text-white">Kupon & Voucher Tersedia</label>
+                                            <span className="px-3 py-1 bg-[#FACC15] text-slate-900 text-[8px] font-black rounded-full uppercase tracking-widest">{applicableVouchers.length} Unit</span>
+                                        </div>
+                                        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                            {applicableVouchers.map(v => (
+                                                <button key={v.id} onClick={() => setSelectedVoucher(selectedVoucher?.id === v.id ? null : v)}
+                                                    className={`min-w-[200px] p-4 rounded-2xl border-2 transition-all text-left relative overflow-hidden group ${selectedVoucher?.id === v.id ? 'bg-[#FACC15] border-[#FACC15] text-slate-900' : 'bg-white/5 border-white/5 text-white hover:border-white/20'}`}>
+                                                    <div className="relative z-10 flex flex-col gap-1">
+                                                        <span className={`text-[8px] font-black uppercase tracking-widest ${selectedVoucher?.id === v.id ? 'text-slate-900/60' : 'text-[#38BDF8]'}`}>
+                                                            {v.reward.discount_type === 'percentage' ? `${parseFloat(v.reward.discount_value)}% OFF` : 'FIXED CUT'}
+                                                        </span>
+                                                        <span className="text-xs font-black italic uppercase truncate">{v.reward.title}</span>
+                                                        <span className="text-[7px] font-bold opacity-40 uppercase italic mt-1">S/D {new Date(v.reward.valid_until).toLocaleDateString()}</span>
+                                                    </div>
+                                                    {selectedVoucher?.id === v.id && (
+                                                        <div className="absolute top-0 right-0 p-2">
+                                                            <div className="w-4 h-4 rounded-full bg-slate-900 flex items-center justify-center">
+                                                                <span className="text-white text-[8px] font-bold">✓</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="space-y-6">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] italic ml-2 opacity-30 text-white">Otoritas User / Member</label>
                                     {!auth?.user && (
@@ -568,15 +618,15 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                     <div className="space-y-4">
                                                         {(() => {
                                                             const category = facility.category?.toLowerCase().replace(' ', '_');
-                                                            const bankName = usePage().props.system_settings[`cat_${category}_bank_name`];
-                                                            const bankNumber = usePage().props.system_settings[`cat_${category}_bank_number`];
-                                                            const bankOwner = usePage().props.system_settings[`cat_${category}_bank_owner`];
+                                                            const bankName = usePage().props.system_settings[`cat_${category}_bank_name`] || usePage().props.system_settings['bank_bca_name'];
+                                                            const bankNumber = usePage().props.system_settings[`cat_${category}_bank_number`] || usePage().props.system_settings['bank_bca_number'];
+                                                            const bankOwner = usePage().props.system_settings[`cat_${category}_bank_owner`] || 'Mandala Arena Management';
 
                                                             if (bankNumber) {
                                                                 return (
                                                                     <div className="bg-slate-950/40 p-8 rounded-[2rem] border-2 border-[#38BDF8]/20 relative group hover:border-[#38BDF8]/50 transition-all text-center">
                                                                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 bg-[#38BDF8] text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-[#38BDF8]/20">
-                                                                            REKENING RESMI {facility.category.toUpperCase()}
+                                                                            REKENING RESMI {facility.category?.toUpperCase() || 'MANDALA ARENA'}
                                                                         </div>
                                                                         <p className="text-xs font-black italic text-[#FACC15] uppercase mb-2">{bankName}</p>
                                                                         <p className="text-2xl md:text-3xl font-black italic text-white tracking-[0.1em] my-2 select-all">{bankNumber}</p>
@@ -598,7 +648,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
 
                                                 {paymentMethod === 'qris' && (() => {
                                                     const category = facility.category?.toLowerCase().replace(' ', '_');
-                                                    const qrisImage = usePage().props.system_settings[`cat_${category}_qris`];
+                                                    const qrisImage = usePage().props.system_settings[`cat_${category}_qris`] || usePage().props.system_settings['qris_image_url'];
 
                                                     if (qrisImage) {
                                                         return (
@@ -608,7 +658,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                                     <div className="absolute inset-0 bg-slate-900/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                                                                 </div>
                                                                 <div className="text-center">
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#FACC15] italic block mb-2 underline underline-offset-4 decoration-[#FACC15]/30">SCAN QRIS {facility.category.toUpperCase()}</span>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#FACC15] italic block mb-2 underline underline-offset-4 decoration-[#FACC15]/30">SCAN QRIS {facility.category?.toUpperCase() || ''}</span>
                                                                     <p className="text-[8px] font-bold opacity-40 text-white italic uppercase tracking-tighter font-black">Satu QRIS untuk semua channel pembayaran digital.</p>
                                                                 </div>
                                                             </div>
@@ -625,7 +675,9 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                 {paymentMethod === 'cod' && (
                                                     <div className="py-6 text-center space-y-4">
                                                         <div className="w-16 h-16 bg-[#38BDF8]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#38BDF8]/20 animate-pulse">
-                                                            <span className="text-2xl">??</span>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-[#38BDF8]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                            </svg>
                                                         </div>
                                                         <h5 className="text-xs font-black italic uppercase tracking-widest text-white">BAYAR TUNAI DI LOKASI</h5>
                                                         <p className="text-[9px] font-bold opacity-40 text-white italic leading-relaxed uppercase max-w-[300px] mx-auto">

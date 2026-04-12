@@ -1,8 +1,9 @@
 {
+    "name": "mandala-arena",
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --host",
         "build": "vite build"
     },
     "devDependencies": {

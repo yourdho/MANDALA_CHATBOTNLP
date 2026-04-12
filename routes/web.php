@@ -110,7 +110,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rewards Management (Admin)
         Route::get('rewards-manager', [\App\Http\Controllers\Admin\RewardController::class, 'index'])->name('rewards.index');
         Route::post('rewards-manager', [\App\Http\Controllers\Admin\RewardController::class, 'store'])->name('rewards.store');
-        Route::patch('rewards-manager/{id}', [\App\Http\Controllers\Admin\RewardController::class, 'update'])->name('rewards.update');
+        Route::post('rewards-manager/{id}', [\App\Http\Controllers\Admin\RewardController::class, 'update'])->name('rewards.update');
         Route::delete('rewards-manager/{id}', [\App\Http\Controllers\Admin\RewardController::class, 'destroy'])->name('rewards.destroy');
 
         // Facilities CRUD

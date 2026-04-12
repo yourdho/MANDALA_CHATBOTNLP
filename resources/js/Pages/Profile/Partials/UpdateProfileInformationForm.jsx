@@ -46,7 +46,7 @@ export default function UpdateProfileInformation({
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             required
-                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all"
+                            className="w-full border-2 rounded-2xl px-6 py-4 md:py-5 font-black italic uppercase tracking-[0.2em] text-xs md:text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all"
                             style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                         />
                         {errors.name && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.name}</p>}
@@ -59,7 +59,7 @@ export default function UpdateProfileInformation({
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             required
-                            className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all"
+                            className="w-full border-2 rounded-2xl px-6 py-4 md:py-5 font-black italic uppercase tracking-[0.2em] text-xs md:text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all"
                             style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                         />
                         {errors.email && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.email}</p>}
@@ -73,7 +73,7 @@ export default function UpdateProfileInformation({
                         value={data.phone}
                         onChange={(e) => setData('phone', e.target.value)}
                         placeholder="CONTOH: 08123456789"
-                        className="w-full border-2 rounded-2xl px-6 py-5 font-black italic uppercase tracking-[0.2em] text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all placeholder:opacity-20"
+                        className="w-full border-2 rounded-2xl px-6 py-4 md:py-5 font-black italic uppercase tracking-[0.2em] text-xs md:text-sm outline-none focus:ring-2 focus:ring-[#38BDF8]/30 transition-all placeholder:opacity-20"
                         style={{ background: 'var(--bg-base)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                     />
                     {errors.phone && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest ml-4 italic">{errors.phone}</p>}
@@ -103,7 +103,7 @@ export default function UpdateProfileInformation({
                     <button
                         type="submit"
                         disabled={processing}
-                        className="px-12 py-5 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-[0.4em] shadow-xl shadow-[#38BDF8]/20 hover:scale-[1.05] transition-all italic disabled:opacity-50"
+                        className="w-full md:w-auto px-8 md:px-12 py-4 md:py-5 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-[0.4em] shadow-xl shadow-[#38BDF8]/20 hover:scale-[1.05] transition-all italic disabled:opacity-50"
                     >
                         PERBARUI PROFIL
                     </button>

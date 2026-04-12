@@ -1,4 +1,4 @@
-﻿import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -54,7 +54,7 @@ export default function Edit({ mustVerifyEmail, status, pointsData }) {
                     style={{ borderColor: 'var(--border)' }}>
                     <div>
                         <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Terminal</p>
-                        <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none"
+                        <h1 className="text-2xl md:text-5xl font-black italic uppercase tracking-tighter leading-none"
                             style={{ color: 'var(--text-primary)' }}>
                             Member <span className="text-[#38BDF8]">Profile</span>
                         </h1>
@@ -68,7 +68,7 @@ export default function Edit({ mustVerifyEmail, status, pointsData }) {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-[3rem] p-10 shadow-2xl border transition-all"
+                    className="relative overflow-hidden rounded-[3rem] p-6 md:p-10 shadow-2xl border transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
                 >
                     <div className="absolute top-0 right-0 w-80 h-80 bg-[#38BDF8]/5 rounded-full blur-[100px] -mr-32 -mt-32" />
@@ -103,7 +103,7 @@ export default function Edit({ mustVerifyEmail, status, pointsData }) {
                                 )}
                             </div>
                             <div className="flex items-baseline gap-4">
-                                <span className="text-7xl md:text-8xl font-black italic tracking-tighter text-[#38BDF8]">
+                                <span className="text-5xl md:text-8xl font-black italic tracking-tighter text-[#38BDF8]">
                                     {livePoints.toLocaleString()}
                                 </span>
                                 <span className="text-sm font-black uppercase tracking-[0.3em]" style={{ color: 'var(--text-secondary)' }}>PTS</span>
@@ -133,11 +133,11 @@ export default function Edit({ mustVerifyEmail, status, pointsData }) {
 
                 {/* Forms Section */}
                 <div className="space-y-12">
-                    <div className="rounded-[3rem] p-10 border shadow-2xl"
+                    <div className="rounded-[3rem] p-6 md:p-10 border shadow-2xl"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                         <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} />
                     </div>
-                    <div className="rounded-[3rem] p-10 border shadow-2xl"
+                    <div className="rounded-[3rem] p-6 md:p-10 border shadow-2xl"
                         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                         <UpdatePasswordForm />
                     </div>

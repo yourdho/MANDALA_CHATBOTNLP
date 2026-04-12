@@ -1,4 +1,4 @@
-﻿import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
 import { Head, router, usePage, useForm } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -107,12 +107,12 @@ export default function BookingAdminIndex({ bookings, facilities = [] }) {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-12 mb-12" style={{ borderColor: 'var(--border)' }}>
                 <div>
                     <p className="text-[10px] font-black text-[#38BDF8] uppercase tracking-[0.3em] mb-4">Tactical Registry</p>
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>
+                    <h1 className="text-2xl sm:text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-none" style={{ color: 'var(--text-primary)' }}>
                         Daftar <span className="text-[#38BDF8]">Booking</span>
                     </h1>
                 </div>
                 <div className="flex flex-col md:flex-row items-center gap-4">
-                    <button onClick={() => setShowManualModal(true)} className="px-8 py-4 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#38BDF8]/20 hover:scale-105 transition-all italic">
+                    <button onClick={() => setShowManualModal(true)} className="w-full md:w-auto min-h-[44px] px-8 py-3 bg-[#38BDF8] text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#38BDF8]/20 hover:scale-105 transition-all italic">
                         + Input Booking Offline
                     </button>
                     <div className="flex items-center gap-3 px-5 py-2 rounded-full border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
@@ -283,7 +283,7 @@ export default function BookingAdminIndex({ bookings, facilities = [] }) {
                         className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-6"
                         onClick={() => setShowManualModal(false)}>
                         <motion.div initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 50 }}
-                            className="bg-slate-900 border-2 border-[#38BDF8]/20 rounded-[3rem] w-full max-w-xl shadow-2xl p-8 md:p-12 overflow-y-auto max-h-[90vh] no-scrollbar"
+                            className="bg-slate-900 border-2 border-[#38BDF8]/20 rounded-[3rem] w-[95%] md:w-full max-w-xl shadow-2xl p-6 md:p-12 overflow-y-auto max-h-[90vh] no-scrollbar"
                             onClick={e => e.stopPropagation()}>
                             <div className="flex items-center justify-between mb-10">
                                 <div>
@@ -313,13 +313,13 @@ export default function BookingAdminIndex({ bookings, facilities = [] }) {
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-[#38BDF8] uppercase tracking-widest opacity-60 ml-2">Nama Penyewa</label>
                                             <input type="text" value={manualForm.data.guest_name} onChange={e => manualForm.setData('guest_name', e.target.value)} placeholder="NAMA LENGKAP..."
-                                                className="w-full bg-slate-800 border-2 border-white/5 rounded-2xl px-6 py-4 font-black italic uppercase text-xs text-white focus:border-[#38BDF8] outline-none transition-all" />
+                                                className="w-full min-h-[44px] bg-slate-800 border-2 border-white/5 rounded-2xl px-6 py-3 font-black italic uppercase text-xs text-white focus:border-[#38BDF8] outline-none transition-all" />
                                             {manualForm.errors.guest_name && <p className="text-red-500 text-[9px] font-bold uppercase mt-1 ml-2">{manualForm.errors.guest_name}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-[#38BDF8] uppercase tracking-widest opacity-60 ml-2">Kontak (WA)</label>
                                             <input type="tel" value={manualForm.data.guest_phone} onChange={e => manualForm.setData('guest_phone', e.target.value)} placeholder="08XXX..."
-                                                className="w-full bg-slate-800 border-2 border-white/5 rounded-2xl px-6 py-4 font-black italic uppercase text-xs text-white focus:border-[#38BDF8] outline-none transition-all" />
+                                                className="w-full min-h-[44px] bg-slate-800 border-2 border-white/5 rounded-2xl px-6 py-3 font-black italic uppercase text-xs text-white focus:border-[#38BDF8] outline-none transition-all" />
                                             {manualForm.errors.guest_phone && <p className="text-red-500 text-[9px] font-bold uppercase mt-1 ml-2">{manualForm.errors.guest_phone}</p>}
                                         </div>
                                     </div>
