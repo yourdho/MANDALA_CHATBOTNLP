@@ -92,7 +92,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                     <section className="relative pt-20 pb-12 md:pt-32 lg:pt-56 lg:pb-40 px-6 lg:px-20 overflow-hidden"
                         style={{ background: 'var(--bg-base)' }}>
                         <div className="absolute inset-0 w-full h-full opacity-30 pointer-events-none">
-                            <video src="/aset_foto/vid all fasilitas.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-110 grayscale brightness-100" />
+                            <video src="/aset_foto/vid-all-fasilitas.mp4" autoPlay loop muted playsInline className="w-full h-full object-cover scale-110 grayscale brightness-100" />
                             <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)] via-transparent to-transparent" />
                             <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-base)] via-transparent to-transparent opacity-60" />
                         </div>
