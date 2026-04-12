@@ -211,7 +211,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                 <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 lg:px-20 h-24 border-b transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                     <Link href="/" className="flex items-center gap-1.5">
-                        <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
+                        <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
                         <span className="text-2xl font-light tracking-tight italic" style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>
                             Mandala <span className="text-[#38BDF8]">Arena</span>
                         </span>
@@ -704,6 +704,6 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
         </div>
     );
 
-    if (auth?.user) return <AuthenticatedLayout showChatbot={true}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
-    return <AuthenticatedLayout showSidebar={false} showChatbot={true}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
+    if (auth?.user) return <AuthenticatedLayout showChatbot={false}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
+    return <AuthenticatedLayout showSidebar={false} showChatbot={false}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
 }

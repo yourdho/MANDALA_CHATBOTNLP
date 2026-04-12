@@ -8,6 +8,7 @@ use App\Models\Facility;
 use App\Services\BookingService;
 use App\Services\MidtransService;
 use App\Services\NotificationService;
+use App\Contracts\Services\RewardServiceInterface;
 use App\Events\BookingUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -20,7 +21,8 @@ class BookingController extends Controller
     public function __construct(
         protected BookingService      $bookingService,
         protected MidtransService     $midtrans,
-        protected NotificationService $notifier
+        protected NotificationService $notifier,
+        protected RewardServiceInterface $rewardService
     ) {}
 
     // ─────────────────────────────────────────────────────────────
@@ -113,6 +115,17 @@ class BookingController extends Controller
         ]);
     }
 
+    public function invoice(Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('invoice.print', [
+            'booking' => $booking->load(['facility', 'user']),
+        ]);
+    }
+
     public function success(Booking $booking)
     {
         $payload = ['booking' => $booking->load('facility')];
@@ -192,11 +205,8 @@ class BookingController extends Controller
         $booking->update(['payment_status' => 'failed', 'status' => 'cancelled']);
         
         // Refund voucher if any
-        if ($booking->user_reward_id) {
-            \App\Models\UserReward::where('id', $booking->user_reward_id)->update([
-                'status' => 'unused',
-                'used_at' => null
-            ]);
+        if ($booking->user_reward_id && $booking->load('userReward')) {
+            $this->rewardService->restoreVoucher($booking->userReward);
         }
 
         broadcast(new BookingUpdated($booking));
@@ -261,11 +271,8 @@ class BookingController extends Controller
                     \Log::warning("Double Booking Detected for MA-{$booking->id}. Refund triggered.");
 
                     // Refund voucher if any
-                    if ($booking->user_reward_id) {
-                        \App\Models\UserReward::where('id', $booking->user_reward_id)->update([
-                            'status' => 'unused',
-                            'used_at' => null
-                        ]);
+                    if ($booking->user_reward_id && $booking->load('userReward')) {
+                        $this->rewardService->restoreVoucher($booking->userReward);
                     }
                 } else {
                     $alreadyPaid = $booking->payment_status === 'paid';
@@ -291,11 +298,9 @@ class BookingController extends Controller
                 $booking->update(['payment_status' => 'failed', 'status' => Booking::STATUS_CANCELLED]);
 
                 // Refund voucher if any
-                if ($booking->user_reward_id) {
-                    \App\Models\UserReward::where('id', $booking->user_reward_id)->update([
-                        'status' => 'unused',
-                        'used_at' => null
-                    ]);
+                // Refund voucher if any
+                if ($booking->user_reward_id && $booking->load('userReward')) {
+                    $this->rewardService->restoreVoucher($booking->userReward);
                 }
 
                 broadcast(new BookingUpdated($booking));

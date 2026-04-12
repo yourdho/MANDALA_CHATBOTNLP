@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Contracts\Repositories\BookingRepositoryInterface;
+
 use App\Models\Booking;
 use Illuminate\Database\Eloquent\Collection;
 

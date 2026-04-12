@@ -6,6 +6,7 @@ use App\Contracts\Services\MidtransServiceInterface;
 
 use Midtrans\Config;
 use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class MidtransService  implements MidtransServiceInterface
 {
@@ -92,7 +93,7 @@ class MidtransService  implements MidtransServiceInterface
         ];
 
         try {
-            return \Midtrans\Transaction::refund($order_id, $params);
+            return Transaction::refund($order_id, $params);
         } catch (\Exception $e) {
             \Log::error('Midtrans Refund Error (' . $order_id . '): ' . $e->getMessage());
             return null;

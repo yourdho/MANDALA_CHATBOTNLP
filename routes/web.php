@@ -5,6 +5,15 @@ use App\Http\Controllers\Web\FacilityController;
 use App\Http\Controllers\Web\BookingController;
 use App\Http\Controllers\Web\ChatbotController;
 use App\Http\Controllers\Web\MatchController;
+use App\Http\Controllers\Web\BlogController;
+use App\Http\Controllers\Web\PaymentController;
+use App\Http\Controllers\Web\UserRewardController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\RewardController as AdminRewardController;
+use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogPostController;
+use App\Http\Controllers\Admin\PricingController;
+use App\Http\Controllers\Admin\ApplicationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,11 +26,11 @@ Route::get('/facilities', [FacilityController::class, 'indexPublic'])->name('fac
 Route::get('/facility/{facility}', [FacilityController::class, 'show'])->name('facility.show');
 
 // ── Blog (Frontend) ──────────────────────────────────────────
-Route::get('/blog', [\App\Http\Controllers\Web\BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // ── Payment & Callback ───────────────────────────────────────
-Route::post('/payment/create/{booking_id}', [\App\Http\Controllers\Web\PaymentController::class, 'createTransaction'])->name('payment.create');
+Route::post('/payment/create/{booking_id}', [PaymentController::class, 'createTransaction'])->name('payment.create');
 Route::post('/payment/callback', [BookingController::class, 'callback'])->name('payment.callback');
 
 Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
@@ -33,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard (Unified with simple role split)
     Route::get('/dashboard', function () {
         if (auth()->user()->role === 'admin') {
-            return (new \App\Http\Controllers\Admin\AdminDashboardController())->index();
+            return (new AdminDashboardController())->index();
         }
 
         // Standard User Tactical Recap
@@ -71,11 +80,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Booking Process
     Route::get('/bookings', [BookingController::class, 'history'])->name('bookings.index');
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::get('/bookings/{booking}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
     Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 
     // ── User Loyalty (Redeem) ───────────────────────────────────
-    Route::get('/reward-market', [\App\Http\Controllers\Web\UserRewardController::class, 'index'])->name('user.rewards.index');
-    Route::post('/reward-redeem', [\App\Http\Controllers\Web\UserRewardController::class, 'redeem'])->name('user.rewards.redeem');
+    Route::get('/reward-market', [UserRewardController::class, 'index'])->name('user.rewards.index');
+    Route::post('/reward-redeem', [UserRewardController::class, 'redeem'])->name('user.rewards.redeem');
 
     // ── Matchmaking (Cari Lawan) ─────────────────────────────────
     Route::get('/matchmaking', function () {
@@ -108,10 +118,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Admin Area ───────────────────────────────────────────
     Route::middleware('can:manage-system')->prefix('admin')->name('admin.')->group(function () {
         // Rewards Management (Admin)
-        Route::get('rewards-manager', [\App\Http\Controllers\Admin\RewardController::class, 'index'])->name('rewards.index');
-        Route::post('rewards-manager', [\App\Http\Controllers\Admin\RewardController::class, 'store'])->name('rewards.store');
-        Route::post('rewards-manager/{id}', [\App\Http\Controllers\Admin\RewardController::class, 'update'])->name('rewards.update');
-        Route::delete('rewards-manager/{id}', [\App\Http\Controllers\Admin\RewardController::class, 'destroy'])->name('rewards.destroy');
+        Route::get('rewards-manager', [AdminRewardController::class, 'index'])->name('rewards.index');
+        Route::post('rewards-manager', [AdminRewardController::class, 'store'])->name('rewards.store');
+        Route::post('rewards-manager/{id}', [AdminRewardController::class, 'update'])->name('rewards.update');
+        Route::delete('rewards-manager/{id}', [AdminRewardController::class, 'destroy'])->name('rewards.destroy');
 
         // Facilities CRUD
         Route::get('/facilities', [FacilityController::class, 'adminIndex'])->name('facilities.index');
@@ -122,17 +132,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy'])->name('facilities.destroy');
 
         // Blog Management
-        Route::get('/blog-categories', [\App\Http\Controllers\Admin\BlogCategoryController::class, 'index'])->name('blog_categories.index');
-        Route::post('/blog-categories', [\App\Http\Controllers\Admin\BlogCategoryController::class, 'store'])->name('blog_categories.store');
-        Route::patch('/blog-categories/{category}', [\App\Http\Controllers\Admin\BlogCategoryController::class, 'update'])->name('blog_categories.update');
-        Route::delete('/blog-categories/{category}', [\App\Http\Controllers\Admin\BlogCategoryController::class, 'destroy'])->name('blog_categories.destroy');
+        Route::get('/blog-categories', [BlogCategoryController::class, 'index'])->name('blog_categories.index');
+        Route::post('/blog-categories', [BlogCategoryController::class, 'store'])->name('blog_categories.store');
+        Route::patch('/blog-categories/{category}', [BlogCategoryController::class, 'update'])->name('blog_categories.update');
+        Route::delete('/blog-categories/{category}', [BlogCategoryController::class, 'destroy'])->name('blog_categories.destroy');
 
-        Route::get('/blog', [\App\Http\Controllers\Admin\BlogPostController::class, 'index'])->name('blog.index');
-        Route::get('/blog/create', [\App\Http\Controllers\Admin\BlogPostController::class, 'create'])->name('blog.create');
-        Route::post('/blog', [\App\Http\Controllers\Admin\BlogPostController::class, 'store'])->name('blog.store');
-        Route::get('/blog/{blog}/edit', [\App\Http\Controllers\Admin\BlogPostController::class, 'edit'])->name('blog.edit');
-        Route::patch('/blog/{blog}', [\App\Http\Controllers\Admin\BlogPostController::class, 'update'])->name('blog.update');
-        Route::delete('/blog/{blog}', [\App\Http\Controllers\Admin\BlogPostController::class, 'destroy'])->name('blog.destroy');
+        Route::get('/blog', [BlogPostController::class, 'index'])->name('blog.index');
+        Route::get('/blog/create', [BlogPostController::class, 'create'])->name('blog.create');
+        Route::post('/blog', [BlogPostController::class, 'store'])->name('blog.store');
+        Route::get('/blog/{blog}/edit', [BlogPostController::class, 'edit'])->name('blog.edit');
+        Route::patch('/blog/{blog}', [BlogPostController::class, 'update'])->name('blog.update');
+        Route::delete('/blog/{blog}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
 
         Route::get('/bookings', [BookingController::class, 'adminIndex'])->name('bookings.manage');
         Route::get('/bookings/availability', [BookingController::class, 'getAvailability'])->name('bookings.availability');
@@ -147,12 +157,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chatbot', [ChatbotController::class, 'adminIndex'])->name('chatbot.index');
 
         // Dynamic Pricing Schedule & Addons
-        Route::get('/pricing', [\App\Http\Controllers\Admin\PricingController::class, 'index'])->name('pricing.index');
-        Route::post('/pricing/schedules', [\App\Http\Controllers\Admin\PricingController::class, 'storeSchedule'])->name('pricing.schedules.store');
-        Route::delete('/pricing/schedules/{id}', [\App\Http\Controllers\Admin\PricingController::class, 'destroySchedule'])->name('pricing.schedules.destroy');
-        Route::post('/pricing/items', [\App\Http\Controllers\Admin\PricingController::class, 'storeItem'])->name('pricing.items.store');
-        Route::delete('/pricing/items/{id}', [\App\Http\Controllers\Admin\PricingController::class, 'destroyItem'])->name('pricing.items.destroy');
-        Route::post('/settings', [\App\Http\Controllers\Admin\PricingController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/pricing', [PricingController::class, 'index'])->name('pricing.index');
+        Route::post('/pricing/schedules', [PricingController::class, 'storeSchedule'])->name('pricing.schedules.store');
+        Route::delete('/pricing/schedules/{id}', [PricingController::class, 'destroySchedule'])->name('pricing.schedules.destroy');
+        Route::post('/pricing/items', [PricingController::class, 'storeItem'])->name('pricing.items.store');
+        Route::delete('/pricing/items/{id}', [PricingController::class, 'destroyItem'])->name('pricing.items.destroy');
+        Route::post('/settings', [PricingController::class, 'updateSettings'])->name('settings.update');
 
         // User Management
         Route::get('/users', [ProfileController::class, 'adminIndex'])->name('users.index');
@@ -160,10 +170,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users/{id}', [ProfileController::class, 'show'])->name('users.show');
 
         // Mitra Applications Management
-        Route::get('/applications', [\App\Http\Controllers\Admin\ApplicationController::class, 'index'])->name('applications.index');
-        Route::post('/applications/{application}/approve', [\App\Http\Controllers\Admin\ApplicationController::class, 'approve'])->name('applications.approve');
-        Route::post('/applications/{application}/reject', [\App\Http\Controllers\Admin\ApplicationController::class, 'reject'])->name('applications.reject');
-        Route::post('/applications/{application}/schedule', [\App\Http\Controllers\Admin\ApplicationController::class, 'schedule'])->name('applications.schedule');
+        Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+        Route::post('/applications/{application}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
+        Route::post('/applications/{application}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
+        Route::post('/applications/{application}/schedule', [ApplicationController::class, 'schedule'])->name('applications.schedule');
     });
 
     // Profile

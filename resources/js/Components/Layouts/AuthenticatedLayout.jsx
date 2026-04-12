@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+﻿import { Head, Link, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import ThemeToggle from '@/Components/UI/ThemeToggle';
@@ -88,7 +88,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
             <div className="px-6 py-8 border-b flex-shrink-0 flex items-center justify-between"
                 style={{ borderColor: 'var(--border)' }}>
                 <Link href="/" className="flex items-center gap-1.5 group" onClick={closeSidebar}>
-                    <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
+                    <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
                     <div className="flex flex-col">
                         <span className="text-lg font-light tracking-tight italic dark:text-white leading-none"
                             style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
@@ -141,7 +141,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                 <SideNavItem isExternal={true} href="https://mandalaarenavt.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio" active={false} icon={Icons.location}>
                     <div className="flex flex-col gap-1">
                         <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>VR Tour Lokasi</span>
-                        <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Lihat kondisi arena 360�</span>
+                        <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Lihat kondisi arena 360°</span>
                     </div>
                 </SideNavItem>
 
@@ -314,7 +314,7 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                 <header className="lg:hidden fixed inset-x-0 top-0 z-50 h-16 flex items-center justify-between px-6 border-b transition-all backdrop-blur-md"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                     <Link href="/" className="flex items-center gap-1.5">
-                        <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-8 w-auto object-contain drop-shadow-md" />
+                        <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-8 w-auto object-contain drop-shadow-md" />
                         <div className="flex flex-col">
                             <span className="text-sm font-light tracking-tight italic dark:text-white leading-none"
                                 style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>

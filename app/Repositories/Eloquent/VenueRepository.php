@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Contracts\Repositories\VenueRepositoryInterface;
+
 use App\Models\Venue;
 use Illuminate\Database\Eloquent\Collection;
 

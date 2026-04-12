@@ -2,27 +2,29 @@
 
 namespace App\Contracts\Services;
 
+use App\Models\Booking;
+
 interface NotificationServiceInterface
 {
     /**
      * Notify a customer that their booking was confirmed successfully.
      *
-     * @param \App\Models\Booking $booking
+     * @param Booking $booking
      */
-    public function notifyBookingSuccess(\App\Models\Booking $booking): void;
+    public function notifyBookingSuccess(Booking $booking): void;
 
     /**
      * Notify a customer that their booking was cancelled due to a slot conflict.
      *
-     * @param \App\Models\Booking $booking
+     * @param Booking $booking
      */
-    public function notifyBookingConflict(\App\Models\Booking $booking): void;
+    public function notifyBookingConflict(Booking $booking): void;
 
     /**
      * Generate a WhatsApp admin contact link for a given booking.
      *
-     * @param \App\Models\Booking $booking
+     * @param Booking $booking
      * @return string
      */
-    public function generateAdminWhatsAppLink(\App\Models\Booking $booking): string;
+    public function generateAdminWhatsAppLink(Booking $booking): string;
 }

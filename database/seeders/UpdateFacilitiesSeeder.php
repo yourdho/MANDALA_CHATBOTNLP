@@ -13,7 +13,7 @@ class UpdateFacilitiesSeeder extends Seeder
     public function run(): void
     {
         $minsokImages = ['/aset_foto/minsok/minisoccervid.mp4', '/images/facilities/minsok/m1.webp', '/images/facilities/minsok/m2.jpeg', '/images/facilities/minsok/m3.webp'];
-        $padelImages = ['/images/facilities/padel/1.we are padel.jpg', '/images/facilities/padel/b1.webp', '/images/facilities/padel/b2.webp', '/images/facilities/padel/b3.webp', '/images/facilities/padel/b4.jpg', '/images/facilities/padel/b5.jpg', '/images/facilities/padel/b6.webp'];
+        $padelImages = ['/images/facilities/padel/1-we-are-padel.jpg', '/images/facilities/padel/b1.webp', '/images/facilities/padel/b2.webp', '/images/facilities/padel/b3.webp', '/images/facilities/padel/b4.jpg', '/images/facilities/padel/b5.jpg', '/images/facilities/padel/b6.webp'];
         $basketImages = ['/images/facilities/basket/b1.jpg', '/images/facilities/basket/b2.jpg', '/images/facilities/basket/b3.jpg', '/images/facilities/basket/b4.jpg', '/images/facilities/basket/b5.jpg'];
         $pilatesImages = ['/images/facilities/pilates/l1.mp4', '/images/facilities/pilates/l2.mp4', '/images/facilities/pilates/l3.webp'];
 

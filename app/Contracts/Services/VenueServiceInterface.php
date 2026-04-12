@@ -2,6 +2,9 @@
 
 namespace App\Contracts\Services;
 
+use App\Models\Venue;
+use Illuminate\Support\Collection;
+
 interface VenueServiceInterface
 {
     public function getAllVenues(): Collection;

@@ -48,7 +48,7 @@ export default function Show({ booking, wa_link }) {
 
     return (
         <AuthenticatedLayout>
-            <Head title={`Misi ${bookingCode} | Mandala Arena`} />
+            <Head title={`Booking ${bookingCode} | Mandala Arena`} />
 
             {/* OVERLAY SUKSES OTOMATIS */}
             <AnimatePresence>
@@ -61,8 +61,8 @@ export default function Show({ booking, wa_link }) {
                             <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(16,185,129,0.5)]">
                                 <motion.span initial={{ scale: 0 }} animate={{ scale: 1.5 }} transition={{ type: 'spring', delay: 0.2 }} className="text-4xl">✅</motion.span>
                             </div>
-                            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-4">Misi <span className="text-emerald-400">Berhasil!</span></h2>
-                            <p className="text-sm font-medium text-slate-400 mb-8 px-4 italic leading-relaxed">Otorisasi tempur telah divalidasi. Jadwal Anda sudah diamankan di sistem pusat Mandala Arena.</p>
+                            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-4">Booking <span className="text-emerald-400">Berhasil!</span></h2>
+                            <p className="text-sm font-medium text-slate-400 mb-8 px-4 italic leading-relaxed">Pembayaran Anda telah berhasil divalidasi. Jadwal olahraga Anda sudah aman di sistem Mandala Arena.</p>
                             <div className="space-y-3">
                                 <Link href={route('dashboard')} className="block w-full py-5 bg-white text-slate-900 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-emerald-400 transition-all">PANEL Dashboard →</Link>
                                 <button onClick={() => setCurrentBooking({ ...currentBooking, status: 'DONE_SHOWN' })} className="text-[9px] font-black uppercase text-slate-500 tracking-widest hover:text-white transition-colors">Tutup & Lihat Detail</button>
@@ -81,7 +81,7 @@ export default function Show({ booking, wa_link }) {
                         </Link>
                         <h1 className="text-2xl md:text-5xl font-black italic uppercase tracking-tighter leading-none"
                             style={{ color: 'var(--text-primary)' }}>
-                            Misi <span className="text-[#38BDF8]">{bookingCode}</span>
+                            Booking <span className="text-[#38BDF8]">{bookingCode}</span>
                         </h1>
                     </div>
                     <div className="md:text-right">
@@ -110,7 +110,7 @@ export default function Show({ booking, wa_link }) {
 
                             <div className="grid grid-cols-2 gap-8">
                                 <div>
-                                    <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-secondary)' }}>Tanggal Misi</p>
+                                    <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-secondary)' }}>Tanggal Main</p>
                                     <p className="font-black italic text-lg uppercase" style={{ color: 'var(--text-primary)' }}>
                                         {format(new Date(currentBooking.starts_at), 'EEEE, dd MMM yyyy', { locale: id })}
                                     </p>
@@ -279,7 +279,7 @@ export default function Show({ booking, wa_link }) {
                                             <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-xl shadow-emerald-500/5">🤝</div>
                                             <div className="space-y-2">
                                                 <h5 className="text-xl font-black italic uppercase tracking-tighter text-white">Konfirmasi Langsung Di Lokasi</h5>
-                                                <p className="text-xs font-medium text-slate-400 max-w-sm mx-auto leading-relaxed uppercase">Misi Anda telah divalidasi. Harap segera datang ke lokasi atau lapor ke Staff untuk aktivasi jadwal tempur Anda.</p>
+                                                <p className="text-xs font-medium text-slate-400 max-w-sm mx-auto leading-relaxed uppercase">Pesanan Anda telah divalidasi. Harap segera datang ke lokasi atau lapor ke Staff untuk aktivasi jadwal olahraga Anda.</p>
                                             </div>
                                         </div>
                                     )}
@@ -298,8 +298,8 @@ export default function Show({ booking, wa_link }) {
                         {currentBooking.status === 'completed' && (
                             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                                 className="rounded-[2.5rem] p-10 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                                <h4 className="text-xl font-black italic uppercase tracking-tighter mb-4 text-emerald-400">MISI SELESAI</h4>
-                                <p className="text-xs font-medium leading-relaxed mb-8 max-w-md text-slate-400 italic">Terima kasih telah bertanding di Mandala Arena. Rekaman data misi Anda telah diarsipkan secara permanen.</p>
+                                <h4 className="text-xl font-black italic uppercase tracking-tighter mb-4 text-emerald-400">BOOKING SELESAI</h4>
+                                <p className="text-xs font-medium leading-relaxed mb-8 max-w-md text-slate-400 italic">Terima kasih telah berolahraga di Mandala Arena. Seluruh data pesanan Anda telah tersimpan dengan aman.</p>
                             </motion.div>
                         )}
                     </div>
@@ -315,7 +315,7 @@ export default function Show({ booking, wa_link }) {
                                     <span>Rp {parseInt(currentBooking.total_price).toLocaleString('id-ID')}</span>
                                 </div>
                                 <div className="border-t pt-4 flex justify-between items-center" style={{ borderColor: 'var(--border)' }}>
-                                    <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Total Misi</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Total Pembayaran</span>
                                     <span className="text-2xl font-black italic text-[#38BDF8]">Rp {parseInt(currentBooking.total_price).toLocaleString('id-ID')}</span>
                                 </div>
                             </div>

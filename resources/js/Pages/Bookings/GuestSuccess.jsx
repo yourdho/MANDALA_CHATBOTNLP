@@ -71,7 +71,7 @@ export default function GuestSuccess({ booking }) {
                         <div className="bg-slate-900 dark:bg-black px-6 py-10 text-center relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#38BDF8]/10 rounded-full blur-3xl -mr-10 -mt-10" />
                             <h2 className="text-2xl font-black italic text-[#38BDF8] uppercase tracking-tighter">Mandala Arena</h2>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-1">Konfirmasi Misi Guest</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-1">Konfirmasi Pesanan Tamu</p>
                         </div>
 
                         {/* Booking Code Bar */}

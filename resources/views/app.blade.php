@@ -15,7 +15,7 @@
         rel="stylesheet">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/images/logo-mandala.png" />
+    <link rel="icon" type="image/png" href="/aset_foto/logo-no-bg.png" />
 
     <!-- Scripts -->
     @routes

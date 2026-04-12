@@ -48,7 +48,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                 <nav className="fixed inset-x-0 top-0 z-[60] h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 lg:px-20 border-b backdrop-blur-md transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
                     <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
-                        <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-8 sm:h-10 w-auto object-contain drop-shadow-md" />
+                        <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-8 sm:h-10 w-auto object-contain drop-shadow-md" />
                         <div className="flex flex-col">
                             <span className="text-sm sm:text-lg font-light tracking-tight italic dark:text-white leading-none"
                                 style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
@@ -363,7 +363,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center sm:items-start gap-12">
                         <div className="text-center md:text-left">
                             <div className="flex items-center justify-center md:justify-start gap-1.5 mb-6 group">
-                                <img src="/aset_foto/lgo.png" alt="Mandala Arena Logo" className="h-12 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" />
+                                <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-12 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" />
                                 <span className="text-3xl font-light tracking-tight italic"
                                     style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala Arena</span>
                             </div>

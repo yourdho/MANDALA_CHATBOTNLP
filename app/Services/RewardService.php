@@ -101,4 +101,15 @@ class RewardService  implements RewardServiceInterface
         // Pastikan diskon tidak melebihi harga total
         return min($discount, $totalPrice);
     }
+
+    /**
+     * Mengembalikan voucher ke status unused (misal jika booking batal).
+     */
+    public function restoreVoucher(UserReward $voucher): bool
+    {
+        return $voucher->update([
+            'status' => 'unused',
+            'used_at' => null
+        ]);
+    }
 }

@@ -12,4 +12,6 @@ interface RewardServiceInterface
 
     public function calculateDiscount(float $totalPrice, UserReward $voucher, ?string $facilityCategory = null): float;
 
+    public function restoreVoucher(UserReward $voucher): bool;
+
 }

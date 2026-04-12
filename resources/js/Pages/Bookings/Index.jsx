@@ -27,7 +27,10 @@ export default function BookingsIndex({ bookings }) {
         }
     };
 
-    const handlePrint = () => window.print();
+    const handlePrint = (id) => {
+        if (!id) return;
+        window.open(route('bookings.invoice', id), '_blank');
+    };
 
     const handlePay = (token) => {
         if (!token) return alert('Token pembayaran tidak valid!');
@@ -204,7 +207,7 @@ export default function BookingsIndex({ bookings }) {
                 {nota && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[150] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 print:hidden"
+                        className="fixed inset-0 z-[150] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4"
                         onClick={() => setNota(null)}
                     >
                         <motion.div
@@ -217,11 +220,11 @@ export default function BookingsIndex({ bookings }) {
                             </div>
                             <div className="flex gap-3 p-6 border-t border-gray-100 bg-white sticky bottom-0 z-10">
                                 <button
-                                    onClick={handlePrint}
+                                    onClick={() => handlePrint(nota.id)}
                                     className="flex-1 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
                                 >
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                    Print / Save PDF
+                                    Tampilkan E-Ticket
                                 </button>
                                 <button
                                     onClick={() => setNota(null)}
@@ -234,30 +237,6 @@ export default function BookingsIndex({ bookings }) {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* ── PRINT-ONLY INVOICE ── */}
-            {nota && (
-                <div className="hidden print:block print-invoice">
-                    <InvoiceContent nota={nota} paymentLabel={PAYMENT_LABEL} />
-                </div>
-            )}
-
-            <style>{`
-                @media print {
-                    body * { visibility: hidden; }
-                    .print-invoice, .print-invoice * { visibility: visible; }
-                    .print-invoice { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; }
-                    nav, header, aside { display: none !important; }
-                    body { background: white !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    @page { margin: 0; size: A4 portrait; }
-                    .print-invoice { 
-                        width: 210mm;
-                        height: 297mm;
-                        overflow: hidden;
-                        background: white;
-                    }
-                }
-            `}</style>
         </AuthenticatedLayout>
     );
 }
@@ -290,9 +269,12 @@ function InvoiceContent({ nota, paymentLabel }) {
             fontFamily: "'Helvetica Neue', Arial, sans-serif", 
             background: '#fff', 
             color: '#111', 
-            minHeight: '297mm',
+            minHeight: '296mm',
+            height: '296mm',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxSizing: 'border-box'
         }}>
             {/* Top Strip */}
             <div style={{ padding: '40px 48px 0' }}>
@@ -388,10 +370,10 @@ function InvoiceContent({ nota, paymentLabel }) {
             </div>
 
             {/* Wave Footer */}
-            <div style={{ position: 'relative', height: '180px', overflow: 'hidden', marginTop: 'auto' }}>
-                <svg viewBox="0 0 728 180" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '100%' }}>
-                    <path d="M0,180 L0,100 Q200,160 400,120 Q550,90 728,140 L728,180 Z" fill="#c8c8c8" />
-                    <path d="M0,180 L0,130 Q180,100 350,150 Q520,190 728,160 L728,180 Z" fill="#444444" />
+            <div style={{ position: 'relative', height: '140px', overflow: 'hidden', marginTop: 'auto' }}>
+                <svg viewBox="0 0 728 140" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '100%' }}>
+                    <path d="M0,140 L0,80 Q200,120 400,90 Q550,70 728,110 L728,140 Z" fill="#e8e8e8" />
+                    <path d="M0,140 L0,100 Q180,80 350,110 Q520,140 728,120 L728,140 Z" fill="#333333" />
                 </svg>
             </div>
         </div>
