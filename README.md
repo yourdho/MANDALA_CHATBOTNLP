@@ -1,6 +1,6 @@
-# mandala_arena - Modern Futsal & Venue Booking Platform
+# Mandala Arena - Modern Futsal & Venue Booking Platform
 
-mandala_arena adalah platform booking lapangan olahraga (Futsal, Mini Soccer) dan antrian digital (Barbershop) yang dibangun dengan stack modern menggunakan **Laravel 11** dan **Inertia.js (React)**.
+**Mandala Arena** adalah platform booking lapangan olahraga (Futsal, Mini Soccer) dan antrian digital (Barbershop) yang dibangun dengan stack modern menggunakan **Laravel 11** dan **Inertia.js (React)**.
 
 Fitur utama meliputi:
 - **Sistem Role**: Admin, Mitra (Pemilik Venue), dan User.

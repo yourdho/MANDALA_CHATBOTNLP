@@ -256,7 +256,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                     <div className="lg:col-span-4 space-y-6">
                                         <div>
                                             <h3 className="text-sm font-black italic uppercase tracking-[0.2em] text-[#38BDF8] mb-1">01. Atur Timeline</h3>
-                                            <p className="text-[10px] font-bold uppercase opacity-40 italic">Radar Operasi Janjee</p>
+                                            <p className="text-[10px] font-bold uppercase opacity-40 italic">Radar Operasi Mandala Arena</p>
                                         </div>
                                         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 select-none">
                                             {[...Array(30)].map((_, i) => {
@@ -322,7 +322,7 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                 <div className="lg:col-span-4 space-y-6">
                                     <div>
                                         <h3 className="text-sm font-black italic uppercase tracking-[0.2em] text-[#38BDF8] mb-1">01. Atur Timeline</h3>
-                                        <p className="text-[10px] font-bold uppercase opacity-40 italic">Radar Operasi Janjee</p>
+                                        <p className="text-[10px] font-bold uppercase opacity-40 italic">Radar Operasi Mandala Arena</p>
                                     </div>
                                     <div
                                         ref={timelineRef}

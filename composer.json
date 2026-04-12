@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "yourdho/mandala-arena",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Mandala Arena - Platform booking lapangan olahraga dan venue digital berbasis Laravel & Inertia.js.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
