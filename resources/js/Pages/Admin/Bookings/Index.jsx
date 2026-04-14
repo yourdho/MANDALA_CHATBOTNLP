@@ -57,6 +57,30 @@ export default function BookingAdminIndex({ bookings, facilities = [] }) {
         }
     }, [manualForm.data.facility_id, manualForm.data.booking_date, showManualModal]);
 
+    // Real-time Update Listeners
+    useEffect(() => {
+        if (!window.Echo) return;
+
+        const channel = window.Echo.channel('bookings')
+            .listen('.BookingCreated', (e) => {
+                console.log('Radar Scan: New Mission Detected!', e);
+                router.reload({ 
+                    only: ['bookings'],
+                    onSuccess: () => {
+                        // Play sound or show mini toast?
+                    }
+                });
+            })
+            .listen('.BookingUpdated', (e) => {
+                console.log('Radar Scan: Status Change Detected!', e);
+                router.reload({ only: ['bookings'] });
+            });
+
+        return () => {
+             window.Echo.leaveChannel('bookings');
+        };
+    }, []);
+
     // Filter states
     const [filter, setFilter] = useState('all');
 

@@ -14,7 +14,7 @@ interface BookingServiceInterface
      * discount application, and Booking model creation — all in one transaction.
      *
      * @param array $data Validated request data
-     * @return array{booking: Booking, dp_amount: float|null, amount_to_bill: float}
+     * @return array{booking: \App\Models\Booking, dp_amount: float|null, amount_to_bill: float}
      * @throws \Exception if slot is already taken
      */
     public function createBooking(array $data): array;
@@ -23,7 +23,7 @@ interface BookingServiceInterface
      * Create an offline/manual booking (admin only).
      *
      * @param array $data Validated request data
-     * @return Booking
+     * @return \App\Models\Booking
      * @throws \Exception if slot is already taken
      */
     public function createManualBooking(array $data): Booking;
@@ -42,7 +42,7 @@ interface BookingServiceInterface
     /**
      * Calculate addon costs for a booking.
      *
-     * @param Facility $facility
+     * @param \App\Models\Facility $facility
      * @param array $selectedAddonNames
      * @param bool $withReferee
      * @return array{addons: array, total: float}

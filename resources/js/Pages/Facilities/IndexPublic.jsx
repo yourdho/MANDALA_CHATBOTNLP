@@ -225,7 +225,7 @@ export default function IndexPublic({ auth, facilities = [] }) {
                 </AnimatePresence>
             </main>
 
-            {/* <Chatbot /> */}
+
         </div>
     );
 

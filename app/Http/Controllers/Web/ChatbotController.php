@@ -50,4 +50,63 @@ class ChatbotController extends Controller
                 ?? 'Halo! Mau booking lapangan apa hari ini?',
         ]);
     }
+
+    public function storeDictionary(Request $request)
+    {
+        $validated = $request->validate([
+            'slang'  => 'required|string|unique:chatbot_dictionaries,slang',
+            'formal' => 'required|string',
+        ]);
+
+        ChatbotDictionary::create($validated);
+
+        return back()->with('flash', [
+            'message' => "Signal '{$validated['slang']}' registered successfully.",
+            'type'    => 'success'
+        ]);
+    }
+
+    public function updateDictionary(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'slang'  => 'required|string|unique:chatbot_dictionaries,slang,' . $id,
+            'formal' => 'required|string',
+        ]);
+
+        ChatbotDictionary::findOrFail($id)->update($validated);
+
+        return back()->with('flash', [
+            'message' => "Signal '{$validated['slang']}' recalibrated.",
+            'type'    => 'success'
+        ]);
+    }
+
+    public function destroyDictionary($id)
+    {
+        $entry = ChatbotDictionary::findOrFail($id);
+        $slang = $entry->slang;
+        $entry->delete();
+
+        return back()->with('flash', [
+            'message' => "Signal '{$slang}' purged from lexicon.",
+            'type'    => 'success'
+        ]);
+    }
+
+    public function updateGreeting(Request $request)
+    {
+        $validated = $request->validate([
+            'greeting' => 'required|string',
+        ]);
+
+        ChatbotSetting::updateOrCreate(
+            ['key' => 'greeting'],
+            ['value' => $validated['greeting']]
+        );
+
+        return back()->with('flash', [
+            'message' => "Mission Protocol Greeting updated.",
+            'type'    => 'success'
+        ]);
+    }
 }

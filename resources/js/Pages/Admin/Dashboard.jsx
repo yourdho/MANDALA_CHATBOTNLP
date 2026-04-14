@@ -1,8 +1,27 @@
-﻿import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Components/Layouts/AuthenticatedLayout';
+import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function AdminDashboard({ stats, charts, recent_bookings }) {
+    useEffect(() => {
+        if (!window.Echo) return;
+
+        const channel = window.Echo.channel('bookings')
+            .listen('.BookingCreated', (e) => {
+                console.log('Dashboard: Live Feed Detected (New Booking)');
+                router.reload({ only: ['stats', 'recent_bookings'] });
+            })
+            .listen('.BookingUpdated', (e) => {
+                console.log('Dashboard: Live Feed Detected (Booking Update)');
+                router.reload({ only: ['stats', 'recent_bookings'] });
+            });
+
+        return () => {
+            window.Echo.leaveChannel('bookings');
+        };
+    }, []);
+
     return (
         <AuthenticatedLayout>
             <Head title="Admin Dashboard | Mandala Arena" />

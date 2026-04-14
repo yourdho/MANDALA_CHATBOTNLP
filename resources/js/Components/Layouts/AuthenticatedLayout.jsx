@@ -1,4 +1,4 @@
-﻿import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import ThemeToggle from '@/Components/UI/ThemeToggle';
@@ -18,7 +18,7 @@ const Icons = {
     location: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
 };
 
-export default function AuthenticatedLayout({ children, showSidebar = true, showChatbot = false }) {
+export default function AuthenticatedLayout({ children, showSidebar = true, showChatbot = true }) {
     const { auth, flash } = usePage().props;
     const user = auth?.user;
     const isAdmin = user?.role === 'admin';
@@ -87,12 +87,12 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
             {/* Logo */}
             <div className="px-6 py-8 border-b flex-shrink-0 flex items-center justify-between"
                 style={{ borderColor: 'var(--border)' }}>
-                <Link href="/" className="flex items-center gap-1.5 group" onClick={closeSidebar}>
-                    <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
+                <Link href="/" className="flex items-center gap-3 group" onClick={closeSidebar}>
+                    <img src="/aset_foto/logo_mandala.png" alt="Mandala Arena Logo" className="h-14 w-auto object-contain drop-shadow-lg transition-transform group-hover:scale-110" />
                     <div className="flex flex-col">
-                        <span className="text-lg font-light tracking-tight italic dark:text-white leading-none"
+                        <span className="text-2xl font-light tracking-tight italic dark:text-white leading-none"
                             style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
-                        <span className="text-[#38BDF8] text-[10px] font-light tracking-[0.4em] italic leading-none mt-1"
+                        <span className="text-[#38BDF8] text-xs font-light tracking-[0.4em] italic leading-none mt-1"
                             style={{ fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Arena</span>
                     </div>
                 </Link>
@@ -213,12 +213,12 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Mading informasi User</span>
                             </div>
                         </SideNavItem>
-                        {/* <SideNavItem href={route('admin.chatbot.index')} active={route().current('admin.chatbot.*')} icon={Icons.manage}>
+                        <SideNavItem href={route('admin.chatbot.index')} active={route().current('admin.chatbot.*')} icon={Icons.manage}>
                             <div className="flex flex-col gap-1">
                                 <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Chatbot NLP</span>
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Kamus slank & greeting</span>
                             </div>
-                        </SideNavItem> */}
+                        </SideNavItem>
                     </>
                 )
                 }
@@ -313,12 +313,12 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
             {sidebarVisible && (
                 <header className="lg:hidden fixed inset-x-0 top-0 z-50 h-16 flex items-center justify-between px-6 border-b transition-all backdrop-blur-md"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <Link href="/" className="flex items-center gap-1.5">
-                        <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-8 w-auto object-contain drop-shadow-md" />
+                    <Link href="/" className="flex items-center gap-2">
+                        <img src="/aset_foto/logo_mandala.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
                         <div className="flex flex-col">
-                            <span className="text-sm font-light tracking-tight italic dark:text-white leading-none"
+                            <span className="text-base font-light tracking-tight italic dark:text-white leading-none"
                                 style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
-                            <span className="text-[#38BDF8] text-[8px] font-light tracking-[0.4em] italic leading-none mt-0.5"
+                            <span className="text-[#38BDF8] text-[9px] font-light tracking-[0.4em] italic leading-none mt-0.5"
                                 style={{ fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Arena</span>
                         </div>
                     </Link>

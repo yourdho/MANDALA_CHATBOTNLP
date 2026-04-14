@@ -4,29 +4,29 @@ namespace App\Repositories\Eloquent;
 
 use App\Contracts\Repositories\VenueRepositoryInterface;
 
-use App\Models\Venue;
+use App\Models\Facility;
 use Illuminate\Database\Eloquent\Collection;
 
 class VenueRepository implements VenueRepositoryInterface
 {
     public function getAll(): Collection
     {
-        return Venue::all();
+        return Facility::all();
     }
 
-    public function findById(int $id): ?Venue
+    public function findById(int $id): ?Facility
     {
-        return Venue::find($id);
+        return Facility::find($id);
     }
 
-    public function create(array $data): Venue
+    public function create(array $data): Facility
     {
-        return Venue::create($data);
+        return Facility::create($data);
     }
 
     public function update(int $id, array $data): bool
     {
-        $venue = Venue::find($id);
+        $venue = Facility::find($id);
         if ($venue) {
             return $venue->update($data);
         }
@@ -35,7 +35,7 @@ class VenueRepository implements VenueRepositoryInterface
 
     public function delete(int $id): bool
     {
-        $venue = Venue::find($id);
+        $venue = Facility::find($id);
         if ($venue) {
             return $venue->delete();
         }

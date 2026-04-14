@@ -51,6 +51,24 @@ export default function BookingsIndex({ bookings }) {
         });
     };
 
+    // Real-time Update Listener
+    useEffect(() => {
+        if (!window.Echo) return;
+
+        const channel = window.Echo.channel('bookings')
+            .listen('.BookingUpdated', (e) => {
+                // If the updated booking belongs to current user, reload
+                router.reload({ only: ['bookings'] });
+            })
+            .listen('.BookingCreated', (e) => {
+                router.reload({ only: ['bookings'] });
+            });
+
+        return () => {
+             window.Echo.leaveChannel('bookings');
+        };
+    }, []);
+
     // Auto-trigger Midtrans if flash has snap_token
     useEffect(() => {
         if (flash?.snap_token) {

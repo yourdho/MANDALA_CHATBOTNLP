@@ -23,7 +23,17 @@ const PAYMENT_METHODS = [
     },
 ];
 
-export default function FacilityShow({ facility, relatedFacilities = [], timeSlots, price_schedules = [], user_vouchers = [] }) {
+export default function FacilityShow({ facility, relatedFacilities = [], timeSlots = [], price_schedules = [], user_vouchers = [] }) {
+    if (!facility) {
+        return (
+            <AuthenticatedLayout>
+                <div className="p-20 text-center font-bold uppercase tracking-widest text-slate-500">
+                    Fasilitas tidak ditemukan.
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
+
     const { auth } = usePage().props;
     const isPilates = facility.category?.toLowerCase() === 'pilates';
     const [selectedPackage, setSelectedPackage] = useState('');
@@ -100,13 +110,13 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
 
         let total = 0;
         selectedSlots.forEach(slot => {
-            const schedule = price_schedules.find(s => {
-                if (!s.start_time || !s.end_time) return false;
+            const schedule = (price_schedules || []).find(s => {
+                if (!s || !s.start_time || !s.end_time) return false;
                 const start = s.start_time.substring(0, 5);
                 const end = s.end_time.substring(0, 5);
-                return slot >= start && slot <= end; // Jam booking berada dalam range
+                return slot >= start && slot <= end;
             });
-            total += schedule ? Number(schedule.price) : Number(fallbackPrice);
+            total += schedule ? Number(schedule.price) : Number(fallbackPrice || 0);
         });
         return total;
     }, [selectedSlots, price_schedules, facility.price_per_hour, isPilates, selectedPackage, selectedCourtId, relatedFacilities]);
@@ -124,15 +134,17 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
 
     // Voucher selection
     const applicableVouchers = useMemo(() => {
-        return user_vouchers.filter(v => 
-            v.reward.applicable_category === 'all' || 
-            v.reward.applicable_category === facility.category
+        return (user_vouchers || []).filter(v => 
+            v && v.reward && (
+                v.reward.applicable_category === 'all' || 
+                v.reward.applicable_category === facility.category
+            )
         );
     }, [user_vouchers, facility.category]);
 
     const [selectedVoucher, setSelectedVoucher] = useState(null);
     const discountAmount = useMemo(() => {
-        if (!selectedVoucher) return 0;
+        if (!selectedVoucher || !selectedVoucher.reward) return 0;
         const reward = selectedVoucher.reward;
         let disc = 0;
         if (reward.discount_type === 'percentage') {
@@ -210,9 +222,9 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
             {!auth?.user && (
                 <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 lg:px-20 h-24 border-b transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <Link href="/" className="flex items-center gap-1.5">
-                        <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-10 w-auto object-contain drop-shadow-md" />
-                        <span className="text-2xl font-light tracking-tight italic" style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>
+                    <Link href="/" className="flex items-center gap-3 group">
+                        <img src="/aset_foto/logo_mandala.png" alt="Mandala Arena Logo" className="h-12 sm:h-16 w-auto object-contain drop-shadow-lg transition-transform group-hover:scale-105" />
+                        <span className="text-2xl sm:text-3xl font-light tracking-tight italic" style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>
                             Mandala <span className="text-[#38BDF8]">Arena</span>
                         </span>
                     </Link>
@@ -618,9 +630,10 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                     <div className="space-y-4">
                                                         {(() => {
                                                             const category = facility.category?.toLowerCase().replace(' ', '_');
-                                                            const bankName = usePage().props.system_settings[`cat_${category}_bank_name`] || usePage().props.system_settings['bank_bca_name'];
-                                                            const bankNumber = usePage().props.system_settings[`cat_${category}_bank_number`] || usePage().props.system_settings['bank_bca_number'];
-                                                            const bankOwner = usePage().props.system_settings[`cat_${category}_bank_owner`] || 'Mandala Arena Management';
+                                                            const settings = usePage().props.system_settings || {};
+                                                            const bankName = settings[`cat_${category}_bank_name`] || settings['bank_bca_name'];
+                                                            const bankNumber = settings[`cat_${category}_bank_number`] || settings['bank_bca_number'];
+                                                            const bankOwner = settings[`cat_${category}_bank_owner`] || 'Mandala Arena Management';
 
                                                             if (bankNumber) {
                                                                 return (
@@ -704,6 +717,6 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
         </div>
     );
 
-    if (auth?.user) return <AuthenticatedLayout showChatbot={false}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
-    return <AuthenticatedLayout showSidebar={false} showChatbot={false}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
+    if (auth?.user) return <AuthenticatedLayout showChatbot={true}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
+    return <AuthenticatedLayout showSidebar={false} showChatbot={true}><Head title={`${facility.name} | Mandala Arena`} />{content}</AuthenticatedLayout>;
 }

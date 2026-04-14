@@ -2,19 +2,17 @@
 
 namespace App\Services;
 
-use App\Contracts\Services\MatchServiceInterface;
-
 use App\Models\SportsMatch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class MatchService  implements MatchServiceInterface
+class MatchService implements \App\Contracts\Services\MatchServiceInterface
 {
     /**
      * Attempt to find a match for a given sports session request.
      * 
-     * @param SportsMatch $myMatch
-     * @return SportsMatch|null
+     * @param \App\Models\SportsMatch $myMatch
+     * @return \App\Models\SportsMatch|null
      */
     public function findPotentialMatch(SportsMatch $myMatch)
     {

@@ -11,8 +11,11 @@ export default function Show({ booking, wa_link }) {
 
     // Real-time Update Listener
     useEffect(() => {
+        if (!window.Echo) return;
+
         const channel = window.Echo.channel(`bookings.${booking.id}`)
-            .listen('.BookingStatusUpdated', (e) => {
+            .listen('.BookingUpdated', (e) => {
+                console.log("Mission Update Detected via HQ:", e);
                 router.reload({
                     preserveScroll: true, onSuccess: (page) => {
                         setCurrentBooking(page.props.booking);

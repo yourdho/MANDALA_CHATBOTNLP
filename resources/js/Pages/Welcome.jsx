@@ -35,7 +35,7 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
     const user = auth.user;
 
     return (
-        <AuthenticatedLayout showSidebar={false} showChatbot={false}>
+        <AuthenticatedLayout showSidebar={false} showChatbot={true}>
             <Head>
                 <title>Mandala Arena - Booking Olahraga Modern</title>
                 <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&family=Outfit:wght@900&display=swap" rel="stylesheet" />
@@ -47,12 +47,12 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                 {/* -- HORIZONTAL NAVBAR -- */}
                 <nav className="fixed inset-x-0 top-0 z-[60] h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 lg:px-20 border-b backdrop-blur-md transition-all"
                     style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-                    <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
-                        <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-8 sm:h-10 w-auto object-contain drop-shadow-md" />
+                    <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
+                        <img src="/aset_foto/logo_mandala.png" alt="Mandala Arena Logo" className="h-12 sm:h-16 w-auto object-contain drop-shadow-lg transition-transform group-hover:scale-105" />
                         <div className="flex flex-col">
-                            <span className="text-sm sm:text-lg font-light tracking-tight italic dark:text-white leading-none"
+                            <span className="text-base sm:text-2xl font-light tracking-tight italic dark:text-white leading-none"
                                 style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala</span>
-                            <span className="text-[#38BDF8] text-[8px] sm:text-[10px] font-light tracking-[0.4em] italic leading-none mt-0.5 sm:mt-1"
+                            <span className="text-[#38BDF8] text-[9px] sm:text-xs font-light tracking-[0.4em] italic leading-none mt-0.5 sm:mt-1"
                                 style={{ fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Arena</span>
                         </div>
                     </Link>
@@ -362,10 +362,10 @@ export default function Welcome({ auth, promos = [], facilities = [], featuredBl
                     style={{ background: 'var(--bg-card)' }}>
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center sm:items-start gap-12">
                         <div className="text-center md:text-left">
-                            <div className="flex items-center justify-center md:justify-start gap-1.5 mb-6 group">
-                                <img src="/aset_foto/logo-no-bg.png" alt="Mandala Arena Logo" className="h-12 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" />
-                                <span className="text-3xl font-light tracking-tight italic"
-                                    style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala Arena</span>
+                            <div className="flex items-center justify-center md:justify-start gap-4 mb-6 group">
+                                <img src="/aset_foto/logo_mandala.png" alt="Mandala Arena Logo" className="h-16 sm:h-20 w-auto object-contain drop-shadow-xl transition-transform group-hover:scale-110" />
+                                <span className="text-3xl sm:text-4xl font-light tracking-tight italic"
+                                    style={{ color: 'var(--text-primary)', fontFamily: '"Poppins", sans-serif', fontFeatureSettings: '"ss01", "ss02"' }}>Mandala <span className="text-[#38BDF8]">Arena</span></span>
                             </div>
                             <p className="font-medium max-w-sm mb-8"
                                 style={{ color: 'var(--text-secondary)' }}>

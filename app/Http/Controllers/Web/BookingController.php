@@ -10,6 +10,7 @@ use App\Services\MidtransService;
 use App\Services\NotificationService;
 use App\Contracts\Services\RewardServiceInterface;
 use App\Events\BookingUpdated;
+use App\Events\BookingCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,7 @@ class BookingController extends Controller
         }
 
         $booking      = $result['booking'];
+        broadcast(new BookingCreated($booking));
         $amountToBill = $result['amountToBill'];
 
         // ── Manual payment methods ───────────────────────────────
@@ -174,7 +176,8 @@ class BookingController extends Controller
         ]);
 
         try {
-            $this->bookingService->createManualBooking($request->all());
+            $booking = $this->bookingService->createManualBooking($request->all());
+            broadcast(new BookingCreated($booking));
         } catch (\Exception $e) {
             return back()->withErrors(['time' => $e->getMessage()]);
         }

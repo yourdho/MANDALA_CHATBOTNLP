@@ -9,7 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BookingUpdated implements ShouldBroadcast
+class BookingCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -17,19 +17,16 @@ class BookingUpdated implements ShouldBroadcast
 
     public function __construct(Booking $booking)
     {
-        $this->booking = $booking;
+        $this->booking = $booking->load(['facility', 'user']);
     }
 
     public function broadcastOn()
     {
-        return [
-            new Channel('bookings.' . $this->booking->id),
-            new Channel('bookings')
-        ];
+        return new Channel('bookings');
     }
 
     public function broadcastAs()
     {
-        return 'BookingUpdated';
+        return 'BookingCreated';
     }
 }

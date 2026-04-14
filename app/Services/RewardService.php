@@ -18,6 +18,7 @@ class RewardService  implements RewardServiceInterface
      */
     public function redeem(User $user, Reward $reward): UserReward
     {
+        // ... (implementation same as before but with FQCN in param)
         // 1. Validasi Saldo Poin
         if ($user->points_balance < $reward->points_required) {
             throw new Exception("Poin tidak mencukupi. Dibutuhkan: {$reward->points_required}, Saldo Anda: {$user->points_balance}");

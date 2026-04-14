@@ -46,19 +46,26 @@ php artisan migrate
 
 ### 4. Menjalankan Aplikasi
 
-Anda membutuhkan dua terminal yang berjalan bersamaan:
+Anda membutuhkan **tiga terminal** yang berjalan bersamaan untuk fitur penuh:
 
-**Terminal 1 (Backend - PHP Server):**
-\`\`\`bash
+**Terminal 1 (Backend Server):**
+```bash
 php artisan serve
-\`\`\`
+```
 
-**Terminal 2 (Frontend - Vite Server):**
-\`\`\`bash
+**Terminal 2 (Real-time Server - Reverb):**
+```bash
+php artisan reverb:start
+```
+
+**Terminal 3 (Vite Server):**
+```bash
 npm run dev
-\`\`\`
+```
 
-Akses aplikasi di `http://localhost:8000`.
+Akses aplikasi di `http://127.0.0.1:8000`.
+
+> **Tip:** Jika Anda sudah menjalankan `npm run build`, Anda tidak perlu lagi menyalakan Terminal 3 (Vite). Cukup Terminal 1 dan 2.
 
 ---
 

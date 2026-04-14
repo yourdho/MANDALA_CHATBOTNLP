@@ -4,6 +4,12 @@ import { useState } from 'react';
 
 export default function PricingIndex({ settings = {} }) {
     const settingsForm = useForm({
+        // Main Bank (Global)
+        main_bank_name: settings.main_bank_name || '',
+        main_bank_number: settings.main_bank_number || '',
+        main_bank_owner: settings.main_bank_owner || '',
+        main_qris: settings.main_qris || '',
+
         // Category specific
         cat_mini_soccer_bank_name: settings.cat_mini_soccer_bank_name || '',
         cat_mini_soccer_bank_number: settings.cat_mini_soccer_bank_number || '',
@@ -56,6 +62,54 @@ export default function PricingIndex({ settings = {} }) {
                     <p className="text-center text-[10px] font-black text-slate-500 uppercase tracking-widest italic mb-12 relative z-10">Konfigurasi Pembayaran Mandiri Berdasarkan Devisi Olahraga</p>
 
                     <form onSubmit={submitSettings} className="space-y-10 relative z-10">
+                        {/* KONFIGURASI BANK UTAMA (GLOBAL) */}
+                        <div className="p-10 rounded-[3.5rem] bg-black/30 border-2 border-[#38BDF8]/20 shadow-inner group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#38BDF8]/5 rounded-full blur-[80px] -mr-32 -mt-32" />
+                            
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="p-4 bg-[#38BDF8] text-slate-900 rounded-3xl shadow-xl shadow-[#38BDF8]/20">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">Main <span className="text-[#38BDF8]">Bank HQ</span></h3>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#38BDF8]/50 mt-1">Rekening Utama Pusat Mandala Arena</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-widest text-[#38BDF8]/60 ml-2">Nama Bank Utama</label>
+                                    <input className="w-full bg-slate-900/50 border-white/5 rounded-2xl px-6 py-4 text-xs font-black italic focus:ring-[#38BDF8] focus:border-[#38BDF8] transition-all" placeholder="Misal: BANK MANDIRI"
+                                        value={settingsForm.data.main_bank_name} onChange={e => settingsForm.setData('main_bank_name', e.target.value)} />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-widest text-[#38BDF8]/60 ml-2">Nomor Rekening Pusat</label>
+                                    <input className="w-full bg-slate-900/50 border-white/5 rounded-2xl px-6 py-4 text-xl font-black italic tracking-[0.1em] focus:ring-[#38BDF8] focus:border-[#38BDF8] transition-all" placeholder="123-445-XXX"
+                                        value={settingsForm.data.main_bank_number} onChange={e => settingsForm.setData('main_bank_number', e.target.value)} />
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-widest text-[#38BDF8]/60 ml-2">Pemilik Rekening (HQ)</label>
+                                    <input className="w-full bg-slate-900/50 border-white/5 rounded-2xl px-6 py-4 text-xs font-black italic focus:ring-[#38BDF8] focus:border-[#38BDF8] transition-all" placeholder="A.N MANDALA ARENA"
+                                        value={settingsForm.data.main_bank_owner} onChange={e => settingsForm.setData('main_bank_owner', e.target.value)} />
+                                </div>
+                            </div>
+
+                            <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
+                                <label className="text-[9px] font-black uppercase tracking-widest text-emerald-500/60 ml-2 italic">Master QRIS (General)</label>
+                                <div className="flex gap-6 items-center">
+                                    <input className="flex-1 bg-slate-900/50 border-white/5 rounded-2xl px-6 py-4 text-[10px] font-black italic focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="URL Gambar QRIS Utama..."
+                                        value={settingsForm.data.main_qris} onChange={e => settingsForm.setData('main_qris', e.target.value)} />
+                                    <div className="w-20 h-20 bg-white rounded-2xl flex-shrink-0 p-1.5 border-4 border-white/5 group-hover:border-emerald-500/30 transition-all shadow-2xl">
+                                        {settingsForm.data.main_qris ? (
+                                            <img src={settingsForm.data.main_qris} className="w-full h-full object-contain" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-[8px] font-black opacity-20 text-center uppercase leading-tight">NO MASTER QR</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* KONFIGURASI PER KATEGORI */}
                         <div className="space-y-12">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

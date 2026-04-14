@@ -167,6 +167,9 @@ class BookingService implements BookingServiceInterface
         return $total;
     }
 
+    /**
+     * Calculate addon costs for a booking.
+     */
     public function calculateAddons(Facility $facility, array $selectedAddonNames, bool $withReferee): array
     {
         $bookedAddons  = [];
@@ -199,7 +202,7 @@ class BookingService implements BookingServiceInterface
         int    $facilityId,
         Carbon $startsAt,
         Carbon $endsAt,
-        array  $statuses       = [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED],
+        array  $statuses = [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED],
         array  $paymentStatuses = ['paid', 'settlement', 'capture']
     ): bool {
         return Booking::where('facility_id', $facilityId)

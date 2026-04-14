@@ -5,8 +5,14 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 
 use App\Models\Facility;
+use App\Models\Reward;
+use App\Models\BlogPost;
+use App\Models\PriceSchedule;
+use App\Models\AdditionalItem;
+use App\Models\UserReward;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class FacilityController extends Controller
@@ -16,7 +22,7 @@ class FacilityController extends Controller
      */
     public function index()
     {
-        $promos = \App\Models\Reward::where('is_active', true)
+        $promos = Reward::where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('valid_until')->orWhere('valid_until', '>=', now());
             })
@@ -27,8 +33,8 @@ class FacilityController extends Controller
             ->limit(6)
             ->get();
 
-        $facilities = \App\Models\Facility::where('is_active', true)->latest()->limit(4)->get();
-        $recentBlogs = \App\Models\BlogPost::published()->latest()->limit(3)->get();
+        $facilities = Facility::where('is_active', true)->latest()->limit(4)->get();
+        $recentBlogs = BlogPost::published()->latest()->limit(3)->get();
 
         return Inertia::render('Welcome', [
             'promos' => $promos,
@@ -50,7 +56,7 @@ class FacilityController extends Controller
         }
 
         $facilities = $query->latest()->get()->map(function ($f) {
-            $prices = \App\Models\PriceSchedule::where('sport_type', $f->category)->pluck('price');
+            $prices = PriceSchedule::where('sport_type', $f->category)->pluck('price');
             $f->min_price = $prices->min() ?: (float) $f->price_per_hour;
             $f->max_price = $prices->max() ?: (float) $f->price_per_hour;
             return $f;
@@ -79,8 +85,11 @@ class FacilityController extends Controller
 
         $bookedSlots = $facility->bookings->flatMap(function ($booking) use ($date) {
             $slots = [];
-            $start = (int) $booking->starts_at->format('H');
+            
+            // If booking started before the target date, it occupies from 00:00 on target date
+            $start = ($booking->starts_at->format('Y-m-d') < $date) ? 0 : (int) $booking->starts_at->format('H');
 
+            // If booking ends after the target date, it occupies until 24:00 on target date
             if ($booking->ends_at->format('Y-m-d') > $date) {
                 $end = 24;
             } else {
@@ -126,7 +135,7 @@ class FacilityController extends Controller
      */
     private function getPrice($sport_type, $jam = null, $session_name = null): float
     {
-        $query = \App\Models\PriceSchedule::where('sport_type', $sport_type);
+        $query = PriceSchedule::where('sport_type', $sport_type);
 
         if (strtolower($sport_type) === 'pilates') {
             if ($session_name) {
@@ -159,35 +168,45 @@ class FacilityController extends Controller
 
     public function show(Request $request, Facility $facility)
     {
-        if (!in_array($facility->category, ['Mini Soccer', 'Padel', 'Pilates', 'Basket'])) {
-            abort(404, 'Division Not Authorized');
+        try {
+            if (!in_array(trim($facility->category), ['Mini Soccer', 'Padel', 'Pilates', 'Basket'])) {
+                abort(404, 'Division Not Authorized: ' . $facility->category);
+            }
+
+            $date = $request->query('date', today()->format('Y-m-d'));
+
+            $timeSlots = $this->generateSlotsForFacility($facility, $date);
+
+            $relatedRaw = Facility::where('category', trim($facility->category))->where('is_active', true)->get();
+            $relatedFacilities = $relatedRaw->map(function ($f) use ($date) {
+                return [
+                    'id' => $f->id,
+                    'name' => $f->name,
+                    'timeSlots' => $this->generateSlotsForFacility($f, $date),
+                    'price_per_hour' => $f->price_per_hour,
+                ];
+            });
+
+            return Inertia::render('Facilities/Show', [
+                'facility' => $facility,
+                'timeSlots' => $timeSlots,
+                'relatedFacilities' => $relatedFacilities,
+                'price_schedules' => PriceSchedule::where('sport_type', trim($facility->category))->get(),
+                'user_vouchers' => auth()->check()
+                    ? UserReward::where('user_id', auth()->id())
+                        ->where('status', 'unused')
+                        ->with('reward')
+                        ->get()
+                    : []
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error on Facility Detail Page (ID: {$facility->id}): " . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
-
-        $date = $request->query('date', today()->format('Y-m-d'));
-
-        $timeSlots = $this->generateSlotsForFacility($facility, $date);
-
-        $relatedRaw = Facility::where('category', $facility->category)->where('is_active', true)->get();
-        $relatedFacilities = $relatedRaw->map(function ($f) use ($date) {
-            return [
-                'id' => $f->id,
-                'name' => $f->name,
-                'timeSlots' => $this->generateSlotsForFacility($f, $date),
-            ];
-        });
-
-        return Inertia::render('Facilities/Show', [
-            'facility' => $facility,
-            'timeSlots' => $timeSlots,
-            'relatedFacilities' => $relatedFacilities,
-            'price_schedules' => \App\Models\PriceSchedule::where('sport_type', $facility->category)->get(),
-            'user_vouchers' => auth()->check()
-                ? \App\Models\UserReward::where('user_id', auth()->id())
-                    ->where('status', 'unused')
-                    ->with('reward')
-                    ->get()
-                : []
-        ]);
     }
 
     /** ── Admin Methods ── */
@@ -203,7 +222,7 @@ class FacilityController extends Controller
     {
         return Inertia::render('Admin/Facilities/Create', [
             'price_schedules' => [],
-            'master_addons' => \App\Models\AdditionalItem::orderBy('name')->get(),
+            'master_addons' => AdditionalItem::orderBy('name')->get(),
         ]);
     }
 
@@ -274,7 +293,7 @@ class FacilityController extends Controller
         // Update/Create Price Schedules for this category
         if ($request->has('price_schedules')) {
             foreach ($request->input('price_schedules') as $ps) {
-                \App\Models\PriceSchedule::updateOrCreate(
+                PriceSchedule::updateOrCreate(
                     [
                         'sport_type' => $validated['category'],
                         'session_name' => $ps['session_name'],
@@ -295,8 +314,8 @@ class FacilityController extends Controller
     {
         return Inertia::render('Admin/Facilities/Edit', [
             'facility' => $facility,
-            'price_schedules' => \App\Models\PriceSchedule::where('sport_type', $facility->category)->get(),
-            'master_addons' => \App\Models\AdditionalItem::orderBy('name')->get(),
+            'price_schedules' => PriceSchedule::where('sport_type', $facility->category)->get(),
+            'master_addons' => AdditionalItem::orderBy('name')->get(),
         ]);
     }
 
@@ -372,13 +391,13 @@ class FacilityController extends Controller
             $incomingIds = collect($request->input('price_schedules'))->pluck('id')->filter()->toArray();
 
             // Delete schedules that are no longer in the request for this category
-            \App\Models\PriceSchedule::where('sport_type', $validated['category'])
+            PriceSchedule::where('sport_type', $validated['category'])
                 ->whereNotIn('id', $incomingIds)
                 ->delete();
 
             foreach ($request->input('price_schedules') as $ps) {
                 if (isset($ps['id'])) {
-                    \App\Models\PriceSchedule::where('id', $ps['id'])->update([
+                    PriceSchedule::where('id', $ps['id'])->update([
                         'session_name' => $ps['session_name'],
                         'start_time' => $ps['start_time'],
                         'end_time' => $ps['end_time'],
@@ -386,7 +405,7 @@ class FacilityController extends Controller
                         'sport_type' => $validated['category']
                     ]);
                 } else {
-                    \App\Models\PriceSchedule::create([
+                    PriceSchedule::create([
                         'sport_type' => $validated['category'],
                         'session_name' => $ps['session_name'],
                         'start_time' => $ps['start_time'],

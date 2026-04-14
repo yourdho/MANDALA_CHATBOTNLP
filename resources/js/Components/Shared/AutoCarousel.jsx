@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhotoIcon } from '@heroicons/react/24/outline';
 
@@ -93,7 +93,7 @@ export default function AutoCarousel({ images = [], name = 'Facility' }) {
                         }}
                         className="absolute inset-0"
                     >
-                        {images[currentIndex].endsWith('.mp4') || images[currentIndex].endsWith('.webm') ? (
+                        {typeof images[currentIndex] === 'string' && (images[currentIndex].endsWith('.mp4') || images[currentIndex].endsWith('.webm')) ? (
                             <video src={images[currentIndex]} autoPlay loop muted playsInline className="w-full h-full object-cover" onMouseOver={(e) => e.target.muted = true} />
                         ) : (
                             <img
@@ -171,7 +171,7 @@ export default function AutoCarousel({ images = [], name = 'Facility' }) {
                                     transition={{ duration: 0.3 }}
                                     className="w-full h-full flex items-center justify-center"
                                 >
-                                    {images[currentIndex].endsWith('.mp4') || images[currentIndex].endsWith('.webm') ? (
+                                    {typeof images[currentIndex] === 'string' && (images[currentIndex].endsWith('.mp4') || images[currentIndex].endsWith('.webm')) ? (
                                         <video src={images[currentIndex]} autoPlay loop muted playsInline className="max-w-full max-h-full rounded-3xl shadow-2xl" onMouseOver={(e) => e.target.muted = true} />
                                     ) : (
                                         <img
