@@ -60,6 +60,7 @@ class BookingController extends Controller
         broadcast(new BookingCreated($booking));
         $amountToBill = $result['amountToBill'];
 
+
         // ── Manual payment methods ───────────────────────────────
         if (in_array($request->payment_method, ['transfer', 'qris', 'cod'])) {
             $waLink = $this->notifier->generateAdminWhatsAppLink($booking);
@@ -179,6 +180,7 @@ class BookingController extends Controller
             $booking = $this->bookingService->createManualBooking($request->all());
             broadcast(new BookingCreated($booking));
         } catch (\Exception $e) {
+
             return back()->withErrors(['time' => $e->getMessage()]);
         }
 
@@ -215,6 +217,7 @@ class BookingController extends Controller
         broadcast(new BookingUpdated($booking));
 
         return back()->with('success', 'Pesanan telah dibatalkan. Voucher (jika ada) telah dikembalikan ke User.');
+
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -298,6 +301,7 @@ class BookingController extends Controller
                 broadcast(new BookingUpdated($booking));
 
             } elseif (in_array($status, ['expire', 'cancel', 'deny'])) {
+
                 $booking->update(['payment_status' => 'failed', 'status' => Booking::STATUS_CANCELLED]);
 
                 // Refund voucher if any
@@ -309,6 +313,7 @@ class BookingController extends Controller
                 broadcast(new BookingUpdated($booking));
             }
         });
+
 
         return response()->json(['status' => 'ok']);
     }

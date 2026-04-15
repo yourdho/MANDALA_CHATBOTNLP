@@ -6,116 +6,199 @@ import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 
 const INITIAL_CHIPS = [
-    { label: 'Mini Soccer', msg: 'Mau booking Mini Soccer' },
-    { label: 'Padel',       msg: 'Mau booking Padel' },
-    { label: 'Basket',      msg: 'Mau booking Basket' },
-    { label: 'Pilates',     msg: 'Mau booking Pilates' },
+    { label: '⚽ Booking Mini Soccer', msg: 'Mau booking Mini Soccer' },
+    { label: '🎾 Sewa Padel',          msg: 'Mau booking Padel' },
+    { label: '🎯 Pilates',             msg: 'Pilates' },
+    { label: '🏀 Basket',              msg: 'Mau booking Basket' },
 ];
 
 const WELCOME_TEXT =
-    'Halo! Selamat datang di **Mandala Arena** \n\nArena olahraga modern di BSD. Mau booking lapangan apa hari ini?';
+    'Halo! Selamat datang di **Mandala Arena** 🏆\n\nSaya asisten virtual cerdas yang siap membantu. Mau booking fasilitas, cek harga, atau cari lawan main hari ini?';
 
-/**
- * Chatbot — Root chatbot widget.
- *
- * Assembles ChatHeader + MessageList + ChatInput and manages all state:
- * open/close, message history, loading, and redirect flow.
- *
- * Usage: <Chatbot /> — drop anywhere inside the app layout.
- */
 export default function Chatbot() {
-    const [isOpen,        setIsOpen]        = useState(false);
-    const [messages,      setMessages]      = useState([
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([
         {
+            id: 'init-msg',
             sender: 'bot',
-            text:   WELCOME_TEXT,
-            chips:  INITIAL_CHIPS,
-            time:   new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+            type: 'text',
+            text: WELCOME_TEXT,
+            payload: null,
+            chips: INITIAL_CHIPS,
+            time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         },
     ]);
-    const [input,         setInput]         = useState('');
-    const [isLoading,     setIsLoading]     = useState(false);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [isRedirecting, setIsRedirecting] = useState(false);
     const bottomRef = useRef(null);
 
-    // Auto-scroll to latest message
     useEffect(() => {
-        if (isOpen) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (isOpen) {
+            setTimeout(() => {
+                bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
     }, [messages, isOpen]);
 
-    // Real-time WebSocket listener (Reverb / Laravel Echo)
     useEffect(() => {
         if (!window.Echo) return;
-        const channel = window.Echo.channel('chatbot')
+        const sessionId = document.querySelector('meta[name="session-id"]')?.content || 'guest';
+        
+        const channel = window.Echo.channel(`chatbot.${sessionId}`)
             .listen('.App.Events.ChatbotMessageReceived', (e) => {
-                console.log('Real-time message received:', e.reply);
+                if (e.senderId && e.senderId !== 'bot') {
+                    appendBotMessageFromAdmin(e);
+                }
             });
         return () => channel.stopListening('.App.Events.ChatbotMessageReceived');
     }, []);
 
-    const addMessage = (sender, text, chips = [], image = null) => {
+    const generateId = () => Math.random().toString(36).substr(2, 9);
+
+    const appendUserMessage = (text) => {
         setMessages(prev => [
             ...prev,
             {
-                sender,
+                id: generateId(),
+                sender: 'user',
+                type: 'text',
                 text,
-                chips: sender === 'bot' ? chips : [],
-                image,
                 time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
             },
         ]);
     };
 
-    const sendMessage = async (msg) => {
-        const text = (msg ?? input).trim();
+    const appendBotMessageFromAdmin = (e) => {
+        setMessages(prev => [...prev, {
+            id: generateId(),
+            sender: 'admin',
+            type: 'text',
+            text: e.reply,
+            chips: [],
+            time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        }]);
+    }
+
+    const appendBotMessageFromResponse = (response) => {
+        let msgType = 'text';
+        let msgPayload = null;
+        let displayedText = response.reply;
+        let meta = response.meta || {};
+        
+        if (response.ui && response.ui.type) {
+            msgType = response.ui.type;
+            msgPayload = response.ui.payload;
+            if (msgType !== 'text') displayedText = ''; 
+        } else {
+            try {
+                const parsed = JSON.parse(response.reply);
+                if (parsed.type) {
+                    msgType = parsed.type;
+                    msgPayload = parsed;
+                    displayedText = '';
+                }
+            } catch(e) {}
+        }
+
+        setMessages(prev => [
+            ...prev,
+            {
+                id: generateId(),
+                sender: 'bot',
+                type: msgType,
+                text: displayedText,
+                payload: msgPayload,
+                meta: meta,
+                chips: response.chips || [],
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+            },
+        ]);
+    };
+
+    // --- EXPERT ACTION HANDLERS ---
+    const handleBookingConfirm = (payload = null) => handleSendMessage('Lanjut konfirmasi booking');
+    const handleBookingEdit = (payload = null) => handleSendMessage('Saya ingin ganti jadwal atau ubah pesanan');
+    const handleBookingCancel = (payload = null) => handleSendMessage('Batalin booking');
+    
+    // For payment method, the child button emits 'qris' or 'transfer', we map it safely
+    const handleSelectPaymentMethod = (method) => handleSendMessage(`bayar pakai ${method}`);
+    
+    const handleCheckPaymentStatus = (payload = null) => handleSendMessage('cek status pembayaran');
+    const handleChangePaymentMethod = (payload = null) => handleSendMessage('ganti metode pembayaran lain');
+    const handleRetryPayment = (payload = null) => handleSendMessage('booking ulang jadwal tadi');
+        
+
+
+    const handleSendMessage = async (msgText) => {
+        const text = (msgText ?? input).trim();
         if (!text || isLoading || isRedirecting) return;
 
         setInput('');
-        addMessage('user', text);
+        appendUserMessage(text);
         setIsLoading(true);
 
         try {
             const response = await axios.post('/chatbot/message', { message: text });
 
             if (response.data.redirect) {
-                addMessage('bot', response.data.reply + ' ');
+                appendBotMessageFromResponse({ reply: 'Mengalihkan halaman... ⏳', ui: {type: 'text'}, chips: [] });
                 setIsRedirecting(true);
                 setTimeout(() => { window.location.href = response.data.redirect; }, 1200);
                 return;
             }
 
-            addMessage('bot', response.data.reply, response.data.chips ?? [], response.data.image ?? null);
-        } catch {
-            addMessage('bot', 'Koneksi terganggu. Coba lagi ', [{ label: '↩ Retry', msg: text }]);
+            appendBotMessageFromResponse(response.data);
+        } catch (error) {
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: generateId(),
+                    sender: 'bot',
+                    type: 'text',
+                    text: 'Aduh... Koneksi terputus. Coba lagi ya? 📡',
+                    chips: [{ label: '↩ Ulangi', msg: text }],
+                    time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                }
+            ]);
         } finally {
             setIsLoading(false);
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
     return (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end gap-4 pointer-events-none">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end gap-5 pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         key="chatbot-window"
-                        initial={{ opacity: 0, y: 30, scale: 0.93 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 30, scale: 0.93 }}
-                        className="w-[calc(100vw-2rem)] sm:w-[380px] h-[calc(100vh-6rem)] sm:h-[580px] bg-white border border-slate-200 rounded-[2.5rem] sm:rounded-[2rem] shadow-2xl shadow-slate-300/50 overflow-hidden flex flex-col pointer-events-auto"
+                        initial={{ opacity: 0, y: 40, scale: 0.95, filter: 'blur(4px)' }}
+                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, y: 20, scale: 0.95, filter: 'blur(4px)' }}
+                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                        className="w-[calc(100vw-2rem)] sm:w-[400px] h-[calc(100vh-8rem)] sm:h-[650px] max-h-[800px] bg-[#f8fafc] border border-slate-200/60 rounded-[2rem] shadow-2xl shadow-sky-900/10 overflow-hidden flex flex-col pointer-events-auto origin-bottom-right"
                     >
                         <ChatHeader onClose={() => setIsOpen(false)} />
 
                         <MessageList
                             messages={messages}
                             isLoading={isLoading}
-                            onChipClick={sendMessage}
+                            onChipClick={handleSendMessage}
                             bottomRef={bottomRef}
+                            onBookingConfirm={handleBookingConfirm}
+                            onBookingEdit={handleBookingEdit}
+                            onBookingCancel={handleBookingCancel}
+                            onSelectPaymentMethod={handleSelectPaymentMethod}
+                            onCheckPaymentStatus={handleCheckPaymentStatus}
+                            onChangePaymentMethod={handleChangePaymentMethod}
+                            onRetryPayment={handleRetryPayment}
                         />
 
                         <ChatInput
                             value={input}
                             onChange={setInput}
-                            onSubmit={sendMessage}
+                            onSubmit={() => handleSendMessage()}
                             isLoading={isLoading}
                             isRedirecting={isRedirecting}
                         />
@@ -123,25 +206,24 @@ export default function Chatbot() {
                 )}
             </AnimatePresence>
 
-            {/* FAB toggle button */}
             <motion.button
-                whileHover={{ scale: 1.08, rotate: -3 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
-                aria-label={isOpen ? 'Tutup chatbot' : 'Buka chatbot'}
-                className="w-16 h-16 bg-[#38BDF8] text-white rounded-2xl shadow-xl shadow-[#38BDF8]/30 flex items-center justify-center relative pointer-events-auto border-4 border-white overflow-hidden group"
+                aria-label={isOpen ? 'Tutup Mandala Bot' : 'Buka Mandala Bot'}
+                className="w-16 h-16 rounded-full bg-slate-900 shadow-xl shadow-slate-900/30 flex items-center justify-center relative pointer-events-auto border-4 border-white transition-colors group z-50 overflow-hidden"
             >
-                <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-20 transition-opacity" />
                 {isOpen ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform rotate-0 scale-100">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 ) : (
-                    <div className="flex flex-col items-center select-none">
-                        <span className="text-2xl font-black italic leading-none pt-0.5">M</span>
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#FACC15] rounded-full border-2 border-white flex items-center justify-center">
-                            <span className="text-[8px] font-black text-slate-900">!</span>
-                        </div>
+                    <div className="flex relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-sky-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
                     </div>
                 )}
             </motion.button>

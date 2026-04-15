@@ -64,4 +64,14 @@ interface BookingServiceInterface
         array  $statuses = [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED],
         array  $paymentStatuses = ['paid', 'settlement', 'capture']
     ): bool;
+
+    /**
+     * Get list of available hour slots for a facility on a specific date.
+     *
+     * @param int $facilityId
+     * @param string $date (Y-m-d)
+     * @return array List of available start times (H:i)
+     */
+    public function getAvailableSlots(int $facilityId, string $date): array;
 }
+

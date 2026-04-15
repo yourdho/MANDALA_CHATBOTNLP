@@ -222,4 +222,29 @@ class BookingService implements BookingServiceInterface
             ->lockForUpdate()
             ->exists();
     }
+
+    public function getAvailableSlots(int $facilityId, string $date): array
+    {
+        $facility = Facility::find($facilityId);
+        if (!$facility) return [];
+
+        $openTime = Carbon::parse($date . ' ' . $facility->open_time);
+        $closeTime = Carbon::parse($date . ' ' . $facility->close_time);
+        
+        $slots = [];
+        $current = clone $openTime;
+        
+        while ($current < $closeTime) {
+            $slotStart = clone $current;
+            $slotEnd = (clone $current)->addHour();
+            
+            if (!$this->isSlotTaken($facilityId, $slotStart, $slotEnd)) {
+                $slots[] = $slotStart->format('H:i');
+            }
+            $current->addHour();
+        }
+        
+        return $slots;
+    }
 }
+

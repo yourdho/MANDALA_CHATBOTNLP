@@ -37,6 +37,7 @@ export default function Show({ booking, wa_link }) {
         });
     };
 
+
     // Standard Status Handling
     const getStatusStyles = (status) => {
         switch (status) {

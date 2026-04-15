@@ -213,12 +213,6 @@ export default function AuthenticatedLayout({ children, showSidebar = true, show
                                 <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Mading informasi User</span>
                             </div>
                         </SideNavItem>
-                        <SideNavItem href={route('admin.chatbot.index')} active={route().current('admin.chatbot.*')} icon={Icons.manage}>
-                            <div className="flex flex-col gap-1">
-                                <span className="font-bold text-[11px] uppercase tracking-widest italic" style={{ color: 'var(--text-primary)' }}>Chatbot NLP</span>
-                                <span className="text-[9px] normal-case leading-tight tracking-normal font-medium" style={{ color: 'var(--text-secondary)' }}>Kamus slank & greeting</span>
-                            </div>
-                        </SideNavItem>
                     </>
                 )
                 }

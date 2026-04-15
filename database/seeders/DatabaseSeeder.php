@@ -58,6 +58,15 @@ class DatabaseSeeder extends Seeder
                 'open_time' => '06:00',
                 'close_time' => '21:00',
             ],
+            [
+                'name' => 'Mandala Basket Hall',
+                'category' => 'Basket',
+                'description' => 'Full-size indoor basketball court with premium hardwood flooring and spectator seating.',
+                'price_per_hour' => 450000,
+                'open_time' => '06:00',
+                'close_time' => '23:00',
+                'images' => ['/images/facilities/basket/b1.jpg', '/images/facilities/basket/b2.jpg', '/images/facilities/basket/b3.jpg', '/images/facilities/basket/b4.jpg', '/images/facilities/basket/b5.jpg']
+            ],
         ];
 
         foreach ($facilities as $f) {

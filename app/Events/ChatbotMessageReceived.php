@@ -33,8 +33,9 @@ class ChatbotMessageReceived implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        // Scope the channel to the current PHP Session ID to avoid global leaking to all visitors
         return [
-            new Channel('chatbot'),
+            new Channel('chatbot.' . session()->getId()),
         ];
     }
 }

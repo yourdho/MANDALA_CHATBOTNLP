@@ -153,13 +153,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Reports (Super Admin only check inside controller or middleware)
         Route::get('/reports', [BookingController::class, 'reports'])->name('reports.index');
 
-        // Chatbot Management
-        Route::get('/chatbot', [ChatbotController::class, 'adminIndex'])->name('chatbot.index');
-        Route::post('/chatbot/dictionary', [ChatbotController::class, 'storeDictionary'])->name('chatbot.dictionary.store');
-        Route::put('/chatbot/dictionary/{id}', [ChatbotController::class, 'updateDictionary'])->name('chatbot.dictionary.update');
-        Route::delete('/chatbot/dictionary/{id}', [ChatbotController::class, 'destroyDictionary'])->name('chatbot.dictionary.destroy');
-        Route::post('/chatbot/greeting', [ChatbotController::class, 'updateGreeting'])->name('chatbot.greeting.update');
-
         // Dynamic Pricing Schedule & Addons
         Route::get('/pricing', [PricingController::class, 'index'])->name('pricing.index');
         Route::post('/pricing/schedules', [PricingController::class, 'storeSchedule'])->name('pricing.schedules.store');
