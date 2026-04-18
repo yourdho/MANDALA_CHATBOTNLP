@@ -39,12 +39,10 @@ class IntentClassifier
         // Note: For advanced intents not in DB yet, they rely solely on aliases/phrase bonus which is perfectly fine.
         $dictionaries = [];
 
-        foreach ($dictionaries as $dict) {
-
         // 4. Entity Context Reinforcement
         // "jika user menyebut fasilitas + aksi booking/waktu, perkuat booking intent"
-        $hasTime = isset($entities['booking_time']) || isset($entities['booking_date']);
-        $hasFacility = isset($entities['facility_id']) || isset($entities['sport_type']);
+        $hasTime = isset($entities['time']) || isset($entities['date']);
+        $hasFacility = isset($entities['facility']);
 
         if ($hasTime || $hasFacility) {
              $scores['booking'] = ($scores['booking'] ?? 0) + 5; // Base bump

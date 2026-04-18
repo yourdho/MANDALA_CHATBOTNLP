@@ -24,13 +24,18 @@ class Tokenizer
         // Split by non-word characters
         $tokens = preg_split('/[\s,?.!]+/', strtolower($message), -1, PREG_SPLIT_NO_EMPTY);
         if (!$tokens) {
-            return [];
+            return [
+                'tokens' => [],
+                'stems' => [],
+            ];
         }
 
         $cleanTokens = $this->removeStopwords($tokens);
         
-        // Stemming is optional but helpful
-        return array_map([$this, 'stem'], $cleanTokens);
+        return [
+            'tokens' => array_values($cleanTokens),
+            'stems' => array_values(array_map([$this, 'stem'], $cleanTokens)),
+        ];
     }
 
     /**

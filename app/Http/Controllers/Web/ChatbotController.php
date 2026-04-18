@@ -37,4 +37,19 @@ class ChatbotController extends Controller
             'meta'        => $result['meta'] ?? null,
         ]);
     }
+
+    /**
+     * Reset chatbot session — called by frontend on page load / chatbot open.
+     * Ensures conversation always starts fresh after a page refresh.
+     */
+    public function resetSession(Request $request)
+    {
+        Session::forget([
+            'chatbot_state',
+            'chatbot_booking_slots',
+            'chatbot_booking_id',
+        ]);
+
+        return response()->json(['status' => 'reset']);
+    }
 }

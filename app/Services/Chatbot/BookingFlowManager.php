@@ -163,34 +163,38 @@ class BookingFlowManager
         
         $facility = Facility::find($slots['facility_id']);
         if (!$facility) {
-            $conversation['slots']['facility_id'] = null; // Invalid facility
+            $conversation['slots']['facility_id'] = null;
             return $this->determineNextQuestion(['facility_id'], $conversation);
         }
 
         $startTime = Carbon::parse($slots['date'] . ' ' . $slots['time']);
-        $duration = (int) $slots['duration'];
-        $endTime = $startTime->copy()->addHours($duration);
+        $duration  = (int) $slots['duration'];
+        $endTime   = $startTime->copy()->addHours($duration);
 
-        // TODO: This should ideally call a BookingService injection, but implemented inline for now
-        $conflict = Booking::where('facility_id', $facility->id)
-            ->where('booking_date', $slots['date'])
-            ->whereIn('status', ['confirmed', 'pending'])
-            ->where(function ($q) use ($startTime, $endTime) {
-                $q->whereBetween('start_time', [$startTime->format('H:i:s'), $endTime->copy()->subMinute()->format('H:i:s')])
-                  ->orWhereBetween('end_time', [$startTime->copy()->addMinute()->format('H:i:s'), $endTime->format('H:i:s')])
-                  ->orWhere(function ($q2) use ($startTime, $endTime) {
-                      $q2->where('start_time', '<=', $startTime->format('H:i:s'))
-                         ->where('end_time', '>=', $endTime->format('H:i:s'));
-                  });
-            })->exists();
+        $conflict = $this->hasBookingConflict($facility->id, $startTime, $endTime);
 
         if ($conflict) {
             return $this->suggestAlternatives($conversation);
         }
 
-        // Available!
+        // Available — build summary
         $conversation['slots']['price'] = $facility->price_per_hour * $duration;
         return $this->buildBookingSummary($conversation);
+    }
+
+    /**
+     * Mengecek konflik jadwal di database.
+     */
+    protected function hasBookingConflict(string $facilityId, Carbon $startTime, Carbon $endTime): bool
+    {
+        return Booking::where('facility_id', $facilityId)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->where(function ($q) use ($startTime, $endTime) {
+                    $q->where('starts_at', '<', $endTime)
+                      ->where('ends_at', '>', $startTime);
+                });
+            })->exists();
     }
 
     /**

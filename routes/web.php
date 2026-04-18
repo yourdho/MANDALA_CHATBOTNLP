@@ -19,6 +19,7 @@ use Inertia\Inertia;
 
 // ── Chatbot Real-Time Routes ─────────────────────────────────
 Route::post('/chatbot/message', [ChatbotController::class, 'handleMessage'])->name('chatbot.message');
+Route::post('/chatbot/reset',   [ChatbotController::class, 'resetSession'])->name('chatbot.reset');
 
 // ── Home & Facilities ────────────────────────────────────────
 Route::get('/', [FacilityController::class, 'index'])->name('welcome');

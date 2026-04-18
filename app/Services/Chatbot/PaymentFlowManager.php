@@ -32,12 +32,13 @@ class PaymentFlowManager
                 
                 // Fallback detection
                 if (!$method) {
-                    if (str_contains($rawMsg, 'qris') || str_contains($rawMsg, 'gopay') || str_contains($rawMsg, 'ovo') || str_contains($rawMsg, 'ewallet')) $method = 'qris';
-                    if (str_contains($rawMsg, 'transfer') || str_contains($rawMsg, 'bca') || str_contains($rawMsg, 'mandiri') || str_contains($rawMsg, 'virtual')) $method = 'virtual_account';
-                    if (str_contains($rawMsg, 'cash') || str_contains($rawMsg, 'lokasi')) $method = 'pay_at_venue';
+                    if (str_contains($rawMsg, 'qris') || str_contains($rawMsg, 'gopay') || str_contains($rawMsg, 'ovo') || str_contains($rawMsg, 'ewallet')) $method = 'QRIS';
+                    elseif (str_contains($rawMsg, 'transfer') || str_contains($rawMsg, 'bca') || str_contains($rawMsg, 'mandiri') || str_contains($rawMsg, 'virtual')) $method = 'VIRTUAL_ACCOUNT';
+                    elseif (str_contains($rawMsg, 'cash') || str_contains($rawMsg, 'lokasi')) $method = 'PAY_AT_VENUE';
                 }
 
                 if ($method) {
+                    $method = strtoupper($method);
                     return $this->selectPaymentMethod($conversation, $method);
                 }
 
@@ -122,12 +123,12 @@ class PaymentFlowManager
         $booking = Booking::create([
             'user_id' => Auth::id(),
             'facility_id' => $facility->id,
-            'booking_date' => $slots['date'],
-            'start_time' => $startTime->format('H:i:s'),
-            'end_time' => $endTime->format('H:i:s'),
+            'starts_at' => $startTime,
+            'ends_at' => $endTime,
+            'duration_hours' => $duration,
             'total_price' => $price,
             'status' => 'pending',
-            'payment_status' => 'unpaid'
+            'payment_status' => 'pending' // Changed from 'unpaid' to 'pending' to match common project pattern
         ]);
 
         return [
@@ -206,9 +207,10 @@ class PaymentFlowManager
         // Secara aslinya: Midtrans::status($booking->payment_reference);
         $status = $booking ? $booking->payment_status : 'failed';
         
-        // --- DEV ONLY MOCK ---
-        // Jika kita sengaja mau mentes sukses lewat chat
-        $status = 'success'; // (Rubah ke real gateway response di production!)
+        // Mock Gateway Cek Status untuk Development
+        if (config('app.env') === 'local') {
+            $status = 'success';
+        }
         
         $paymentInfo = [
             'booking_id' => $booking->id,

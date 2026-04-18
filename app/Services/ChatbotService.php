@@ -58,13 +58,12 @@ class ChatbotService implements ChatbotServiceInterface
         // 1. Jalankan NLP Analysis
         $nlpResult = $this->nlpPipeline->process($message);
         
-        // 2. Cancellation Check
+        // 2 & 3. Cancellation & Routing Berdasarkan State & Intent
         if (in_array($nlpResult['intent'], ['cancel', 'cancel_booking'])) {
-             return $this->handleCancellation($conversation);
+             $flowResult = $this->handleCancellation($conversation);
+        } else {
+             $flowResult = $this->routeIntent($conversation, $nlpResult);
         }
-
-        // 3. Routing Berdasarkan State & Intent
-        $flowResult = $this->routeIntent($conversation, $nlpResult);
 
         // 4. Persistence State
         $this->persistConversation($flowResult['conversation']);
@@ -80,7 +79,8 @@ class ChatbotService implements ChatbotServiceInterface
             'reply' => $reply,
             'chips' => collect($flowResult['quick_replies'] ?? [])->map(fn($q) => ['label' => $q['label'], 'msg' => $q['msg']])->toArray(),
             'redirect' => $flowResult['meta']['redirect'] ?? null,
-            'ui' => $flowResult['ui']
+            'ui' => $flowResult['ui'],
+            'meta' => $flowResult['meta'] ?? []
         ];
     }
 
@@ -104,9 +104,11 @@ class ChatbotService implements ChatbotServiceInterface
     {
         $currentState = $conversation['state'];
         $intent = $nlpResult['intent'];
+        $score = $nlpResult['confidence'] ?? 0;
+        $thresholds = config('chatbot_nlp.thresholds');
 
         // Jika confidence rendah, klarifikasi
-        if (isset($nlpResult['confidence']) && $nlpResult['confidence'] < 0.4 && $currentState === 'IDLE') {
+        if ($score < ($thresholds['low_confidence'] ?? 4) && $currentState === 'IDLE') {
             return $this->buildClarificationResponse($nlpResult, $conversation);
         }
 
@@ -114,7 +116,7 @@ class ChatbotService implements ChatbotServiceInterface
         $isBookingState = in_array($currentState, ['COLLECTING_FACILITY', 'COLLECTING_DATE', 'COLLECTING_TIME', 'COLLECTING_DURATION', 'BOOKING_SUMMARY', 'WAITING_CONFIRMATION', 'CHECKING_AVAILABILITY']);
         $isPaymentState = in_array($currentState, ['WAITING_PAYMENT_METHOD', 'CREATING_PAYMENT', 'PAYMENT_PENDING', 'ACCOUNT_CHECK']);
 
-        // Explicit Intent Overrides (Memaksa flow berubah)
+        // Explicit Intent Overrides
         if ($intent === 'payment_status_check') {
             $conversation['state'] = 'PAYMENT_PENDING';
             return $this->handlePaymentIntent($conversation, $nlpResult);
@@ -145,7 +147,8 @@ class ChatbotService implements ChatbotServiceInterface
         // Pindah otomatis ke payment jika booking konfirmasi beres
         if (!empty($result['ready_for_payment'])) {
             $conversation['state'] = 'WAITING_PAYMENT_METHOD';
-            return $this->handlePaymentIntent($conversation, $nlpResult);
+            // We pass a 'null' nlp result or specifically empty to trigger the selection card
+            return $this->handlePaymentIntent($conversation, []); 
         }
 
         return $this->mergeResponse($this->baseResponseStruct($conversation, $nlpResult), $result);
@@ -163,9 +166,10 @@ class ChatbotService implements ChatbotServiceInterface
         $generator = $this->nlpPipeline->getResponseGenerator();
         
         $chips = [];
-        if ($intent === 'greeting')    $chips = $this->facilityChips();
-        if ($intent === 'facilities')  $chips = [['label' => 'Cek Harga', 'msg' => 'harga'], ['label' => 'Booking Sekarang', 'msg' => 'booking']];
-        if ($intent === 'location')    $chips = [['label' => 'Buka Maps', 'msg' => 'rute']];
+        if ($intent === 'greeting')      $chips = $this->facilityChips();
+        if ($intent === 'facility_info') $chips = [['label' => 'Cek Harga', 'msg' => 'harga'], ['label' => 'Booking Sekarang', 'msg' => 'booking']];
+        if ($intent === 'location_info') $chips = [['label' => 'Buka Maps', 'msg' => 'rute']];
+        if ($intent === 'price_check')   $chips = [['label' => 'Booking Sekarang', 'msg' => 'booking'], ['label' => 'Info Fasilitas', 'msg' => 'fasilitas']];
         
         $rawReply = $generator->generate($intent, $chips, null, null, null, $nlpResult['ambiguous_intents'] ?? []);
         

@@ -33,6 +33,11 @@ export default function Chatbot() {
     const [isRedirecting, setIsRedirecting] = useState(false);
     const bottomRef = useRef(null);
 
+    // Reset backend session on every page load so conversation never bleeds across refreshes
+    useEffect(() => {
+        axios.post('/chatbot/reset').catch(() => {});
+    }, []);
+
     useEffect(() => {
         if (isOpen) {
             setTimeout(() => {

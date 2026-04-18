@@ -33,18 +33,24 @@ class NlpPipeline
     public function process(string $rawMessage): array
     {
         $normalizedText = $this->normalizer->normalize($rawMessage);
-        $tokens = $this->tokenizer->tokenize($normalizedText);
-        $entities = $this->entityExtractor->extractEntities($normalizedText);
         
-        list($intent, $score, $ambiguous) = $this->intentClassifier->classify($tokens, $normalizedText, $entities);
+        $tokenData = $this->tokenizer->tokenize($normalizedText);
+        $tokens = $tokenData['tokens'];
+        $stems = $tokenData['stems'];
+        
+        $entities = $this->entityExtractor->extract($normalizedText);
+        
+        // Pass stems to IntentClassifier for better matching
+        list($intent, $confidence, $ambiguous) = $this->intentClassifier->classify($stems, $normalizedText, $entities);
 
         return [
             'raw' => $rawMessage,
             'normalized' => $normalizedText,
             'tokens' => $tokens,
+            'stems' => $stems,
             'entities' => $entities,
             'intent' => $intent,
-            'confidence_score' => $score,
+            'confidence' => $confidence,
             'ambiguous_intents' => $ambiguous
         ];
     }

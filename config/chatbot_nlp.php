@@ -61,6 +61,9 @@ return [
         'badé booking' => ['intent' => 'booking', 'score' => 20],
         'mau main' => ['intent' => 'booking', 'score' => 12],
         'ingin main' => ['intent' => 'booking', 'score' => 12],
+        'booking lapangan' => ['intent' => 'booking', 'score' => 20],
+        'sewa lapangan' => ['intent' => 'booking', 'score' => 20],
+        'pesen lapangan' => ['intent' => 'booking', 'score' => 20],
 
         // Availability
         'cek jadwal' => ['intent' => 'availability_check', 'score' => 20],
@@ -237,6 +240,7 @@ return [
         'reservasi' => ['intent' => 'booking', 'score' => 5],
         'reserve' => ['intent' => 'booking', 'score' => 5],
         'main' => ['intent' => 'booking', 'score' => 3],
+        'pesen' => ['intent' => 'booking', 'score' => 4],
 
         // Availability
         'jadwal' => ['intent' => 'availability_check', 'score' => 6],
@@ -329,7 +333,6 @@ return [
         'invoice' => ['intent' => 'payment_status_check', 'score' => 5],
         'lunas' => ['intent' => 'payment_status_check', 'score' => 5],
         'status' => ['intent' => 'payment_status_check', 'score' => 4],
-        'masuk' => ['intent' => 'payment_status_check', 'score' => 3],
     ],
 
     'synonyms' => [
@@ -416,9 +419,16 @@ return [
         'blom' => 'belum',
         'dpt' => 'dapat',
         'dapet' => 'dapat',
+        'pengen' => 'ingin',
+        'pngn' => 'ingin',
+        'gw' => 'saya',
+        'gue' => 'saya',
+        'gua' => 'saya',
+        'aku' => 'saya',
+        'min' => 'admin',
+        'mimin' => 'admin',
         'klo' => 'kalau',
         'kl' => 'kalau',
-        'trs' => 'terus',
         'trs' => 'terus',
         'ntar' => 'nanti',
         'bsk' => 'besok',
@@ -431,16 +441,12 @@ return [
         'konfirm' => 'konfirmasi',
         'minsok' => 'mini soccer',
         'minsoc' => 'mini soccer',
-        'minsoc' => 'mini soccer',
         'msoc' => 'mini soccer',
         'mini soc' => 'mini soccer',
         'minisoc' => 'mini soccer',
         'pdl' => 'padel',
-        'pdl' => 'padel',
         'plt' => 'pilates',
         'pilat' => 'pilates',
-        'bskt' => 'basket',
-        'bsk' => 'basket',
         'bskt' => 'basket',
         'qrisnya' => 'qris',
         'ovonya' => 'ovo',
@@ -533,42 +539,54 @@ return [
         'trasnfer' => 'transfer',
         'konfrimasi' => 'konfirmasi',
         'konfrmasi' => 'konfirmasi',
+        'pesen' => 'pesan',
+        'psn' => 'pesan',
+        'bayr' => 'bayar',
+        'dftr' => 'daftar',
     ],
 
     'facility_aliases' => [
         'mini soccer' => [
-            'mini soccer', 'minisoccer', 'mini-soccer', 'soccer',
-            'mini soccer field', 'lapang mini soccer', 'lapangan mini soccer',
-            'main mini soccer', 'main soccer', 'minsok', 'minsoc', 'minsoc', 'msoc', 'minisoc',
+            'mini soccer', 'minisoccer', 'mini-soccer', 'soccer', 'mini soccer field', 
+            'lapang mini soccer', 'lapangan mini soccer', 'main mini soccer', 'main soccer', 
+            'minsok', 'minsoc', 'msoc', 'minisoc', 'futsal', 'bola', 'main bola', 
+            'lapangan bola', 'lapang bola', 'lapangan futsal', 'lapang futsal', 
+            'sepakbola', 'sepak bola', 'mini soker', 'soker', 'misoc', 'misok', 
+            'minisoker', 'bal-balan', 'maen bola', 'maen futsal', 'lapang socer'
         ],
         'padel' => [
-            'padel', 'padel court', 'court padel', 'lapang padel',
-            'lapangan padel', 'main padel', 'pdl',
+            'padel', 'padel court', 'court padel', 'lapang padel', 'lapangan padel', 
+            'main padel', 'pdl', 'tenis', 'tennis', 'main tenis', 'main tennis', 
+            'raket padel', 'paddle', 'paddel', 'tenis padel', 'tennis padel', 
+            'lapang tenis', 'lapangan tenis court', 'padle', 'maen padel', 'raket'
         ],
         'pilates' => [
-            'pilates', 'kelas pilates', 'studio pilates', 'sesi pilates',
-            'latihan pilates', 'class pilates', 'main pilates', 'pilat', 'plt',
+            'pilates', 'kelas pilates', 'studio pilates', 'sesi pilates', 'latihan pilates', 
+            'class pilates', 'main pilates', 'pilat', 'plt', 'yoga', 'senam pilates', 
+            'senam', 'olahraga pilates', 'pilates studio', 'gym pilates', 'stretching', 
+            'mat pilates', 'pilates mat', 'pilate', 'pelates'
         ],
         'basket' => [
-            'basket', 'basketball', 'bola basket', 'court basket',
-            'lapang basket', 'lapangan basket', 'main basket', 'main basketball',
-            'bskt', 'bskt', 'bsk',
+            'basket', 'basketball', 'bola basket', 'court basket', 'lapang basket', 
+            'lapangan basket', 'main basket', 'main basketball', 'bskt', 'bsk', 
+            'hoop', 'ring', 'bball', 'basket ball', 'besket', 'basketan', 
+            'lapangan bsk', 'maen basket', 'lempar bola', 'lapang basket indor'
         ],
     ],
 
     'sport_aliases' => [
         'Mini Soccer' => [
             'mini soccer', 'minisoccer', 'soccer', 'mini soccer field',
-            'lapangan mini soccer', 'lapang mini soccer',
+            'lapangan mini soccer', 'lapang mini soccer', 'futsal', 'sepak bola', 'minsok'
         ],
         'Padel' => [
-            'padel', 'padel court', 'court padel', 'lapangan padel',
+            'padel', 'padel court', 'court padel', 'lapangan padel', 'tenis', 'paddle'
         ],
         'Pilates' => [
-            'pilates', 'kelas pilates', 'studio pilates', 'sesi pilates',
+            'pilates', 'kelas pilates', 'studio pilates', 'sesi pilates', 'yoga'
         ],
         'Basket' => [
-            'basket', 'basketball', 'bola basket', 'lapangan basket',
+            'basket', 'basketball', 'bola basket', 'lapangan basket', 'besket'
         ],
     ],
 
@@ -621,7 +639,7 @@ return [
     ],
 
     'clarification_templates' => [
-        'ambiguous' => "Hmm, maksud Kakak itu mau:\n\n[OPTION_1], [OPTION_2], atau [OPTION_3]?",
+        'ambiguous' => "Hmm, maksud Kakak itu mau:\n\n[OPTION_1] atau [OPTION_2]?",
         'booking_or_schedule' => "Kakak mau langsung booking atau cek jadwal dulu?",
         'booking_or_price' => "Kakak mau langsung booking atau cek harga dulu?",
         'payment_or_status' => "Kakak mau pilih metode pembayaran atau cek status pembayaran?",

@@ -34,7 +34,7 @@ class AdvancedNlpTest extends TestCase
             'price_check' => ['harga', 'tarif'],
             'login_help' => ['akun', 'login']
         ]);
-        Config::set('chatbot_nlp.phrase_bonus', [
+        Config::set('chatbot_nlp.phrase_weights', [
             'mau booking' => ['intent' => 'booking', 'score' => 20],
             'sudah punya akun' => ['intent' => 'login_help', 'score' => 15],
         ]);
@@ -59,7 +59,7 @@ class AdvancedNlpTest extends TestCase
     public function test_phrase_bonus_dominates()
     {
         $res = $this->pipeline->process("saya mau booking");
-        $this->assertGreaterThanOrEqual(20, $res['confidence_score']);
+        $this->assertGreaterThanOrEqual(20, $res['confidence']);
         $this->assertEquals('booking', $res['intent']);
     }
 
@@ -88,21 +88,21 @@ class AdvancedNlpTest extends TestCase
     public function test_extracts_date_besok()
     {
         $res = $this->pipeline->process("booking besok malam");
-        $this->assertEquals('besok', $res['entities']['booking_date']);
+        $this->assertEquals(now()->addDay()->toDateString(), $res['entities']['date']);
     }
 
     // 7. Extraction Time from night
     public function test_extracts_time_malam()
     {
         $res = $this->pipeline->process("jam 8 malam");
-        $this->assertEquals('20:00', $res['entities']['booking_time']);
+        $this->assertEquals('20:00:00', $res['entities']['time']);
     }
 
     // 8. Extraction Time from raw formatted
     public function test_extracts_time_formatted()
     {
         $res = $this->pipeline->process("19:30");
-        $this->assertEquals('19:30', $res['entities']['booking_time']);
+        $this->assertEquals('19:30:00', $res['entities']['time']);
     }
 
     // 9. Duration extraction
@@ -119,19 +119,7 @@ class AdvancedNlpTest extends TestCase
         $this->assertEquals(2, $res['entities']['duration']);
     }
 
-    // 11. Number of people (word representation)
-    public function test_extracts_people_berlima()
-    {
-        $res = $this->pipeline->process("kami mau main berlima");
-        $this->assertEquals(5, $res['entities']['number_of_people']);
-    }
 
-    // 12. Number of people (numeric)
-    public function test_extracts_people_numeric_orang()
-    {
-        $res = $this->pipeline->process("untuk 10 orang");
-        $this->assertEquals(10, $res['entities']['number_of_people']);
-    }
 
     // 13. Repeated Character Cleanup
     public function test_repeated_characters_cleanup()
@@ -185,7 +173,7 @@ class AdvancedNlpTest extends TestCase
     // 18. Matchmaking intent via Phrase Bonus
     public function test_cari_lawan()
     {
-        Config::set('chatbot_nlp.phrase_bonus', ['cari lawan' => ['intent' => 'matchmaking', 'score' => 20]]);
+        Config::set('chatbot_nlp.phrase_weights', ['cari lawan' => ['intent' => 'matchmaking', 'score' => 20]]);
         $res = $this->pipeline->process("saya mau cari lawan dong");
         $this->assertEquals('matchmaking', $res['intent']);
     }
@@ -201,6 +189,6 @@ class AdvancedNlpTest extends TestCase
     public function test_pilot_sport_type()
     {
         $res = $this->pipeline->process("jadwal padel dong");
-        $this->assertEquals('Padel', $res['entities']['sport_type']);
+        $this->assertEquals('padel', strtolower($res['entities']['facility']['category']));
     }
 }

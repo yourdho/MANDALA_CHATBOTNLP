@@ -49,13 +49,13 @@ class NlpPipelineTest extends TestCase
         $tokenizer = new Tokenizer();
         
         $input = "aku mau booking lapangan di hari membesok ya";
-        $tokens = $tokenizer->tokenize($input);
+        $data = $tokenizer->tokenize($input);
         
-        $this->assertNotContains('di', $tokens);
-        $this->assertNotContains('ya', $tokens);
+        $this->assertNotContains('di', $data['tokens']);
+        $this->assertNotContains('ya', $data['tokens']);
         
         // 'membesok' should theoretically be stemmed to 'besok' based on the basic stemmer
-        $this->assertTrue(in_array('besok', $tokens));
+        $this->assertTrue(in_array('besok', $data['stems']));
     }
 
     public function test_intent_classifier_uses_aliases()
