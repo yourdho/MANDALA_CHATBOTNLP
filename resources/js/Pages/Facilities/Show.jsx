@@ -46,6 +46,33 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
         return new Date().toISOString().split('T')[0];
     });
 
+    const [currentDateObj, setCurrentDateObj] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentDateObj(new Date()), 60000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const isSlotRealtimeAvailable = (dateStr, timeStr, originalAvailable) => {
+        if (!originalAvailable) return false;
+        const now = currentDateObj;
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const date = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${date}`;
+
+        if (dateStr === todayStr) {
+            const slotHour = parseInt(timeStr.split(':')[0], 10);
+            const currentHour = now.getHours();
+            if (slotHour <= currentHour) {
+                return false;
+            }
+        } else if (dateStr < todayStr) {
+            return false;
+        }
+        return true;
+    };
+
     // Dynamic Addons State
     const [selectedAddons, setSelectedAddons] = useState([]);
 
@@ -296,12 +323,14 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                     <div className="lg:col-span-8 space-y-6">
                                         <h3 className="text-sm font-black italic uppercase tracking-[0.2em] text-[#38BDF8]">02. Alokasi Waktu</h3>
                                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                                            {court.timeSlots.map(slot => (
-                                                <button key={slot.time} disabled={!slot.available} onClick={() => slot.available && toggleMultiCourtSlot(court.id, slot.time)}
+                                            {court.timeSlots.map(slot => {
+                                                const isRealtime = isSlotRealtimeAvailable(bookingDate, slot.time, slot.available);
+                                                return (
+                                                <button key={slot.time} disabled={!isRealtime} onClick={() => isRealtime && toggleMultiCourtSlot(court.id, slot.time)}
                                                     className={`py-5 rounded-2xl border-2 font-black italic text-sm transition-all relative overflow-hidden flex items-center justify-center
                                                     ${selectedCourtId === court.id && selectedSlots.includes(slot.time)
                                                             ? 'bg-[#38BDF8] border-[#38BDF8] text-slate-950 shadow-[0_10px_30px_rgba(56,189,248,0.4)] z-10 scale-110 !opacity-100'
-                                                            : slot.available
+                                                            : isRealtime
                                                                 ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 hover:border-[#38BDF8] hover:scale-105 active:scale-95 shadow-sm'
                                                                 : 'bg-slate-100 dark:bg-slate-950 border-dashed border-slate-300 dark:border-slate-800 text-slate-300 dark:text-slate-700/60 cursor-not-allowed line-through opacity-80'
                                                         }
@@ -311,7 +340,8 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                         <span className="text-[8px] opacity-40 font-bold mt-1 group-hover:opacity-100 transition-opacity">RP {parseInt(slot.price).toLocaleString('id-ID')}</span>
                                                     </div>
                                                 </button>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>
@@ -369,12 +399,14 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                 <div className="lg:col-span-8 space-y-6">
                                     <h3 className="text-sm font-black italic uppercase tracking-[0.2em] text-[#38BDF8]">02. Alokasi Waktu</h3>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                                        {timeSlots.map(slot => (
-                                            <button key={slot.time} disabled={!slot.available} onClick={() => slot.available && toggleMultiCourtSlot(facility.id, slot.time)}
+                                        {timeSlots.map(slot => {
+                                            const isRealtime = isSlotRealtimeAvailable(bookingDate, slot.time, slot.available);
+                                            return (
+                                            <button key={slot.time} disabled={!isRealtime} onClick={() => isRealtime && toggleMultiCourtSlot(facility.id, slot.time)}
                                                 className={`py-5 rounded-2xl border-2 font-black italic text-sm transition-all relative overflow-hidden flex items-center justify-center
                                                 ${selectedSlots.includes(slot.time)
                                                         ? 'bg-[#38BDF8] border-[#38BDF8] text-slate-950 shadow-[0_10px_30px_rgba(56,189,248,0.4)] z-10 scale-110 !opacity-100'
-                                                        : slot.available
+                                                        : isRealtime
                                                             ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-200 hover:border-[#38BDF8] hover:scale-105 active:scale-95 shadow-sm'
                                                             : 'bg-slate-100 dark:bg-slate-950 border-dashed border-slate-300 dark:border-slate-800 text-slate-300 dark:text-slate-700/60 cursor-not-allowed line-through opacity-80'
                                                     }
@@ -384,7 +416,8 @@ export default function FacilityShow({ facility, relatedFacilities = [], timeSlo
                                                     <span className="text-[8px] opacity-40 font-bold mt-1 group-hover:opacity-100 transition-opacity">Rp {parseInt(slot.price).toLocaleString()}</span>
                                                 </div>
                                             </button>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>

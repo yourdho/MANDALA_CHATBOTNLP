@@ -75,7 +75,6 @@ class DatabaseSeeder extends Seeder
 
         // 4. Chatbot Data (Optional, but good to have)
         $this->call([
-            ChatbotSeeder::class,
             UpdateFacilitiesSeeder::class,
             PriceScheduleSeeder::class,
             RewardSeeder::class,
