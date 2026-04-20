@@ -33,6 +33,19 @@ class EntityExtractor
             return now()->addDays(2)->toDateString();
         }
         
+        // Relative Dates
+        if (preg_match('/\b(minggu|bulan) depan\b/', $msg, $matches)) {
+            if ($matches[1] === 'minggu') {
+                return now()->addWeek()->toDateString();
+            } else {
+                return now()->addMonth()->toDateString();
+            }
+        }
+        
+        if (str_contains($msg, 'akhir pekan ini') || str_contains($msg, 'weekend')) {
+            return now()->next('saturday')->toDateString();
+        }
+
         // Days of week
         $days = ['senin' => 'monday', 'selasa' => 'tuesday', 'rabu' => 'wednesday', 'kamis' => 'thursday', 'jumat' => 'friday', 'jum\'at' => 'friday', 'sabtu' => 'saturday', 'minggu' => 'sunday'];
         foreach ($days as $id => $en) {
@@ -69,29 +82,46 @@ class EntityExtractor
 
     protected function extractTime(string $msg): ?string
     {
+        $hour = null;
+        $minute = "00";
+        $meridiem = null;
+
         // "setengah 8" -> 07:30
         if (preg_match('/\bsetengah\s+(\d{1,2})\b/', $msg, $matches)) {
             $targetHour = (int)$matches[1];
-            $realHour = $targetHour - 1;
-            if ($realHour <= 0) $realHour = 12; // setengah 1 -> 12:30
+            $hour = $targetHour - 1;
+            if ($hour <= 0) $hour = 12; // setengah 1 -> 12:30
+            $minute = "30";
             
             // Assume PM if it's typical evening hours context or > 1, but we'll stick to 24h fallback
             // If they say setengah 8 malam
-            if (str_contains($msg, 'malam') && $realHour < 12) $realHour += 12;
-            
-            return str_pad($realHour, 2, '0', STR_PAD_LEFT) . ':30:00';
+            if (str_contains($msg, 'malam') && $hour < 12) {
+                 $hour += 12;
+                 $meridiem = 'malam';
+            }
         }
-
         // Regex for HH:MM (e.g., 14:00, 14.00, jam 14.30)
-        if (preg_match('/\b(?:jam |pukul )?(\d{1,2})[:.](\d{2})\b/', $msg, $matches)) {
+        elseif (preg_match('/\b(?:jam |pukul |jm )?(\d{1,2})[:.](\d{2})\b/', $msg, $matches)) {
             $hour = (int)$matches[1];
-            if (str_contains($msg, 'malam') && $hour < 12) $hour += 12;
-            $hourPad = str_pad($hour, 2, '0', STR_PAD_LEFT);
-            return "$hourPad:{$matches[2]}:00";
+            $minute = $matches[2];
+             
+            if (str_contains($msg, 'malam') && $hour < 12) {
+                 $hour += 12;
+                 $meridiem = 'malam';
+            }
         }
-        
+        // Jam dengan label lewat menit "jam 4 lewat 15"
+        elseif (preg_match('/\b(?:jam |pukul |jm )?(\d{1,2})\s*lewat\s*(\d{1,2})\b/', $msg, $matches)) {
+            $hour = (int)$matches[1];
+            $minute = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
+             
+            if (str_contains($msg, 'malam') && $hour < 12) {
+                 $hour += 12;
+                 $meridiem = 'malam';
+            }
+        }
         // Regex for exactly "jam 7 malam" or "pukul 1 siang"
-        if (preg_match('/\b(?:jam |pukul )(\d{1,2})(?:\s|)(pagi|siang|sore|malam)\b/', $msg, $matches)) {
+        elseif (preg_match('/\b(?:jam |pukul |jm )(\d{1,2})(?:\s|)(pagi|siang|sore|malam)\b/', $msg, $matches)) {
             $hour = (int)$matches[1];
             $meridiem = $matches[2];
             
@@ -100,15 +130,35 @@ class EntityExtractor
                     $hour += 12; 
                 }
             }
-            $hourPad = str_pad($hour, 2, '0', STR_PAD_LEFT);
-            return "$hourPad:00:00";
+        }
+        // Catch pure "jam 20" or "jam 7"
+        elseif (preg_match('/\b(?:jam |pukul |jm )(\d{1,2})\b/', $msg, $matches)) {
+            $hour = (int)$matches[1];
         }
 
-        // Catch pure "jam 20" or "jam 7"
-        if (preg_match('/\b(?:jam |pukul |jm )(\d{1,2})\b/', $msg, $matches)) {
-            $hour = (int)$matches[1];
-            $hourPad = str_pad($hour, 2, '0', STR_PAD_LEFT);
-            return "$hourPad:00:00";
+        if ($hour !== null) {
+            // Time Travel Prevention (Cerdas Waktu Lampau)
+            // Jika tidak ada meridiem eksplisit (pagi/siang/malam/sore) dan jam yang dimasukkan <= 12
+            if ($meridiem === null && $hour <= 12) {
+                 $nowCountHour = (int) now()->format('H');
+                 
+                 // Jika saat ini sudah lewat jam yang diinput, asumsikan itu jam malam (hour + 12)
+                 // Misalnya saat ini jam 11:00 pagi, user minta "jam 8" -> Asumsikan jam 8 malam (20)
+                 if ($nowCountHour >= $hour) {
+                      $hour += 12;
+                 }
+                 // Perhatikan bahwa jika sekarang jam 21:00 (malam) dan user bilang "jam 8",
+                 // $hour jadi 8 + 12 = 20, yang mana < 21. Jadi tetap aman.
+                 // Nanti logic besok ditangani oleh kombinasi entitas tanggal jika perlu,
+                 // tapi ini cukup untuk menghindari time-travel mundur di hari yang sama untuk asumsi jam malam.
+            }
+            
+            // Format ulang dengan Carbon supaya aman dan terstandar H:i:00
+            try {
+                return Carbon::createFromTime($hour, (int)$minute, 0)->format('H:i:00');
+            } catch (\Exception $e) {
+                // Ignore fallback to null if Carbon fails validating the data
+            }
         }
 
         return null;

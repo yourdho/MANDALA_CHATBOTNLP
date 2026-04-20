@@ -135,12 +135,26 @@ class IntentClassifier
         }
 
         // 2b. Synonym/alias map
+        // BUGFIX: in_array() hanya cocok untuk token tunggal.
+        // Untuk sinonim multi-kata (misal 'cari lawan', 'buat akun'), kita harus
+        // memeriksa terhadap full raw normalized message menggunakan str_contains().
+        // Untuk sinonim satu kata, tetap cek ke messageTokens agar lebih presisi.
         $synonyms = Config::get('chatbot_nlp.synonyms', []);
         foreach ($synonyms as $synonymCategory => $synonymKeywords) {
             $aliasIntent = str_replace('_keywords', '', $synonymCategory);
             foreach ($synonymKeywords as $ak) {
-                if (in_array(strtolower($ak), $messageTokens)) {
-                    $scores[$aliasIntent] = ($scores[$aliasIntent] ?? 0) + (4 * $this->tfWeight);
+                $akLower = strtolower($ak);
+                // Deteksi apakah sinonim ini multi-kata atau satu kata
+                if (str_contains($akLower, ' ')) {
+                    // Multi-kata: gunakan str_contains pada raw normalized message
+                    if (str_contains($rawNormalizedMessage, $akLower)) {
+                        $scores[$aliasIntent] = ($scores[$aliasIntent] ?? 0) + (5 * $this->tfWeight);
+                    }
+                } else {
+                    // Satu kata: cek per-token untuk presisi lebih tinggi
+                    if (in_array($akLower, $messageTokens)) {
+                        $scores[$aliasIntent] = ($scores[$aliasIntent] ?? 0) + (4 * $this->tfWeight);
+                    }
                 }
             }
         }
@@ -194,6 +208,12 @@ class IntentClassifier
         }
 
         // ── Compile & Evaluate ────────────────────────────────────────────────
+        // Guard: jika tidak ada skor sama sekali (input acak tanpa kecocokan config),
+        // kembalikan 'unknown' langsung untuk mencegah undefined array key error.
+        if (empty($scores)) {
+            return ['unknown', 0, []];
+        }
+
         arsort($scores);
         $intents = array_keys($scores);
 

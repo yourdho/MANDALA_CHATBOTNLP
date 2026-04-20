@@ -16,7 +16,8 @@ class ChatbotService implements ChatbotServiceInterface
     public function __construct(
         protected NlpPipeline $nlpPipeline,
         protected BookingFlowManager $bookingFlowManager,
-        protected PaymentFlowManager $paymentFlowManager
+        protected PaymentFlowManager $paymentFlowManager,
+        protected \App\Services\Chatbot\ChatbotLogger $chatbotLogger // Inject logger
     ) {}
 
     public function normalize(string $message): string
@@ -53,6 +54,17 @@ class ChatbotService implements ChatbotServiceInterface
      */
     public function processMessage(string $message, string $state = null): array
     {
+        // LIMITASI: Cegah ReDoS & Payload besar
+        if (strlen($message) > 255) {
+            return [
+                'reply' => "Maaf Kak, pesan terlalu panjang. Singkat saja ya agar mudah dimengerti.",
+                'chips' => [],
+                'redirect' => null,
+                'ui' => ['type' => 'text', 'payload' => []],
+                'meta' => []
+            ];
+        }
+
         $conversation = $this->loadConversation();
         
         // 1. Jalankan NLP Analysis
@@ -86,6 +98,15 @@ class ChatbotService implements ChatbotServiceInterface
 
     protected function loadConversation(array $context = []): array
     {
+        $lastActive = Session::get('chatbot_last_active', 0);
+        $now = time();
+        
+        // Timeout 30 Menit (1800 detik)
+        if ($now - $lastActive > 1800) {
+             // Sesi Menggantung (Context Timeout): Reset paksa ke default
+             Session::forget(['chatbot_state', 'chatbot_booking_slots', 'chatbot_booking_id']);
+        }
+
         return [
             'state' => Session::get('chatbot_state', 'IDLE'),
             'slots' => Session::get('chatbot_booking_slots', []),
@@ -96,6 +117,8 @@ class ChatbotService implements ChatbotServiceInterface
     protected function persistConversation(array $conversation): void
     {
         Session::put('chatbot_state', $conversation['state'] ?? 'IDLE');
+        Session::put('chatbot_last_active', time());
+        
         if (isset($conversation['slots'])) Session::put('chatbot_booking_slots', $conversation['slots']);
         if (isset($conversation['booking_id'])) Session::put('chatbot_booking_id', $conversation['booking_id']);
     }
@@ -106,6 +129,14 @@ class ChatbotService implements ChatbotServiceInterface
         $intent = $nlpResult['intent'];
         $score = $nlpResult['confidence'] ?? 0;
         $thresholds = config('chatbot_nlp.thresholds');
+
+        // Log unknown intents for continuous learning
+        if (in_array($intent, ['unknown', 'low_confidence'])) {
+            $this->chatbotLogger->logUnrecognized(
+                $nlpResult['normalized'] ?? '', 
+                $nlpResult['entities'] ?? []
+            );
+        }
 
         // Jika confidence rendah, klarifikasi
         if ($score < ($thresholds['low_confidence'] ?? 4) && $currentState === 'IDLE') {

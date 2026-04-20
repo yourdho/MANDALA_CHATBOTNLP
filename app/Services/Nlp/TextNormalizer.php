@@ -140,8 +140,11 @@ class TextNormalizer
         // 4. Normalisasi karakter berulang (misal "okeeee" → "oke", "haaaloooo" → "halo")
         $message = preg_replace('/(.)\\1{2,}/', '$1', $message);
 
-        // 5. Pemetaan kamus inline (class-level)
-        foreach ($this->inlineSlang as $slang => $formal) {
+        // 5. Pemetaan kamus inline (class-level) — Sort by length DESC dulu!
+        // BUGFIX: Tanpa sort, 'abdi' bisa terganti sebelum 'abdi hoyong' sempat diproses.
+        $inlineSlangSorted = $this->inlineSlang;
+        uksort($inlineSlangSorted, fn($a, $b) => strlen($b) - strlen($a));
+        foreach ($inlineSlangSorted as $slang => $formal) {
             $message = preg_replace(
                 '/\b' . preg_quote($slang, '/') . '\b/u',
                 $formal,
@@ -149,10 +152,15 @@ class TextNormalizer
             );
         }
 
-        // 6. Pemetaan dari config (slang_map + typo_map) – lebih spesifik & bisa di-extend
+        // 6. Pemetaan dari config (sunda_map + slang_map + typo_map) — Sort by length DESC
+        // BUGFIX: sunda_map sebelumnya didefinisikan di config tapi tidak pernah dipanggil di sini.
+        $sundaMap  = Config::get('chatbot_nlp.sunda_map', []);
         $slangMap  = Config::get('chatbot_nlp.slang_map', []);
         $typoMap   = Config::get('chatbot_nlp.typo_map', []);
-        $staticMap = array_merge($slangMap, $typoMap);
+        $staticMap = array_merge($sundaMap, $slangMap, $typoMap);
+
+        // Sort by key length descending — frasa panjang diproses lebih dulu
+        uksort($staticMap, fn($a, $b) => strlen($b) - strlen($a));
 
         foreach ($staticMap as $slang => $formal) {
             $message = preg_replace(

@@ -87,7 +87,12 @@ class PaymentFlowManager
         // 1. Buat Draft Booking
         $bookingData = $this->createPendingBooking($conversation);
         if (!$bookingData) {
-            return $this->buildResponse('IDLE', 'Wah data bookingnya hilang. Kita ulang yuk?', [['label'=>'Ulang Booking', 'msg'=>'booking']], $conversation);
+            // Null bisa terjadi karena hilang slot (null safety) atau karena EXCEPTION double_booking
+            if (empty($conversation['slots']['facility_id']) || empty($conversation['slots']['date']) || empty($conversation['slots']['time'])) {
+                 return $this->buildResponse('IDLE', 'Wah data bookingnya hilang. Kita ulang yuk?', [['label'=>'Ulang Booking', 'msg'=>'booking']], $conversation);
+            } else {
+                 return $this->buildResponse('IDLE', 'Waduh Kak 😱, barusan banget jadwal ini dibooking orang lain sedetik yang lalu. Coba jam/tanggal lain yuk!', [['label'=>'Ubah Jadwal', 'msg'=>'ganti jadwal']], $conversation);
+            }
         }
 
         $booking = $bookingData['model'];
@@ -120,21 +125,44 @@ class PaymentFlowManager
             Booking::where('id', $conversation['booking_id'])->where('status', 'pending')->delete();
         }
 
-        $booking = Booking::create([
-            'user_id' => Auth::id(),
-            'facility_id' => $facility->id,
-            'starts_at' => $startTime,
-            'ends_at' => $endTime,
-            'duration_hours' => $duration,
-            'total_price' => $price,
-            'status' => 'pending',
-            'payment_status' => 'pending' // Changed from 'unpaid' to 'pending' to match common project pattern
-        ]);
+        try {
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($facility, $startTime, $endTime, $duration, $price) {
+                // RACE CONDITION PREVENTION (Double Booking)
+                // Mengecek kembali apakah ada bentrok pada saat ini juga dan MELOCK DB row/table segment tersebut
+                $conflict = Booking::where('facility_id', $facility->id)
+                    ->whereIn('status', ['confirmed', 'pending'])
+                    ->where(function ($query) use ($startTime, $endTime) {
+                        $query->where('starts_at', '<', $endTime)
+                              ->where('ends_at', '>', $startTime);
+                    })
+                    ->lockForUpdate()
+                    ->exists();
 
-        return [
-            'model' => $booking,
-            'price' => $price
-        ];
+                if ($conflict) {
+                    // Berarti keduluan orang lain sedetik yang lalu, lempar error ke luar
+                    throw new \Exception('double_booking');
+                }
+
+                $booking = Booking::create([
+                    'user_id' => Auth::id(),
+                    'facility_id' => $facility->id,
+                    'starts_at' => $startTime,
+                    'ends_at' => $endTime,
+                    'duration_hours' => $duration,
+                    'total_price' => $price,
+                    'status' => 'pending',
+                    'payment_status' => 'pending' // Changed from 'unpaid' to 'pending' to match common project pattern
+                ]);
+
+                return [
+                    'model' => $booking,
+                    'price' => $price
+                ];
+            });
+        } catch (\Exception $e) {
+            // Berarti gagal transaksinya atau conflict double booking
+            return null;
+        }
     }
 
     protected function createPayment(Booking $booking, string $method): array

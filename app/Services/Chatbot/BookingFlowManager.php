@@ -22,12 +22,40 @@ class BookingFlowManager
             return $this->handleCancellation($conversation);
         }
 
-        // 2. Gabungkan entitas baru dengan slot yang sudah kita miliki
-        $conversation = $this->mergeEntities($conversation, $nlpResult['entities']);
-        
         $currentState = $conversation['state'] ?? 'IDLE';
 
-        // 3. Routing logika berdasarkan State
+        // 2. Context Override: Jika ada facility baru di-input saat sedang collect hal lain
+        if (isset($nlpResult['entities']['facility']) && in_array($currentState, ['COLLECTING_DATE', 'COLLECTING_TIME', 'COLLECTING_DURATION'])) {
+             // Reset beberapa data tapi ganti facility
+             $newFacility = $nlpResult['entities']['facility'];
+             
+             // Pastikan ini facility yang benar-benar berbeda untuk menghindari reset jika disebut ulang
+             $currentFacilityId = $conversation['slots']['facility_id'] ?? null;
+             if ($currentFacilityId !== $newFacility['id']) {
+                 $conversation['slots']['facility_id'] = $newFacility['id'];
+                 $conversation['slots']['facility_name'] = $newFacility['name'];
+                 // Konfirmasi ke user tentang perubahan ini dan lanjut secara dinamis
+                 $conversation['slots']['date'] = null;
+                 $conversation['slots']['time'] = null;
+                 $conversation['state'] = 'COLLECTING_DATE'; // paksa mundur aman ke collect date
+                 
+                 // Lakukan merge sisa entity jika user bilang "ganti ke padel besok"
+                 $conversation = $this->mergeEntities($conversation, $nlpResult['entities']);
+                 
+                 return $this->buildResponse(
+                      'COLLECTING_DATE',
+                      "Oke, saya ganti ke {$newFacility['name']}. Rencana tanggal berapa mainnya Kak?",
+                      [],
+                      $conversation
+                 );
+             }
+        }
+
+        // 3. Gabungkan entitas baru dengan slot yang sudah kita miliki
+        $conversation = $this->mergeEntities($conversation, $nlpResult['entities']);
+        $currentState = $conversation['state'] ?? 'IDLE'; // refresh if mutated
+
+        // 4. Routing logika berdasarkan State (Dynamic Prompting)
         switch ($currentState) {
             case 'IDLE':
             case 'INTENT_DETECTED':
@@ -40,6 +68,7 @@ class BookingFlowManager
                 
                 if (empty($missingSlots)) {
                     // Jika data lengkap, cek availability
+                    $conversation['state'] = 'CHECKING_AVAILABILITY';
                     return $this->checkAvailability($conversation);
                 }
 
