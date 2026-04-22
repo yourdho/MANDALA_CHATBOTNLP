@@ -10,13 +10,15 @@ use App\Models\BlogPost;
 use App\Models\PriceSchedule;
 use App\Models\AdditionalItem;
 use App\Models\UserReward;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class FacilityController extends Controller
 {
+    public function __construct(protected FileUploadService $uploader) {}
+
     /**
      * Display the landing page with facilities.
      */
@@ -247,33 +249,14 @@ class FacilityController extends Controller
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
-            $categoryDir = str_replace(' ', '_', strtolower($validated['category']));
-            $storagePath = public_path('aset_foto/' . $categoryDir);
-
-            if (!file_exists($storagePath)) {
-                mkdir($storagePath, 0777, true);
-            }
-
+            $folder = 'facilities/' . str_replace(' ', '_', strtolower($validated['category']));
             foreach ($request->file('images') as $image) {
-                $filename = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
-                $image->move($storagePath, $filename);
-                $imagePaths[] = asset('aset_foto/' . $categoryDir . '/' . $filename);
+                $imagePaths[] = $this->uploader->store($image, $folder);
             }
         }
 
-        // Handle Facility Specific QRIS
         if ($request->hasFile('qris_image')) {
-            $qrisCategoryDir = 'qris_' . str_replace(' ', '_', strtolower($validated['category']));
-            $qrisStoragePath = public_path('aset_foto/' . $qrisCategoryDir);
-
-            if (!file_exists($qrisStoragePath)) {
-                mkdir($qrisStoragePath, 0777, true);
-            }
-
-            $qrisFile = $request->file('qris_image');
-            $qrisName = 'qris_' . time() . '.' . $qrisFile->getClientOriginalExtension();
-            $qrisFile->move($qrisStoragePath, $qrisName);
-            $validated['qris_image_url'] = asset('aset_foto/' . $qrisCategoryDir . '/' . $qrisName);
+            $validated['qris_image_url'] = $this->uploader->store($request->file('qris_image'), 'qris');
         }
 
         $validated['images'] = $imagePaths;
@@ -341,33 +324,15 @@ class FacilityController extends Controller
         $imagePaths = $request->input('existing_images', []);
 
         if ($request->hasFile('images')) {
-            $categoryDir = str_replace(' ', '_', strtolower($validated['category']));
-            $storagePath = public_path('aset_foto/' . $categoryDir);
-
-            if (!file_exists($storagePath)) {
-                mkdir($storagePath, 0777, true);
-            }
-
+            $folder = 'facilities/' . str_replace(' ', '_', strtolower($validated['category']));
             foreach ($request->file('images') as $image) {
-                $filename = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
-                $image->move($storagePath, $filename);
-                $imagePaths[] = asset('aset_foto/' . $categoryDir . '/' . $filename);
+                $imagePaths[] = $this->uploader->store($image, $folder);
             }
         }
 
-        // Handle Facility Specific QRIS
         if ($request->hasFile('qris_image')) {
-            $qrisCategoryDir = 'qris_' . str_replace(' ', '_', strtolower($validated['category']));
-            $qrisStoragePath = public_path('aset_foto/' . $qrisCategoryDir);
-
-            if (!file_exists($qrisStoragePath)) {
-                mkdir($qrisStoragePath, 0777, true);
-            }
-
-            $qrisFile = $request->file('qris_image');
-            $qrisName = 'qris_' . time() . '.' . $qrisFile->getClientOriginalExtension();
-            $qrisFile->move($qrisStoragePath, $qrisName);
-            $validated['qris_image_url'] = asset('aset_foto/' . $qrisCategoryDir . '/' . $qrisName);
+            $this->uploader->delete($facility->qris_image_url);
+            $validated['qris_image_url'] = $this->uploader->store($request->file('qris_image'), 'qris');
         } else {
             $validated['qris_image_url'] = $facility->qris_image_url;
         }

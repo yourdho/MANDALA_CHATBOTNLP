@@ -21,9 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->validateCsrfTokens(except: [
-            '/chatbot/*',
-            '/midtrans/*',
-            '/payment/*',
+            // Hanya webhook Midtrans yang perlu dikecualikan dari CSRF.
+            // Midtrans mengirim POST server-to-server tanpa session/cookie browser.
+            // Selain path ini, SEMUA POST wajib membawa CSRF token.
+            '/payment/callback',
         ]);
     })
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {

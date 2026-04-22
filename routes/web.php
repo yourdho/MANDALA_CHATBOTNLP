@@ -30,7 +30,9 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::post('/payment/create/{booking_id}', [PaymentController::class, 'createTransaction'])->name('payment.create');
 Route::post('/payment/callback', [BookingController::class, 'callback'])->name('payment.callback');
 
-Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+// Booking success — pakai {token} (UUID) bukan {booking} (integer ID)
+// Ini mencegah IDOR via enumerasi ID numerik pada halaman publik guest.
+Route::get('/booking/success/{token}', [BookingController::class, 'success'])->name('booking.success');
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
 // ── Authenticated Routes ──────────────────────────────────────

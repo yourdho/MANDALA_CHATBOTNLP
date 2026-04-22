@@ -54,10 +54,16 @@ class ChatbotService implements ChatbotServiceInterface
      */
     public function processMessage(string $message, string $state = null): array
     {
-        // Debug Mode Check
+        // Debug Mode — HANYA ADMIN
+        // User biasa yang mengirim '!debug ...' diperlakukan sebagai pesan biasa.
+        // Ini mencegah detail NLP internal (intent scores, entities, thresholds) bocor ke publik.
         if (str_starts_with(strtolower(trim($message)), '!debug')) {
-            $debugMessage = trim(substr(trim($message), 6));
-            return $this->handleDebugMode($debugMessage, $state);
+            if (Auth::check() && Auth::user()->role === 'admin') {
+                $debugMessage = trim(substr(trim($message), 6));
+                return $this->handleDebugMode($debugMessage, $state);
+            }
+            // Non-admin: lanjut proses biasa, abaikan prefix !debug
+            $message = trim(substr(trim($message), 6)) ?: $message;
         }
 
         // LIMITASI: Cegah ReDoS & Payload besar

@@ -5,50 +5,49 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use App\Models\BlogCategory;
+use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
 
 class BlogPostController extends Controller
 {
+    public function __construct(protected FileUploadService $uploader) {}
+
     public function index()
     {
-        $posts = BlogPost::with('category')->latest()->get();
+        $posts      = BlogPost::with('category')->latest()->get();
         $categories = BlogCategory::withCount('posts')->latest()->get();
+
         return Inertia::render('Admin/BlogPost/Index', [
-            'posts' => $posts,
-            'categories' => $categories
+            'posts'      => $posts,
+            'categories' => $categories,
         ]);
     }
 
     public function create()
     {
-        $categories = BlogCategory::all();
         return Inertia::render('Admin/BlogPost/Create', [
-            'categories' => $categories
+            'categories' => BlogCategory::all(),
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title'            => 'required|string|max:255',
             'blog_category_id' => 'required|exists:blog_categories,id',
-            'excerpt' => 'nullable|string',
-            'content' => 'required|string',
-            'status' => 'required|in:draft,published',
-            'author' => 'required|string|max:255',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'excerpt'          => 'nullable|string',
+            'content'          => 'required|string',
+            'status'           => 'required|in:draft,published',
+            'author'           => 'required|string|max:255',
+            'thumbnail'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
 
         if ($request->hasFile('thumbnail')) {
-            $file = $request->file('thumbnail');
-            $filename = time() . '_' . Str::slug($validated['title']) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('aset_foto/blog'), $filename);
-            $validated['thumbnail'] = asset('aset_foto/blog/' . $filename);
+            $validated['thumbnail'] = $this->uploader->store($request->file('thumbnail'), 'blog');
         }
 
         if ($validated['status'] === 'published') {
@@ -57,28 +56,27 @@ class BlogPostController extends Controller
 
         BlogPost::create($validated);
 
-        return redirect()->route('admin.blog.index')->with('success', 'Blog post created successfully!');
+        return redirect()->route('admin.blog.index')->with('success', 'Blog post berhasil dipublikasikan!');
     }
 
     public function edit(BlogPost $blog)
     {
-        $categories = BlogCategory::all();
         return Inertia::render('Admin/BlogPost/Edit', [
-            'post' => $blog,
-            'categories' => $categories
+            'post'       => $blog,
+            'categories' => BlogCategory::all(),
         ]);
     }
 
     public function update(Request $request, BlogPost $blog)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title'            => 'required|string|max:255',
             'blog_category_id' => 'required|exists:blog_categories,id',
-            'excerpt' => 'nullable|string',
-            'content' => 'required|string',
-            'status' => 'required|in:draft,published',
-            'author' => 'required|string|max:255',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'excerpt'          => 'nullable|string',
+            'content'          => 'required|string',
+            'status'           => 'required|in:draft,published',
+            'author'           => 'required|string|max:255',
+            'thumbnail'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         if ($validated['title'] !== $blog->title) {
@@ -90,22 +88,21 @@ class BlogPostController extends Controller
         }
 
         if ($request->hasFile('thumbnail')) {
-            $file = $request->file('thumbnail');
-            $filename = time() . '_' . Str::slug($validated['title']) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('aset_foto/blog'), $filename);
-            $validated['thumbnail'] = asset('aset_foto/blog/' . $filename);
+            // Hapus thumbnail lama sebelum simpan baru
+            $this->uploader->delete($blog->thumbnail);
+            $validated['thumbnail'] = $this->uploader->store($request->file('thumbnail'), 'blog');
         } else {
             unset($validated['thumbnail']);
         }
 
         $blog->update($validated);
 
-        return redirect()->route('admin.blog.index')->with('success', 'Blog post updated successfully!');
+        return redirect()->route('admin.blog.index')->with('success', 'Blog post berhasil diperbarui!');
     }
 
     public function destroy(BlogPost $blog)
     {
         $blog->delete();
-        return redirect()->route('admin.blog.index')->with('success', 'Blog post deleted successfully!');
+        return redirect()->route('admin.blog.index')->with('success', 'Blog post berhasil dihapus.');
     }
 }

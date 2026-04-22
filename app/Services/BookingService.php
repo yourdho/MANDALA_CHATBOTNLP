@@ -31,8 +31,8 @@ class BookingService implements BookingServiceInterface
 
         return DB::transaction(function () use ($data, $facility, $startsAt, $endsAt, $isPilates, $duration) {
 
-            // 1. Availability check (with row lock)
-            if ($this->isSlotTaken($facility->id, $startsAt, $endsAt)) {
+            // 1. Availability check — gunakan write version (dengan lockForUpdate) di dalam transaction
+            if ($this->isSlotTakenForWrite($facility->id, $startsAt, $endsAt)) {
                 throw new \Exception('Maaf, jadwal ini sudah terisi atau sedang dalam proses pembayaran.');
             }
 
@@ -47,11 +47,10 @@ class BookingService implements BookingServiceInterface
 
             // 4. Voucher/Reward discount
             $discountAmount = 0;
-            $voucher        = null;
             if (!empty($data['user_reward_id'])) {
                 $voucher = UserReward::where('id', $data['user_reward_id'])
                     ->where('user_id', auth()->id())
-                    ->lockForUpdate()
+                    ->lockForUpdate()   // Lock voucher untuk cegah double-use
                     ->first();
 
                 if ($voucher && $voucher->status === 'unused') {
@@ -62,10 +61,10 @@ class BookingService implements BookingServiceInterface
             }
 
             // 5. DP calculation
-            $dpAmount    = null;
+            $dpAmount     = null;
             $amountToBill = $totalPrice;
             if (in_array($data['payment_method'] ?? '', ['dp_online', 'dp_manual'])) {
-                $dpAmount    = $totalPrice * 0.5;
+                $dpAmount     = $totalPrice * 0.5;
                 $amountToBill = $dpAmount;
             }
 
@@ -106,11 +105,12 @@ class BookingService implements BookingServiceInterface
             $endsAt   = Carbon::parse($data['booking_date'] . ' ' . $data['end_time']);
             $duration = max(1, $startsAt->diffInHours($endsAt));
 
-            if ($this->isSlotTaken($facility->id, $startsAt, $endsAt, ['confirmed', 'pending'], ['paid', 'settlement', 'pending'])) {
+            // Gunakan write version (dengan lock) di dalam transaction
+            if ($this->isSlotTakenForWrite($facility->id, $startsAt, $endsAt, ['confirmed', 'pending'], ['paid', 'settlement', 'pending'])) {
                 throw new \Exception('Timeline target sudah terisi misi lain.');
             }
 
-            $basePrice  = $this->calculatePrice($facility->category, $startsAt, $endsAt);
+            $basePrice = $this->calculatePrice($facility->category, $startsAt, $endsAt);
             if ($basePrice <= 0) $basePrice = $facility->price_per_hour * $duration;
 
             return Booking::create([
@@ -167,13 +167,10 @@ class BookingService implements BookingServiceInterface
         return $total;
     }
 
-    /**
-     * Calculate addon costs for a booking.
-     */
     public function calculateAddons(Facility $facility, array $selectedAddonNames, bool $withReferee): array
     {
-        $bookedAddons  = [];
-        $addonsTotal   = 0;
+        $bookedAddons   = [];
+        $addonsTotal    = 0;
         $facilityAddons = collect($facility->addons ?? []);
 
         foreach ($selectedAddonNames as $addonName) {
@@ -198,6 +195,15 @@ class BookingService implements BookingServiceInterface
         return ['addons' => $bookedAddons, 'total' => $addonsTotal];
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  Slot Availability Check
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * READ-ONLY slot check — tanpa lockForUpdate.
+     * Gunakan untuk: availability display, chatbot slot check, UI calendar.
+     * Aman dipanggil di luar DB transaction.
+     */
     public function isSlotTaken(
         int    $facilityId,
         Carbon $startsAt,
@@ -205,6 +211,36 @@ class BookingService implements BookingServiceInterface
         array  $statuses = [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED],
         array  $paymentStatuses = ['paid', 'settlement', 'capture']
     ): bool {
+        return $this->buildSlotQuery($facilityId, $startsAt, $endsAt, $statuses, $paymentStatuses)->exists();
+    }
+
+    /**
+     * WRITE PATH slot check — dengan lockForUpdate.
+     * HANYA boleh dipanggil dari dalam DB::transaction().
+     * lock ini yang mencegah race condition double-booking.
+     */
+    public function isSlotTakenForWrite(
+        int    $facilityId,
+        Carbon $startsAt,
+        Carbon $endsAt,
+        array  $statuses = [Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED],
+        array  $paymentStatuses = ['paid', 'settlement', 'capture']
+    ): bool {
+        return $this->buildSlotQuery($facilityId, $startsAt, $endsAt, $statuses, $paymentStatuses)
+            ->lockForUpdate()
+            ->exists();
+    }
+
+    /**
+     * Shared query builder untuk isSlotTaken dan isSlotTakenForWrite.
+     */
+    private function buildSlotQuery(
+        int    $facilityId,
+        Carbon $startsAt,
+        Carbon $endsAt,
+        array  $statuses,
+        array  $paymentStatuses
+    ): \Illuminate\Database\Eloquent\Builder {
         return Booking::where('facility_id', $facilityId)
             ->whereIn('status', $statuses)
             ->where(function ($q) use ($paymentStatuses) {
@@ -215,12 +251,10 @@ class BookingService implements BookingServiceInterface
                     });
             })
             ->where(function ($q) use ($startsAt, $endsAt) {
-                $q->where(fn($qq) => $qq->where('starts_at', '>=', $startsAt)->where('starts_at', '<', $endsAt))
-                    ->orWhere(fn($qq) => $qq->where('ends_at', '>', $startsAt)->where('ends_at', '<=', $endsAt))
-                    ->orWhere(fn($qq) => $qq->where('starts_at', '<=', $startsAt)->where('ends_at', '>=', $endsAt));
-            })
-            ->lockForUpdate()
-            ->exists();
+                $q->where(fn($qq) => $qq->where('starts_at', '>=', $startsAt)->where('starts_at', '<',  $endsAt))
+                    ->orWhere(fn($qq) => $qq->where('ends_at',   '>',  $startsAt)->where('ends_at',   '<=', $endsAt))
+                    ->orWhere(fn($qq) => $qq->where('starts_at', '<=', $startsAt)->where('ends_at',   '>=', $endsAt));
+            });
     }
 
     public function getAvailableSlots(int $facilityId, string $date): array
@@ -228,23 +262,23 @@ class BookingService implements BookingServiceInterface
         $facility = Facility::find($facilityId);
         if (!$facility) return [];
 
-        $openTime = Carbon::parse($date . ' ' . $facility->open_time);
+        $openTime  = Carbon::parse($date . ' ' . $facility->open_time);
         $closeTime = Carbon::parse($date . ' ' . $facility->close_time);
-        
-        $slots = [];
+
+        $slots   = [];
         $current = clone $openTime;
-        
+
         while ($current < $closeTime) {
             $slotStart = clone $current;
-            $slotEnd = (clone $current)->addHour();
-            
+            $slotEnd   = (clone $current)->addHour();
+
+            // isSlotTaken (read-only) — aman tanpa transaction
             if (!$this->isSlotTaken($facilityId, $slotStart, $slotEnd)) {
                 $slots[] = $slotStart->format('H:i');
             }
             $current->addHour();
         }
-        
+
         return $slots;
     }
 }
-

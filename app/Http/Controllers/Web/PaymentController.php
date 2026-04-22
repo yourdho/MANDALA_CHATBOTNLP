@@ -3,153 +3,64 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Booking;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
-use Midtrans\Config;
-use Midtrans\Snap;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * PaymentController
+ *
+ * Digunakan hanya untuk generate Snap Token on-demand
+ * (dipanggil dari halaman Bookings/Show via AJAX ketika user ingin bayar).
+ *
+ * Webhook callback Midtrans dihandle secara eksklusif oleh BookingController::callback()
+ * yang memiliki: signature verification + transaction lock + conflict handling + refund.
+ */
 class PaymentController extends Controller
 {
-    public function __construct()
-    {
-        // 1. Config Midtrans
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
-        Config::$isSanitized = config('midtrans.is_sanitized');
-        Config::$is3ds = config('midtrans.is_3ds');
-    }
+    public function __construct(protected MidtransService $midtransService) {}
 
     /**
-     * A. createTransaction($booking_id)
-     * Generate Snap Token from Midtrans
+     * Generate Snap Token untuk booking milik user yang sedang login.
+     *
+     * Diperkuat dengan:
+     * - Auth middleware (route sudah dilindungi)
+     * - Ownership check (hanya pemilik booking yang bisa trigger)
+     * - Exception message tidak bocor ke response
      */
-    public function createTransaction($booking_id)
+    public function createTransaction(Booking $booking): \Illuminate\Http\JsonResponse
     {
+        // Policy BookingPolicy::pay() memverifikasi:
+        //   1. $booking->user_id === auth()->id()  (ownership)
+        //   2. status masih pending dan belum paid  (state check)
+        // Jika gagal → 403 AuthorizationException (ditangani oleh Laravel → JSON 403)
+        $this->authorize('pay', $booking);
+
         try {
-            // 2. Ambil data booking
-            $booking = Booking::findOrFail($booking_id);
+            $amountToBill = $booking->dp_amount ?? $booking->total_price;
+            $snapToken    = $this->midtransService->getSnapToken($booking, $amountToBill);
 
-            // 3. Persiapkan parameter Midtrans
-            $params = [
-                'transaction_details' => [
-                    'order_id' => 'MA-' . $booking->id . '-' . time(), // Unique order id
-                    'gross_amount' => (int) $booking->total_price,
-                ],
-                'customer_details' => [
-                    'first_name' => $booking->guest_name ?? 'Guest',
-                    'email' => $booking->guest_email,
-                    'phone' => $booking->guest_phone,
-                ],
-                'item_details' => [
-                    [
-                        'id' => $booking->facility_id,
-                        'price' => (int) $booking->total_price,
-                        'quantity' => 1,
-                        'name' => "Booking " . ($booking->facility->name ?? 'Facility'),
-                    ]
-                ]
-            ];
+            if (!$snapToken) {
+                throw new \RuntimeException('Gateway tidak mengembalikan token.');
+            }
 
-            // 4. Generate Snap Token
-            $snapToken = Snap::getSnapToken($params);
+            $booking->update(['snap_token' => $snapToken, 'payment_token' => $snapToken]);
 
-            // 5. Simpan snap_token ke database
-            $booking->update([
+            return response()->json([
+                'status'     => 'success',
                 'snap_token' => $snapToken,
-                'payment_token' => $snapToken // Sync with existing column
             ]);
-
-            // 6. Return token
-            return response()->json([
-                'status' => 'success',
-                'snap_token' => $snapToken
-            ]);
-
         } catch (\Exception $e) {
-            Log::error('Midtrans Create Error: ' . $e->getMessage());
+            Log::error('[PaymentController::createTransaction] ' . $e->getMessage(), [
+                'booking_id' => $booking->id,
+                'user_id'    => auth()->id(),
+            ]);
+
             return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal membuat transaksi: ' . $e->getMessage()
+                'status'  => 'error',
+                'message' => 'Gagal menghubungi payment gateway. Silakan coba beberapa saat lagi.',
             ], 500);
-        }
-    }
-
-    /**
-     * B. callbackHandler()
-     * Handle notifikasi dari Midtrans
-     */
-    public function callbackHandler(Request $request)
-    {
-        try {
-            $payload = $request->all();
-
-            // 7. Security: Validasi signature key dari Midtrans
-            // sha512(order_id + status_code + gross_amount + server_key)
-            $signature_key = hash("sha512", $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . config('midtrans.server_key'));
-
-            if ($signature_key !== $payload['signature_key']) {
-                return response()->json(['message' => 'Invalid Signature'], 403);
-            }
-
-            // Extract booking ID from order_id (Format: MA-{id}-{timestamp})
-            $orderParts = explode('-', $payload['order_id']);
-            $booking_id = $orderParts[1];
-            $booking = Booking::findOrFail($booking_id);
-
-            $transactionStatus = $payload['transaction_status'];
-            $type = $payload['payment_type'];
-
-            // 8. Update status booking sesuai spesifikasi:
-            if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
-                // settlement -> paid
-                $booking->update([
-                    'payment_status' => 'paid',
-                    'status' => 'confirmed'
-                ]);
-
-                // 9. NOTIFIKASI OTOMATIS (Sesuai Step 2)
-                $this->sendPaymentNotification($booking);
-
-            } else if ($transactionStatus == 'pending') {
-                $booking->update([
-                    'payment_status' => 'pending'
-                ]);
-            } else if ($transactionStatus == 'deny' || $transactionStatus == 'expire' || $transactionStatus == 'cancel') {
-                $booking->update([
-                    'payment_status' => 'failed',
-                    'status' => 'cancelled'
-                ]);
-            }
-
-            return response()->json(['message' => 'Callback handled successfully']);
-
-        } catch (\Exception $e) {
-            Log::error('Midtrans Callback Error: ' . $e->getMessage());
-            return response()->json(['message' => 'Internal Server Error'], 500);
-        }
-    }
-
-    /**
-     * Helper untuk handle Notifikasi (Step 2)
-     */
-    private function sendPaymentNotification($booking)
-    {
-        $message = "Halo {$booking->guest_name}, Pembayaran Booking Mandala Arena anda telah BERHASIL! 🏟️\n\nFasilitas: {$booking->facility->name}\nTanggal: {$booking->starts_at}\nStatus: PAID\n\nSampai jumpa di lapangan! 💪";
-
-        if (!$booking->user_id) {
-            // GUEST -> Kirim ke WA (Wajib ada guest_phone)
-            if ($booking->guest_phone) {
-                Log::info("Kirim WA Guest ke {$booking->guest_phone}: " . $message);
-                // Implementation hint: Use your WA API here (e.g. Fonnte, Twilio, etc)
-            }
-        } else {
-            // REGISTERED USER -> Kirim ke WA / Email
-            $user = $booking->user;
-            Log::info("Kirim WA User ke {$user->phone}: " . $message);
-            Log::info("Kirim Email User ke {$user->email}: " . $message);
-            // Implementation hint: Mail::to($user->email)->send(new PaymentSuccess($booking));
         }
     }
 }

@@ -66,7 +66,7 @@ class BookingController extends Controller
             $waLink = $this->notifier->generateAdminWhatsAppLink($booking);
 
             if (!auth()->check()) {
-                return redirect()->route('booking.success', $booking->id)->with([
+                return redirect()->route('booking.success', $booking->booking_token)->with([
                     'success' => 'Pesanan Berhasil! Hubungi Admin via WA untuk konfirmasi pembayaran.',
                     'wa_link' => $waLink,
                 ]);
@@ -88,8 +88,10 @@ class BookingController extends Controller
             $with = ['snap_token' => $snapToken, 'booking_id' => $booking->id, 'success' => 'Berhasil dibuat. Silakan selesaikan pembayaran Instan.'];
 
             return auth()->check()
-                ? redirect()->route('bookings.show',  $booking->id)->with($with)
-                : redirect()->route('booking.success', $booking->id)->with($with);
+                ? redirect()->route('bookings.show',   $booking->id)
+                            ->with($with)
+                : redirect()->route('booking.success', $booking->booking_token)
+                            ->with($with);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menghubungkan Payment Gateway: ' . $e->getMessage()]);
         }
@@ -108,9 +110,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('view', $booking);
 
         return Inertia::render('Bookings/Show', [
             'booking' => $booking->load('facility'),
@@ -120,37 +120,53 @@ class BookingController extends Controller
 
     public function invoice(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('viewInvoice', $booking);
 
         return view('invoice.print', [
             'booking' => $booking->load(['facility', 'user']),
         ]);
     }
 
-    public function success(Booking $booking)
+    /**
+     * Halaman sukses booking — bisa diakses publik (guest).
+     *
+     * Menggunakan booking_token (UUID) sebagai parameter URL, BUKAN id integer.
+     * UUID tidak bisa dienumerasi sehingga IDOR via ID guessing tidak mungkin.
+     */
+    public function success(string $token)
     {
+        $booking = Booking::where('booking_token', $token)->first();
+
+        if (!$booking) {
+            abort(404, 'Booking tidak ditemukan.');
+        }
+
+        // Ownership check untuk user yang sudah login:
+        // jika booking punya user_id, dan user login bukan pemiliknya → 403.
+        if ($booking->user_id !== null && auth()->check() && auth()->id() !== $booking->user_id) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat booking ini.');
+        }
+
         $payload = ['booking' => $booking->load('facility')];
 
-        return auth()->check()
-            ? Inertia::render('Bookings/Show',      $payload)
-            : Inertia::render('Bookings/GuestSuccess', $payload);
+        return $booking->user_id
+            ? Inertia::render('Bookings/Show',         $payload)
+            : Inertia::render('Bookings/GuestSuccess',  $payload);
     }
 
     public function cancel(Booking $booking)
     {
-        if ($booking->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('cancel', $booking);
 
+        // Status sudah dicek di Policy (cancel hanya boleh jika pending),
+        // tapi tetap ada guard di sini untuk pesan yang user-friendly.
         if ($booking->status !== 'pending') {
-            return back()->withErrors(['error' => 'Confirmed missions cannot be aborted without HQ approval.']);
+            return back()->withErrors(['error' => 'Booking yang sudah dikonfirmasi tidak bisa dibatalkan sendiri.']);
         }
 
         $booking->update(['status' => 'cancelled', 'payment_status' => 'failed']);
 
-        return back()->with('success', 'Misi booking telah diputus sesuai perintah.');
+        return back()->with('success', 'Booking berhasil dibatalkan.');
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -226,29 +242,54 @@ class BookingController extends Controller
 
     public function callback(Request $request)
     {
+        // 1. Validasi field wajib dari Midtrans
+        $request->validate([
+            'order_id'           => 'required|string|max:100',
+            'status_code'        => 'required|string',
+            'gross_amount'       => 'required|string',
+            'signature_key'      => 'required|string',
+            'transaction_status' => 'required|string',
+        ]);
+
         $payload   = $request->all();
         $serverKey = config('midtrans.server_key');
-        $signature = hash('sha512', $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . $serverKey);
+        $signature = hash('sha512',
+            $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . $serverKey
+        );
 
-        if ($signature !== ($payload['signature_key'] ?? '')) {
-            \Log::warning("Invalid Midtrans Signature for Order: " . ($payload['order_id'] ?? 'unknown'));
+        if (!hash_equals($signature, $payload['signature_key'])) {
+            \Log::warning('[Callback] Invalid Midtrans Signature', ['order_id' => $payload['order_id']]);
             return response()->json(['message' => 'Invalid Signature'], 403);
         }
 
-        $order_id  = $payload['order_id'];
+        // 2. Parse order_id — format ketat: MA-{numeric_id}
+        // Tolak format tidak dikenal untuk mencegah injection melalui order_id.
+        if (!preg_match('/^MA-(?P<id>\d+)$/', $payload['order_id'], $matches)) {
+            \Log::warning('[Callback] Unrecognized order_id format', ['order_id' => $payload['order_id']]);
+            return response()->json(['status' => 'ok']); // Return 200 agar Midtrans tidak retry
+        }
+
+        $bookingId = (int) $matches['id'];
         $status    = $payload['transaction_status'];
-        $bookingId = explode('-', str_replace('MA-', '', $order_id))[0];
         $booking   = Booking::find($bookingId);
 
         if (!$booking) {
             return response()->json(['status' => 'ok']);
         }
 
-        DB::transaction(function () use ($booking, $bookingId, $status, $order_id, $payload) {
+        DB::transaction(function () use ($booking, $bookingId, $status, $payload) {
             $booking = Booking::lockForUpdate()->find($bookingId);
             if (!$booking) return;
 
             if (in_array($status, ['settlement', 'capture'])) {
+
+                // 3. Idempotency guard — jika sudah confirmed & paid, skip tanpa aksi.
+                // Midtrans kadang mengirim notifikasi berulang untuk transaksi yang sama.
+                if ($booking->status === Booking::STATUS_CONFIRMED && $booking->payment_status === 'paid') {
+                    \Log::info('[Callback] Duplicate webhook ignored (already confirmed)', ['booking_id' => $bookingId]);
+                    return;
+                }
+
                 // Check for double booking conflict
                 $isConflict = Booking::where('facility_id', $booking->facility_id)
                     ->where('id', '!=', $booking->id)
@@ -256,13 +297,13 @@ class BookingController extends Controller
                     ->whereIn('payment_status', ['paid', 'settlement', 'capture'])
                     ->where(function ($q) use ($booking) {
                         $q->where(fn($qq) => $qq->where('starts_at', '>=', $booking->starts_at)->where('starts_at', '<',  $booking->ends_at))
-                            ->orWhere(fn($qq) => $qq->where('ends_at',   '>',  $booking->starts_at)->where('ends_at',   '<=', $booking->ends_at))
-                            ->orWhere(fn($qq) => $qq->where('starts_at', '<=', $booking->starts_at)->where('ends_at',   '>=', $booking->ends_at));
+                          ->orWhere(fn($qq) => $qq->where('ends_at',   '>',  $booking->starts_at)->where('ends_at',   '<=', $booking->ends_at))
+                          ->orWhere(fn($qq) => $qq->where('starts_at', '<=', $booking->starts_at)->where('ends_at',   '>=', $booking->ends_at));
                     })->exists();
 
                 if ($isConflict) {
                     $refundAmount   = $payload['gross_amount'] ?? $booking->total_price;
-                    $refundResponse = $this->midtrans->refund($order_id, $refundAmount, 'Bentrok Jadwal (Sistem)');
+                    $refundResponse = $this->midtrans->refund($payload['order_id'], $refundAmount, 'Bentrok Jadwal (Sistem)');
 
                     $booking->update([
                         'status'         => Booking::STATUS_CANCELLED,
@@ -274,15 +315,12 @@ class BookingController extends Controller
                     ]);
 
                     if ($this->notifier) $this->notifier->notifyBookingConflict($booking);
-                    \Log::warning("Double Booking Detected for MA-{$booking->id}. Refund triggered.");
+                    \Log::warning('[Callback] Double Booking Detected, refund triggered.', ['booking_id' => $bookingId]);
 
-                    // Refund voucher if any
                     if ($booking->user_reward_id && $booking->load('userReward')) {
                         $this->rewardService->restoreVoucher($booking->userReward);
                     }
                 } else {
-                    $alreadyPaid = $booking->payment_status === 'paid';
-
                     $booking->update([
                         'payment_status' => 'paid',
                         'status'         => Booking::STATUS_CONFIRMED,
@@ -290,12 +328,12 @@ class BookingController extends Controller
                         'paid_at'        => now(),
                     ]);
 
-                    if ($booking->user && !$alreadyPaid) {
+                    if ($booking->user) {
                         $booking->user->addPoints(10);
                     }
 
                     $this->notifier->notifyBookingSuccess($booking);
-                    \Log::info("Booking MA-{$booking->id} AUTOMATICALLY Confirmed via Midtrans Callback.");
+                    \Log::info('[Callback] Booking confirmed via Midtrans.', ['booking_id' => $bookingId]);
                 }
 
                 broadcast(new BookingUpdated($booking));
@@ -304,8 +342,6 @@ class BookingController extends Controller
 
                 $booking->update(['payment_status' => 'failed', 'status' => Booking::STATUS_CANCELLED]);
 
-                // Refund voucher if any
-                // Refund voucher if any
                 if ($booking->user_reward_id && $booking->load('userReward')) {
                     $this->rewardService->restoreVoucher($booking->userReward);
                 }
@@ -313,7 +349,6 @@ class BookingController extends Controller
                 broadcast(new BookingUpdated($booking));
             }
         });
-
 
         return response()->json(['status' => 'ok']);
     }
