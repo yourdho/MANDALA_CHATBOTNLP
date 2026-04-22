@@ -2,40 +2,41 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 class ChatbotMessageReceived implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $reply;
-    public $senderId;
+    public string $reply;
+    public ?int   $senderId;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct(string $reply, ?string $senderId = null)
+    public function __construct(string $reply, ?int $senderId = null)
     {
-        $this->reply = $reply;
+        $this->reply    = $reply;
         $this->senderId = $senderId;
     }
 
     /**
-     * Get the channels the event should broadcast on.
+     * Broadcast ke private channel per user ID.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * Menggunakan PrivateChannel agar hanya user yang terautentikasi
+     * (dan pemilik channel) yang bisa subscribe melalui Laravel Echo.
+     *
+     * Frontend listen ke: Echo.private('chatbot.{userId}')
+     * channels.php harus mendaftarkan: Broadcast::channel('chatbot.{id}', ...)
      */
     public function broadcastOn(): array
     {
-        // Scope the channel to the current PHP Session ID to avoid global leaking to all visitors
+        $userId = $this->senderId ?? Auth::id();
+
         return [
-            new Channel('chatbot.' . session()->getId()),
+            new PrivateChannel('chatbot.' . $userId),
         ];
     }
 }

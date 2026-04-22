@@ -211,7 +211,7 @@ class IntentClassifier
         // Guard: jika tidak ada skor sama sekali (input acak tanpa kecocokan config),
         // kembalikan 'unknown' langsung untuk mencegah undefined array key error.
         if (empty($scores)) {
-            return ['unknown', 0, []];
+            return ['unknown', 0, [], []];
         }
 
         arsort($scores);
@@ -225,15 +225,15 @@ class IntentClassifier
         // Threshold config (low_confidence)
         $lowConfidenceThreshold = Config::get('chatbot_nlp.thresholds.low_confidence', 4);
         if ($topScore < $lowConfidenceThreshold) {
-            return ['low_confidence', $topScore, []];
+            return ['low_confidence', $topScore, [], $scores];
         }
 
         // Ambiguity check: gap antara top-1 dan top-2 terlalu kecil
         $ambiguityGap = Config::get('chatbot_nlp.thresholds.ambiguity_gap', 3);
         if ($secondIntent && ($topScore - $secondScore <= $ambiguityGap) && $topScore < 20) {
-            return ['ambiguous', $topScore, [$topIntent, $secondIntent]];
+            return ['ambiguous', $topScore, [$topIntent, $secondIntent], $scores];
         }
 
-        return [$topIntent, $topScore, []];
+        return [$topIntent, $topScore, [], $scores];
     }
 }

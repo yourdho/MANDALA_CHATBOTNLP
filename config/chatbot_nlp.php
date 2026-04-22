@@ -674,4 +674,31 @@ return [
         'need_booking_details' => "Baik Kak, saya bantu booking. Mohon info fasilitas, tanggal, jam, dan durasinya ya.",
         'need_payment_choice' => "Silakan pilih metode pembayaran yang diinginkan: QRIS, Transfer, Virtual Account, atau Cash.",
     ],
+
+    // ── Entitas: Layanan Tambahan (Add-ons) ─────────────────────────────────
+    'additional_services' => [
+        'wasit' => [
+            'wasit', 'referee', 'hakim', 'hakim lapangan', 'perwasitan',
+        ],
+        'fotografer' => [
+            'fotografer', 'foto', 'dokumentasi', 'photographer', 'kamera',
+            'fotografi', 'ambil foto', 'diabadikan', 'diabadiin',
+        ],
+    ],
+
+    // ── Kata Kunci Afirmatif (Ya / Setuju / Lanjut) ─────────────────────────
+    'affirmative_keywords' => [
+        'ya', 'iya', 'yap', 'yup', 'oke', 'ok', 'okay', 'siap', 'lanjut',
+        'gas', 'gasss', 'gass', 'boleh', 'bisa', 'setuju', 'deal', 'pesan',
+        'booking', 'bayar', 'yang itu', 'ambil', 'jadi', 'confirm',
+        'konfirmasi', 'ayo', 'tentu', 'pastinya', 'mau', 'sip',
+    ],
+
+    // ── Kata Kunci Negatif (Tidak / Enggak / Skip) ──────────────────────────
+    'negative_keywords' => [
+        'tidak', 'enggak', 'engga', 'ngga', 'nggak', 'gak', 'ga',
+        'gak usah', 'tidak usah', 'enggak usah', 'skip', 'lewat',
+        'nope', 'no', 'jangan', 'ga perlu', 'gak perlu', 'teu',
+        'teu perlu', 'moal', 'tanpa', 'tanpa tambahan',
+    ],
 ];

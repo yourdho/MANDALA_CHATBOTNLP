@@ -41,7 +41,7 @@ class NlpPipeline
         $entities = $this->entityExtractor->extract($normalizedText);
         
         // Pass stems to IntentClassifier for better matching
-        list($intent, $confidence, $ambiguous) = $this->intentClassifier->classify($stems, $normalizedText, $entities);
+        list($intent, $confidence, $ambiguous, $scores) = $this->intentClassifier->classify($stems, $normalizedText, $entities);
 
         return [
             'raw' => $rawMessage,
@@ -51,7 +51,8 @@ class NlpPipeline
             'entities' => $entities,
             'intent' => $intent,
             'confidence' => $confidence,
-            'ambiguous_intents' => $ambiguous
+            'ambiguous_intents' => $ambiguous,
+            'scores' => $scores
         ];
     }
 

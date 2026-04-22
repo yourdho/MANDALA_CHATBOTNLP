@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import { usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
@@ -16,8 +17,17 @@ const WELCOME_TEXT =
     'Halo! Selamat datang di **Mandala Arena** 🏆\n\nSaya asisten virtual cerdas yang siap membantu. Mau booking fasilitas, cek harga, atau cari lawan main hari ini?';
 
 export default function Chatbot() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
+    // ── Auth Guard ───────────────────────────────────────────────────────────
+    // Hanya render komponen ini jika user sudah login.
+    // Guest tidak akan melihat tombol chatbot sama sekali.
+    const { auth } = usePage().props;
+    if (!auth?.user) return null;
+
+    const userId = auth.user.id;
+
+    // ── State ────────────────────────────────────────────────────────────────
+    const [isOpen, setIsOpen]               = useState(false);
+    const [messages, setMessages]           = useState([
         {
             id: 'init-msg',
             sender: 'bot',
@@ -28,16 +38,18 @@ export default function Chatbot() {
             time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         },
     ]);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [input, setInput]                 = useState('');
+    const [isLoading, setIsLoading]         = useState(false);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const bottomRef = useRef(null);
+    const bottomRef                         = useRef(null);
 
-    // Reset backend session on every page load so conversation never bleeds across refreshes
+    // ── Reset session backend saat page load ────────────────────────────────
+    // Menjamin percakapan selalu mulai bersih setiap kali halaman direfresh.
     useEffect(() => {
         axios.post('/chatbot/reset').catch(() => {});
     }, []);
 
+    // ── Auto-scroll ke bawah ─────────────────────────────────────────────────
     useEffect(() => {
         if (isOpen) {
             setTimeout(() => {
@@ -46,19 +58,29 @@ export default function Chatbot() {
         }
     }, [messages, isOpen]);
 
+    // ── Real-time: Laravel Echo via User ID (bukan session ID) ───────────────
+    // Channel berbasis user ID lebih aman karena:
+    // 1. Tidak bisa ditebak / di-guess oleh pihak lain
+    // 2. User sudah pasti terautentikasi di titik ini (guard di atas)
+    // 3. Backend broadcast ke 'chatbot.{Auth::id()}' — match dengan channel ini
     useEffect(() => {
         if (!window.Echo) return;
-        const sessionId = document.querySelector('meta[name="session-id"]')?.content || 'guest';
-        
-        const channel = window.Echo.channel(`chatbot.${sessionId}`)
+
+        // PrivateChannel: Reverb akan hit /broadcasting/auth sebelum subscribe.
+        // Hanya berhasil jika user sudah login & ID-nya cocok (sesuai channels.php).
+        const channel = window.Echo
+            .private(`chatbot.${userId}`)
             .listen('.App.Events.ChatbotMessageReceived', (e) => {
-                if (e.senderId && e.senderId !== 'bot') {
+                // Hanya render pesan dari admin/sistem, bukan echo dari diri sendiri
+                if (e.senderId && e.senderId !== userId) {
                     appendBotMessageFromAdmin(e);
                 }
             });
-        return () => channel.stopListening('.App.Events.ChatbotMessageReceived');
-    }, []);
 
+        return () => channel.stopListening('.App.Events.ChatbotMessageReceived');
+    }, [userId]);
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
     const generateId = () => Math.random().toString(36).substr(2, 9);
 
     const appendUserMessage = (text) => {
@@ -83,58 +105,69 @@ export default function Chatbot() {
             chips: [],
             time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         }]);
-    }
+    };
 
     const appendBotMessageFromResponse = (response) => {
-        let msgType = 'text';
+        let msgType    = 'text';
         let msgPayload = null;
         let displayedText = response.reply;
-        let meta = response.meta || {};
-        
+        let meta       = response.meta || {};
+
         if (response.ui && response.ui.type) {
-            msgType = response.ui.type;
+            msgType    = response.ui.type;
             msgPayload = response.ui.payload;
-            if (msgType !== 'text') displayedText = ''; 
+            if (msgType !== 'text') displayedText = '';
         } else {
             try {
                 const parsed = JSON.parse(response.reply);
                 if (parsed.type) {
-                    msgType = parsed.type;
-                    msgPayload = parsed;
+                    msgType       = parsed.type;
+                    msgPayload    = parsed;
                     displayedText = '';
                 }
-            } catch(e) {}
+            } catch (_) {}
         }
 
-        setMessages(prev => [
-            ...prev,
+        // Jika ada addons_prompt dari meta, tambahkan sebagai pesan bot terpisah
+        const newMessages = [
             {
                 id: generateId(),
                 sender: 'bot',
                 type: msgType,
                 text: displayedText,
                 payload: msgPayload,
-                meta: meta,
+                meta,
                 chips: response.chips || [],
                 time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
             },
-        ]);
+        ];
+
+        if (meta.addons_prompt) {
+            newMessages.push({
+                id: generateId(),
+                sender: 'bot',
+                type: 'text',
+                text: meta.addons_prompt,
+                payload: null,
+                meta: {},
+                chips: meta.addons_chips || [],
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+            });
+        }
+
+        setMessages(prev => [...prev, ...newMessages]);
     };
 
-    // --- EXPERT ACTION HANDLERS ---
-    const handleBookingConfirm = (payload = null) => handleSendMessage('Lanjut konfirmasi booking');
-    const handleBookingEdit = (payload = null) => handleSendMessage('Saya ingin ganti jadwal atau ubah pesanan');
-    const handleBookingCancel = (payload = null) => handleSendMessage('Batalin booking');
-    
-    // For payment method, the child button emits 'qris' or 'transfer', we map it safely
+    // ── Action Handlers (dipanggil dari children) ────────────────────────────
+    const handleBookingConfirm      = ()       => handleSendMessage('Lanjut konfirmasi booking');
+    const handleBookingEdit         = ()       => handleSendMessage('Saya ingin ganti jadwal atau ubah pesanan');
+    const handleBookingCancel       = ()       => handleSendMessage('Batalin booking');
     const handleSelectPaymentMethod = (method) => handleSendMessage(`bayar pakai ${method}`);
-    
-    const handleCheckPaymentStatus = (payload = null) => handleSendMessage('cek status pembayaran');
-    const handleChangePaymentMethod = (payload = null) => handleSendMessage('ganti metode pembayaran lain');
-    const handleRetryPayment = (payload = null) => handleSendMessage('booking ulang jadwal tadi');
-        
+    const handleCheckPaymentStatus  = ()       => handleSendMessage('cek status pembayaran');
+    const handleChangePaymentMethod = ()       => handleSendMessage('ganti metode pembayaran lain');
+    const handleRetryPayment        = ()       => handleSendMessage('booking ulang jadwal tadi');
 
-
+    // ── Core: Kirim Pesan ke Backend ─────────────────────────────────────────
     const handleSendMessage = async (msgText) => {
         const text = (msgText ?? input).trim();
         if (!text || isLoading || isRedirecting) return;
@@ -146,15 +179,39 @@ export default function Chatbot() {
         try {
             const response = await axios.post('/chatbot/message', { message: text });
 
-            if (response.data.redirect) {
-                appendBotMessageFromResponse({ reply: 'Mengalihkan halaman... ⏳', ui: {type: 'text'}, chips: [] });
+            // Handle redirect (misal: ke halaman login, halaman payment, dll)
+            const redirectUrl = response.data.redirect || response.data.meta?.redirect;
+            if (redirectUrl) {
+                appendBotMessageFromResponse({
+                    reply: 'Mengalihkan halaman... ⏳',
+                    ui: { type: 'text' },
+                    chips: [],
+                    meta: {},
+                });
                 setIsRedirecting(true);
-                setTimeout(() => { window.location.href = response.data.redirect; }, 1200);
+                setTimeout(() => { window.location.href = redirectUrl; }, 1200);
                 return;
             }
 
             appendBotMessageFromResponse(response.data);
         } catch (error) {
+            // 401 Unauthenticated → user logout di tab lain
+            if (error.response?.status === 401) {
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: generateId(),
+                        sender: 'bot',
+                        type: 'text',
+                        text: 'Sesi kamu sudah berakhir. Silakan login kembali untuk melanjutkan. 🔑',
+                        chips: [{ label: '🔑 Login', msg: 'login' }],
+                        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                    },
+                ]);
+                setTimeout(() => { window.location.href = '/login'; }, 2000);
+                return;
+            }
+
             setMessages(prev => [
                 ...prev,
                 {
@@ -164,7 +221,7 @@ export default function Chatbot() {
                     text: 'Aduh... Koneksi terputus. Coba lagi ya? 📡',
                     chips: [{ label: '↩ Ulangi', msg: text }],
                     time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                }
+                },
             ]);
         } finally {
             setIsLoading(false);
@@ -172,6 +229,7 @@ export default function Chatbot() {
         }
     };
 
+    // ── Render ───────────────────────────────────────────────────────────────
     return (
         <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end gap-5 pointer-events-none">
             <AnimatePresence>
@@ -181,7 +239,7 @@ export default function Chatbot() {
                         initial={{ opacity: 0, y: 40, scale: 0.95, filter: 'blur(4px)' }}
                         animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
                         exit={{ opacity: 0, y: 20, scale: 0.95, filter: 'blur(4px)' }}
-                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                         className="w-[calc(100vw-2rem)] sm:w-[400px] h-[calc(100vh-8rem)] sm:h-[650px] max-h-[800px] bg-[#f8fafc] border border-slate-200/60 rounded-[2rem] shadow-2xl shadow-sky-900/10 overflow-hidden flex flex-col pointer-events-auto origin-bottom-right"
                     >
                         <ChatHeader onClose={() => setIsOpen(false)} />
@@ -211,6 +269,7 @@ export default function Chatbot() {
                 )}
             </AnimatePresence>
 
+            {/* Tombol toggle chatbot */}
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

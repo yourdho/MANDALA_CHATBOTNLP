@@ -17,10 +17,6 @@ use App\Http\Controllers\Admin\ApplicationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// ── Chatbot Real-Time Routes ─────────────────────────────────
-Route::post('/chatbot/message', [ChatbotController::class, 'handleMessage'])->name('chatbot.message');
-Route::post('/chatbot/reset',   [ChatbotController::class, 'resetSession'])->name('chatbot.reset');
-
 // ── Home & Facilities ────────────────────────────────────────
 Route::get('/', [FacilityController::class, 'index'])->name('welcome');
 Route::get('/facilities', [FacilityController::class, 'indexPublic'])->name('facilities.public');
@@ -178,6 +174,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ── Chatbot (Auth Only) ───────────────────────────────────────
+    // Hanya user terautentikasi yang boleh kirim pesan ke chatbot.
+    // Guest akan diblokir di level middleware sebelum request sampai ke controller.
+    Route::post('/chatbot/message', [ChatbotController::class, 'handleMessage'])->name('chatbot.message');
+    Route::post('/chatbot/reset',   [ChatbotController::class, 'resetSession'])->name('chatbot.reset');
 });
 
 require __DIR__ . '/auth.php';

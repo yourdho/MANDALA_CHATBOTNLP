@@ -13,11 +13,12 @@ class EntityExtractor
     public function extract(string $normalizedMessage): array
     {
         return [
-            'date' => $this->extractDate($normalizedMessage),
-            'time' => $this->extractTime($normalizedMessage),
-            'facility' => $this->extractFacility($normalizedMessage),
-            'duration' => $this->extractDuration($normalizedMessage),
-            'payment_method' => $this->extractPaymentMethod($normalizedMessage),
+            'date'               => $this->extractDate($normalizedMessage),
+            'time'               => $this->extractTime($normalizedMessage),
+            'facility'           => $this->extractFacility($normalizedMessage),
+            'duration'           => $this->extractDuration($normalizedMessage),
+            'payment_method'     => $this->extractPaymentMethod($normalizedMessage),
+            'additional_services'=> $this->extractAdditionalServices($normalizedMessage),
         ];
     }
 
@@ -86,79 +87,76 @@ class EntityExtractor
         $minute = "00";
         $meridiem = null;
 
+        // Mendeteksi keteraturan meridiem di dalam teks panjang (meski terpisah dari "jam")
+        if (preg_match('/\b(pagi|siang|sore|malam|malem)\b/', $msg, $matches)) {
+            $meridiem = $matches[1];
+            if ($meridiem === 'malem') $meridiem = 'malam';
+        }
+
         // "setengah 8" -> 07:30
         if (preg_match('/\bsetengah\s+(\d{1,2})\b/', $msg, $matches)) {
             $targetHour = (int)$matches[1];
             $hour = $targetHour - 1;
             if ($hour <= 0) $hour = 12; // setengah 1 -> 12:30
             $minute = "30";
-            
-            // Assume PM if it's typical evening hours context or > 1, but we'll stick to 24h fallback
-            // If they say setengah 8 malam
-            if (str_contains($msg, 'malam') && $hour < 12) {
-                 $hour += 12;
-                 $meridiem = 'malam';
-            }
         }
         // Regex for HH:MM (e.g., 14:00, 14.00, jam 14.30)
-        elseif (preg_match('/\b(?:jam |pukul |jm )?(\d{1,2})[:.](\d{2})\b/', $msg, $matches)) {
+        elseif (preg_match('/\b(?:jam\s*|pukul\s*|jm\s*)?(\d{1,2})[:.](\d{2})\b/', $msg, $matches)) {
             $hour = (int)$matches[1];
             $minute = $matches[2];
-             
-            if (str_contains($msg, 'malam') && $hour < 12) {
-                 $hour += 12;
-                 $meridiem = 'malam';
-            }
         }
         // Jam dengan label lewat menit "jam 4 lewat 15"
-        elseif (preg_match('/\b(?:jam |pukul |jm )?(\d{1,2})\s*lewat\s*(\d{1,2})\b/', $msg, $matches)) {
+        elseif (preg_match('/\b(?:jam\s*|pukul\s*|jm\s*)?(\d{1,2})\s*lewat\s*(\d{1,2})\b/', $msg, $matches)) {
             $hour = (int)$matches[1];
             $minute = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
-             
-            if (str_contains($msg, 'malam') && $hour < 12) {
-                 $hour += 12;
-                 $meridiem = 'malam';
-            }
         }
-        // Regex for exactly "jam 7 malam" or "pukul 1 siang"
-        elseif (preg_match('/\b(?:jam |pukul |jm )(\d{1,2})(?:\s|)(pagi|siang|sore|malam)\b/', $msg, $matches)) {
+        // Regex exactly "jam 7 malam" or "pukul 1 siang" (ini double check if the first meridiem missed tight bound)
+        elseif (preg_match('/\b(?:jam\s*|pukul\s*|jm\s*)(\d{1,2})(?:\s|)(pagi|siang|sore|malam|malem)\b/', $msg, $matches)) {
             $hour = (int)$matches[1];
-            $meridiem = $matches[2];
-            
-            if (in_array($meridiem, ['siang', 'sore', 'malam']) && $hour < 12) {
-                if ($hour !== 12 || $meridiem === 'malam') { 
-                    $hour += 12; 
-                }
-            }
+            $meridiem = $matches[2] === 'malem' ? 'malam' : $matches[2];
         }
         // Catch pure "jam 20" or "jam 7"
-        elseif (preg_match('/\b(?:jam |pukul |jm )(\d{1,2})\b/', $msg, $matches)) {
+        elseif (preg_match('/\b(?:jam|pukul|jm)\s*(\d{1,2})\b/', $msg, $matches)) {
             $hour = (int)$matches[1];
         }
 
         if ($hour !== null) {
+            // Evaluasi Konversi 12H ke 24H Berdasarkan Meridiem
+            if ($meridiem === 'malam' && $hour < 12) {
+                $hour += 12;
+            } elseif ($meridiem === 'sore' && $hour < 12) {
+                if ($hour <= 6) $hour += 12; // sore jam 4 -> 16
+            } elseif ($meridiem === 'siang' && $hour < 12) {
+                if ($hour <= 6) $hour += 12; // siang jam 2 -> 14
+            } elseif ($meridiem === 'pagi' && $hour === 12) {
+                $hour = 0; // kasus aneh: jam 12 pagi
+            }
             // Time Travel Prevention (Cerdas Waktu Lampau)
-            // Jika tidak ada meridiem eksplisit (pagi/siang/malam/sore) dan jam yang dimasukkan <= 12
-            if ($meridiem === null && $hour <= 12) {
+            // Jika tidak ada meridiem eksplisit dan jam <= 12
+            elseif ($meridiem === null && $hour <= 12) {
                  $nowCountHour = (int) now()->format('H');
                  
                  // Jika saat ini sudah lewat jam yang diinput, asumsikan itu jam malam (hour + 12)
-                 // Misalnya saat ini jam 11:00 pagi, user minta "jam 8" -> Asumsikan jam 8 malam (20)
                  if ($nowCountHour >= $hour) {
                       $hour += 12;
                  }
-                 // Perhatikan bahwa jika sekarang jam 21:00 (malam) dan user bilang "jam 8",
-                 // $hour jadi 8 + 12 = 20, yang mana < 21. Jadi tetap aman.
-                 // Nanti logic besok ditangani oleh kombinasi entitas tanggal jika perlu,
-                 // tapi ini cukup untuk menghindari time-travel mundur di hari yang sama untuk asumsi jam malam.
             }
             
             // Format ulang dengan Carbon supaya aman dan terstandar H:i:00
             try {
                 return Carbon::createFromTime($hour, (int)$minute, 0)->format('H:i:00');
             } catch (\Exception $e) {
-                // Ignore fallback to null if Carbon fails validating the data
+                // Ignore fallback
             }
+        }
+
+        // --- Deteksi Natural / Keterangan Waktu Murni (Tanpa angka Jam Spesifik) ---
+        // Jika user hanya bilang "nanti sore", "besok malam", dsb.
+        if ($meridiem) {
+            if ($meridiem === 'pagi') return '08:00:00'; // asumsi standar pagi jam 08:00
+            if ($meridiem === 'siang') return '13:00:00'; // asumsi standar siang jam 13:00
+            if ($meridiem === 'sore') return '16:00:00'; // asumsi standar sore jam 16:00
+            if ($meridiem === 'malam') return '19:00:00'; // asumsi standar malam jam 19:00
         }
 
         return null;
@@ -223,5 +221,32 @@ class EntityExtractor
             }
         }
         return null;
+    }
+
+    /**
+     * Ekstrak pilihan layanan tambahan: wasit dan/atau fotografer.
+     * Mengembalikan array berisi nama layanan yang dipilih, atau array kosong jika tidak ada.
+     */
+    protected function extractAdditionalServices(string $msg): array
+    {
+        $chosen = [];
+
+        $wasitKeywords      = config('chatbot_nlp.additional_services.wasit',      ['wasit', 'referee', 'hakim lapangan']);
+        $fotograferKeywords = config('chatbot_nlp.additional_services.fotografer', ['fotografer', 'foto', 'dokumentasi', 'photographer', 'kamera', 'fotografi']);
+
+        foreach ($wasitKeywords as $kw) {
+            if (str_contains($msg, $kw)) { $chosen[] = 'wasit'; break; }
+        }
+
+        foreach ($fotograferKeywords as $kw) {
+            if (str_contains($msg, $kw)) { $chosen[] = 'fotografer'; break; }
+        }
+
+        // "dua-duanya" / "keduanya" / "semua"
+        if (preg_match('/\b(dua-duanya|dua duanya|keduanya|semua|both)\b/', $msg)) {
+            $chosen = ['wasit', 'fotografer'];
+        }
+
+        return array_unique($chosen);
     }
 }
